@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="font-pop bg-[#fffdf7] scroll-smooth text-default">
-    <header class="h-9 w-full">header teste</header>
+    <header class="h-9 w-full"></header>
     <main>
         <!-- <section id="main">
             <div class="flex flex-col lg:flex-row">
@@ -27,31 +27,47 @@
             </div>
         </section> -->
 
-        <section id="cardapio">
+        <section id="cardapio-container">
             <!-- bg -->
             <div class="h-full w-full"></div>
 
             <div class="max-w-6xl mx-auto">
                 <div class="flex flex-col text-center mx-6 mb-8">
-                    <h2 class="font-semibold tracking-[.3em] text-primaria uppercase text-primary">Cardápio</h2>
-                    <p class="font-semibold text-3xl tracking-wide">Conheça o nosso cardápio</p>
+                    <h2 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Cardápio</h2>
+                    <p class="font-semibold text-3xl md:text-4xl tracking-wide">Conheça o nosso cardápio</p>
                 </div>
                 <div class="font-medium text-md flex overflow-x-auto space-x-4 p-4 sm:justify-center">
-                    <button class="px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary">Burgers</button>
-                    <button class="px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary">Pizzas</button>
-                    <button class="px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary">Carnes</button>
-                    <button class="px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary">Bebidas</button>
-                    <button class="px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary">Sobremesas</button>
+                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('burgers')">
+                        <img class="mr-2 h-4 md:h-5" src="./imgs/icon/burger.png" alt="burger icon" onerror="">
+                        Burger
+                    </button>
+                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('pizzas')">
+                        <img class="mr-2 h-4 md:h-5" src="./imgs/icon/pizza.png" alt="pizza icon" onerror="">
+                        Pizzas
+                    </button>
+                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('steaks')">
+                        <img class="mr-2 h-4 md:h-5" src="./imgs/icon/steak.png" alt="icon" onerror="">
+                        Steaks
+                    </button>
+                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('bebidas')">
+                        <img class="mr-2 h-4 md:h-5" src="./imgs/icon/drink.png" alt="drink icon" onerror="">
+                        Bebidas
+                    </button>
+                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('sobremesas')">
+                        <img class="mr-2 h-4 md:h-5" src="./imgs/icon/cream.png" alt="dessert icon" onerror="">
+                        Sobremesas
+                    </button>
                 </div>
 
-                <div id="cardapio-wrapper" class="flex flex-col justify-center items-center my-10">
-                    <div class="bg-white w-10/12 p-2 shadow-md rounded-2xl h-[110px] group hover:h-72 flex flex-row transition-all mb-3 overflow-hidden">
-                        <div class="h-20 w-20 bg-gray-200 rounded-xl m-2 shrink-0 group-hover:hidden">
+                <!-- cardapio items container -->
+                <div id="itensCardapio" class="grid grid-cols-1 md:grid-cols-2 md:max-w-[600px] lg:max-w-[900px] xl:max-w-[1200px] lg:grid-cols-3 xl:grid-cols-4 md:gap-x-2 md:gap-y-4 justify-center px-4 md:p-0 my-10 mx-auto">
+                    <!-- <div class="bg-white w-10/12 md:w-[255px] p-2 shadow-md rounded-2xl h-[110px] sm:h-32 md:h-[360px] group hover:h-[290px] xs:hover:h-96 md:hover:h-[360px] flex flex-row md:block transition-all mb-3 overflow-hidden mx-auto">
+                        <div class="h-20 w-20 sm:h-24 md:h-56 md:w-56 bg-gray-200 rounded-xl m-2 shrink-0 group-hover:hidden">
                             <img src="" alt="">
                         </div>
-                        <div class="self-start p-2 flex flex-col">
-                            <h3 class="font-semibold xs:text-xl line-clamp-1">Taverna Estrondosa Gigantescamente gigante</h3>
-                            <ul class="hidden group-hover:block list-disc list-inside m-3 text-sm h-[140px] text-left overflow-y-auto">
+                        <div class="self-start p-2 pr-0 flex flex-col w-full">
+                            <h3 class="font-semibold text-xl line-clamp-1 md:text-center">Taverna Estrondosa Gigantescamente gigante</h3>
+                            <ul class="hidden group-hover:block text-[#7d7d7d] font-semibold list-disc list-inside m-3 text-sm group-hover:sm:text-base group-hover:md:text-sm h-[140px] xs:h-[234px] md:h-[204px] text-left overflow-y-auto">
                                 <li>Pão de gergilim</li>
                                 <li>2 Smash Burgers</li>
                                 <li>Alface</li>
@@ -59,17 +75,21 @@
                                 <li>Alface</li>
                                 <li>Picles</li>
                                 <li>Cebola roxa</li>
+                                <li>Alface</li>
+                                <li>Picles</li>
+                                <li>Cebola roxa</li>
                             </ul>
-                            <p class="font-bold text-lg xs:text-xl text-primary group-hover:text-center">R$ 32,00</p>
-                            <button class="border-2 border-default rounded-2xl p-2 w-fit hidden group-hover:block self-center hover:bg-primary hover:text-white hover:border-primary">Adicionar à sacola</button>
+                            <p class="font-bold text-lg xs:text-xl md:text-2xl text-primary group-hover:text-center md:text-center">R$ 32,00</p>
+                            <button class="border-2 border-default rounded-2xl p-2 py-1 w-fit hidden group-hover:block self-center hover:bg-primary hover:text-white hover:border-primary">Adicionar à sacola</button>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
-
             </div>
+
         </section>
     </main>
-
-    <script src="./js/main.js" type="module"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="./js/dados.js"></script>
+    <script src="./js/main.js"></script>
 </body>
 </html>
