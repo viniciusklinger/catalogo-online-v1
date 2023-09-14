@@ -36,31 +36,31 @@
                     <h2 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Cardápio</h2>
                     <p class="font-semibold text-3xl md:text-4xl tracking-wide">Conheça o nosso cardápio</p>
                 </div>
-                <div class="font-medium text-md flex overflow-x-auto space-x-4 p-4 sm:justify-center">
-                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('burgers')">
+                <div class="font-medium text-md flex overflow-x-auto space-x-4 p-4 sm:justify-center cardapio-menu">
+                    <button id="cardapio-btn-burgers" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('burgers')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/burger.png" alt="burger icon" onerror="">
                         Burger
                     </button>
-                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('pizzas')">
+                    <button id="cardapio-btn-pizzas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('pizzas')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/pizza.png" alt="pizza icon" onerror="">
                         Pizzas
                     </button>
-                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('steaks')">
+                    <button id="cardapio-btn-steaks" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('steaks')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/steak.png" alt="icon" onerror="">
                         Steaks
                     </button>
-                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('bebidas')">
+                    <button id="cardapio-btn-bebidas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('bebidas')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/drink.png" alt="drink icon" onerror="">
                         Bebidas
                     </button>
-                    <button class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white hover:bg-primary md:text-lg min-w-fit" onclick="cardapio.metodos.obterItensCardapio('sobremesas')">
+                    <button id="cardapio-btn-sobremesas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('sobremesas')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/cream.png" alt="dessert icon" onerror="">
                         Sobremesas
                     </button>
                 </div>
 
                 <!-- cardapio items container -->
-                <div id="itensCardapio" class="grid grid-cols-1 sm:grid-cols-2 sm:max-w-[600px] lg:max-w-[900px] xl:max-w-[1200px] lg:grid-cols-3 xl:grid-cols-4 sm:gap-x-2 sm:gap-y-4 justify-center px-4 sm:p-0 my-10 mx-auto">
+                <div id="itens-cardapio" class="grid grid-cols-1 sm:grid-cols-2 sm:max-w-[600px] lg:max-w-[900px] xl:max-w-[1200px] lg:grid-cols-3 xl:grid-cols-4 sm:gap-x-2 sm:gap-y-4 justify-center px-4 sm:p-0 my-10 mx-auto">
                     <!-- <div class="bg-white w-10/12 md:w-[255px] p-2 shadow-md rounded-2xl h-[110px] sm:h-32 md:h-[360px] group hover:h-[290px] xs:hover:h-96 md:hover:h-[360px] flex flex-row md:block transition-all mb-3 overflow-hidden mx-auto">
                         <div class="h-20 w-20 sm:h-24 md:h-56 md:w-56 bg-gray-200 rounded-xl m-2 shrink-0 group-hover:hidden">
                             <img src="" alt="">
@@ -83,6 +83,9 @@
                             <button class="border-2 border-default rounded-2xl p-2 py-1 w-fit hidden group-hover:block self-center hover:bg-primary hover:text-white hover:border-primary">Adicionar à sacola</button>
                         </div>
                     </div> -->
+                </div>
+                <div class="flex justify-center w-full mb-8">
+                    <button id="btn-ver-mais" class="bg-white active:bg-primary active:text-white p-2 px-3 shadow-lg text-lg rounded-xl" onclick="cardapio.metodos.verMais()">Ver mais</button>
                 </div>
             </div>
 
