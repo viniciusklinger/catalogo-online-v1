@@ -9,9 +9,116 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="font-pop bg-[#fffdf7] scroll-smooth text-default">
+<body id="body-data" class="font-pop bg-[#fffdf7] scroll-smooth text-default data-[modal=open]:overflow-hidden">
     <header class="h-9 w-full"></header>
     <main>
+        <!-- toast -->
+        <div class="fixed max-w-[300px] h-5 z-50 right-5 top-5" id="toast-container"></div>
+
+        <!-- carrinho -->
+        <button class="fixed bottom-10 h-14 w-14 right-6 rounded-full bg-primary" onclick="cardapio.metodos.abrirCarrinho(true)">
+            <div id="cart-count" class="rounded-full h-6 w-6 absolute bg-[#fff2cc] top-0 -right-1 text-sm font-semibold flex justify-center items-center">
+                0
+            </div>
+            <img class="h-5 mx-auto" src="./imgs/icon/bag.png" alt="bag icon" onerror="">
+        </button>
+
+        <!-- modal carrinho -->
+        <div id="modal-carrinho" class="hidden fixed top-0 left-0 w-full h-full p-6 md:p-12 md:px-20 bg-white">
+            <div class="max-w-6xl mx-auto flex flex-col justify-between h-full">
+                <!-- header -->
+                <div>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-5">
+                            <div class="relative h-[35px] w-[35px] rounded-full bg-primary flex justify-center items-center shadow-xl after:w-6 after:h-[2px] after:bg-primary after:absolute after:left-full">1</div>
+                            <div data-active="" class="relative h-[35px] w-[35px] rounded-full bg-white flex justify-center items-center shadow-xl data-[active=true]:bg-primary after:w-6 after:h-[2px] after:bg-gray-300 after:absolute after:left-full after:data-[active=true]:bg-primary">2</div>
+                            <div data-active="" class="relative h-[35px] w-[35px] rounded-full bg-white flex justify-center items-center shadow-xl data-[active=true]:bg-primary">3</div>
+                        </div>
+                        <button class="bg-white hover:bg-primary hover:text-white px-4 py-2 shadow-xl text-lg rounded-2xl font-medium" onclick="cardapio.metodos.abrirCarrinho(false)">Fechar</button>
+                    </div>
+                    <p data-label="Seu pedido:" class="font-semibold mt-4 mb-2 text-xl before:content-[attr(data-label)]"></p>
+                </div>
+
+                <!-- content -->
+                <div id="items-pedido" class="flex flex-col h-full w-full mt-6 md:mt-16 overflow-y-auto">
+                    <!-- empty state -->
+                    <div id="default-view" class="flex flex-col items-center justify-center">
+                        <div class="bg-[#FFF2CC] h-12 w-12 rounded-full flex items-center justify-center">
+                            <img class="h-6 w-6" src="./imgs/icon/bag2.png" alt="bag icon">
+                        </div>
+                        <p>Seu pedido está vazio.</p>
+                    </div>
+
+                    <!-- delivery -->
+                    <form id="delivery-view" class="hidden flex-col px-1 max-w-lg md:max-w-none w-full mx-auto min-[830px]:text-lg">
+                        <label for="form-cep">CEP:</label>
+                        <input type="number" id="data-cep" name="form-cep" placeholder="Apenas números" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+
+                        <div class="flex flex-col md:flex-row">
+                            <div class="flex flex-col md:w-2/5">
+                                <label for="form-rua">Rua:</label>
+                                <input type="text" id="data-rua" name="form-rua" placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                            </div>
+                            
+                            <div class="flex flex-col md:w-2/5 md:mx-4">
+                                <label for="form-bairro">Bairro:</label>
+                                <input type="text" id="data-bairro" name="form-bairro" placeholder="Centro" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                            </div>
+
+                            <div class="flex flex-col md:w-1/5">
+                                <label for="form-numero">Número:</label>
+                                <input type="text" id="data-numero" name="form-numero" placeholder="0001" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                            </div>
+                        </div>
+
+                        <!-- <label for="form-cidade">Cidade:</label> -->
+                        <input type="hidden" id="data-cidade" name="form-cidade" placeholder="Ponta Grossa" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+
+                        <!-- <label for="form-uf">UF:</label> -->
+                        <input type="hidden" id="data-uf" name="form-uf" placeholder="Paraná" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+
+                        <label for="form-complemento">Complemento:</label>
+                        <input type="text" id="data-complemento" name="form-complemento" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                    </form>
+
+                    <!-- summary -->
+                    <div id="summary-view" class="hidden flex-col h-full overflow-y-auto">
+                        <p class="text-xl font-semibold mb-4">Itens do pedido:</p>
+                        <div id="resumo-items-pedido"></div>
+                        <p class="text-xl font-semibold mb-4">Local de Entrega:</p>
+                        <div class="flex flex-row">
+                            <div class="h-12 w-12 bg-[#fff2cc] rounded-lg flex justify-center items-center">
+                                <img src="./imgs/icon/map.png" alt="map icon">
+                            </div>
+                            <div class="ml-6">
+                                <p class="font-medium" id="resumo-endereco">Rua Carlos Primor, 98, Uvaranas</p>
+                                <p class="text-gray-700" id="resumo-endereco-2">Ponta Grossa-PR / 84031-570</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- footer -->
+                <div class="flex flex-col items-end border-t border-gray-300 font-normal">
+                    <p class="mt-4">
+                        <span>Subtotal:</span>
+                        <span id="subtotal">R$ 0,00</span>
+                    </p>
+                    <div class="flex items-center justify-center font-medium">
+                        <img class="h-5 mr-2 text-gray-300" src="./imgs/icon/moto.png" alt="delivery icon">
+                        <p class="text-gray-300">
+                            <span>Entrega:</span>
+                            <span id="valor-entrega">+ R$ 0,00</span>
+                        </p>
+                    </div>
+                    <p class="my-3 font-bold">
+                        <span class="text-xl">Total:</span>
+                        <span id="valor-total" class="text-2xl text-primary">R$ 0,00</span>
+                    </p>
+                    <button class="bg-primary text-white hover:text-default px-6 py-4 shadow-xl text-xl rounded-2xl font-medium mt-2">Continuar</button>
+                </div>
+            </div>
+        </div>
         <!-- <section id="main">
             <div class="flex flex-col lg:flex-row">
                 <div class="">

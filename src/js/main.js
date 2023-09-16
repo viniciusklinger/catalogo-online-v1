@@ -41,7 +41,7 @@ cardapio.metodos = {
         $.each(filtro, (i, e) => {
 
             let ings = e.ings && e.ings.length > 0 ? e.ings.map( (item) => `<li>${item}</li>`).join(' ') : '';
-            let temp = cardapio.templates.item2.replace(/\${img}/g, e.img)
+            let temp = cardapio.templates.item.replace(/\${img}/g, e.img)
             .replace(/\${nome}/g, e.name)
             .replace(/\${preco}/g, e.price.toFixed(2).replace('.', ','))
             .replace(/\${id}/g, e.id)
@@ -98,53 +98,28 @@ cardapio.metodos = {
     // adicionar ao carrinho o item do cardápio
     adicionarAoCarrinho: (id) => {
 
-        let qntdAtual = parseInt($("#qntd-" + id).text());
+        let existe = MEU_CARRINHO.filter( el => el.id == id);
 
-        if (qntdAtual > 0) {
-
-            // obter a categoria ativa
-            var categoria = $(".container-menu a.active").attr('id').split('menu-')[1];
-
-            // obtem a lista de itens
-            let filtro = MENU[categoria];
-
-            // obtem o item
-            let item = $.grep(filtro, (e, i) => { return e.id == id });
-
-            if (item.length > 0) {
-
-                // validar se já existe esse item no carrinho
-                let existe = $.grep(MEU_CARRINHO, (elem, index) => { return elem.id == id });
-
-                // caso já exista o item no carrinho, só altera a quantidade
-                if (existe.length > 0) {
-                    let objIndex = MEU_CARRINHO.findIndex((obj => obj.id == id));
-                    MEU_CARRINHO[objIndex].qntd = MEU_CARRINHO[objIndex].qntd + qntdAtual;
-                }
-                // caso ainda não exista o item no carrinho, adiciona ele 
-                else {
-                    item[0].qntd = qntdAtual;
-                    MEU_CARRINHO.push(item[0])
-                }      
-                
-                cardapio.metodos.mensagem('Item adicionado ao carrinho', 'green')
-                $("#qntd-" + id).text(0);
-
-                cardapio.metodos.atualizarBadgeTotal();
-
-            }
-
+        if (existe.length == 0) {
+            let item = {};
+            item.id = id;
+            item.qtd = 1;
+            MEU_CARRINHO.push(item);
+        } else {
+            existe[0].qtd += 1;
         }
+
+        cardapio.metodos.mensagem('Adicionado ao carrinho!', 'green')
+        cardapio.metodos.atualizarContagemCarrinho();
 
     },
 
-    // atualiza o badge de totais dos botões "Meu carrinho"
-    atualizarBadgeTotal: () => {
+    atualizarContagemCarrinho: () => {
 
         var total = 0;
 
         $.each(MEU_CARRINHO, (i, e) => {
-            total += e.qntd
+            total += e.qtd
         })
 
         if (total > 0) {
@@ -154,9 +129,9 @@ cardapio.metodos = {
         else {
             $(".botao-carrinho").addClass('hidden')
             $(".container-total-carrinho").addClass('hidden');
-        }
+        };
 
-        $(".badge-total-carrinho").html(total);
+        $("#cart-count").html(total.toString());
 
     },
 
@@ -164,11 +139,13 @@ cardapio.metodos = {
     abrirCarrinho: (abrir) => {
 
         if (abrir) {
-            $("#modalCarrinho").removeClass('hidden');
+            $("#modal-carrinho").removeClass('hidden');
+            $("#body-data").attr('data-modal', 'open');
             cardapio.metodos.carregarCarrinho();
         }
         else {
-            $("#modalCarrinho").addClass('hidden');
+            $("#modal-carrinho").addClass('hidden');
+            $("#body-data").removeAttr('data-modal');
         }
 
     },
@@ -299,7 +276,7 @@ cardapio.metodos = {
         cardapio.metodos.carregarCarrinho();
 
         // atualiza o botão carrinho com a quantidade atualizada
-        cardapio.metodos.atualizarBadgeTotal();
+        cardapio.metodos.atualizarContagemCarrinho();
         
     },
 
@@ -310,7 +287,7 @@ cardapio.metodos = {
         MEU_CARRINHO[objIndex].qntd = qntd;
 
         // atualiza o botão carrinho com a quantidade atualizada
-        cardapio.metodos.atualizarBadgeTotal();
+        cardapio.metodos.atualizarContagemCarrinho();
 
         // atualiza os valores (R$) totais do carrinho
         cardapio.metodos.carregarValores();
@@ -561,9 +538,9 @@ cardapio.metodos = {
 
         let id = Math.floor(Date.now() * Math.random()).toString();
 
-        let msg = `<div id="msg-${id}" class="animated fadeInDown toast ${cor}">${texto}</div>`;
+        let msg = `<div data-color="${cor}" id="msg-${id}" class="data-[color=red]:bg-red-400 data-[color=green]:bg-green-400 text-white px-4 py-3 rounded-lg shadow-xl mt-2">${texto}</div>`;
 
-        $("#container-mensagens").append(msg);
+        $("#toast-container").append(msg);
 
         setTimeout(() => {
             $("#msg-" + id).removeClass('fadeInDown');
@@ -573,51 +550,32 @@ cardapio.metodos = {
             }, 800);
         }, tempo)
 
-    }
+    },
 
+    handleCardExpansion: (el) => {
+
+        $("#itens-cardapio").children().each((ind, card) => {
+            $(card).removeAttr('data-expand');
+        })
+
+        $(el).attr('data-expand', 'true');
+    }
 }
 
 cardapio.templates = {
 
     item: `
-        <div class="col-12 col-lg-3 col-md-3 col-sm-6 mb-5 animated fadeInUp">
-            <div class="card card-item" id="\${id}">
-                <div class="d-flex flex-column">
-                    <div class="img-produto">
-                        <img src="\${img}" />
-                    </div>
-                    <p class="title-produto text-center mt-2">
-                        <b>\${nome}</b>
-                    </p>
-                    <ul class="ings">
-                        \${ing-item}
-                    </ul>
-                </div>
-                <div class="mt-auto mb-3 d-flex flex-column align-content-center flex-wrap">
-                    <p class="price-produto text-center">
-                        <b>R$ \${preco}</b>
-                    </p>
-                    <div class="add-carrinho btn" onclick="cardapio.metodos.adicionarAoCarrinho('\${id}')">
-                        <p class="mb-0">Adicionar à sacola</p>
-                        <i class="fa fa-shopping-bag ml-2"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    `,
-
-    item2: `
-        <div id="\${id}" class="bg-white w-10/12 max-w-sm sm:w-[255px] p-2 shadow-md rounded-2xl max-h-[110px] sm:max-h-[360px] xs:max-h-32 sm:h-[360px] group hover:max-h-[290px] xs:hover:max-h-96 sm:hover:h-[360px] flex flex-row sm:block transition-all mb-3 overflow-hidden mx-auto">
-            <div class="h-20 w-20 xs:h-24 xs:w-24 sm:h-56 sm:w-56 bg-gray-200 rounded-xl m-2 shrink-0 group-hover:hidden">
+        <div id="\${id}" class="bg-white w-10/12 max-w-sm sm:w-[255px] p-2 shadow-md rounded-2xl max-h-[110px] sm:max-h-[360px] xs:max-h-32 sm:h-[360px] group data-[expand=true]:max-h-[290px] xs:data-[expand=true]:max-h-96 sm:hover:h-[360px] flex flex-row sm:block transition-all mb-3 overflow-hidden mx-auto" onclick="cardapio.metodos.handleCardExpansion(this)">
+            <div class="h-20 w-20 xs:h-24 xs:w-24 sm:h-56 sm:w-56 bg-gray-200 rounded-xl m-2 shrink-0 group-data-[expand=true]:hidden">
                 <img src="\${img}" alt="" class="rounded-xl">
             </div>
-            <div class="self-start p-2 flex flex-col w-full group-hover:xs:text-center group-hover:items-center">
-                <h3 class="font-semibold text-xl line-clamp-1 sm:text-center group-hover:text-center" title="\${nome}">\${nome}</h3>
-                <ul class="hidden text-left overflow-y-auto text-[#7d7d7d] text-sm font-semibold list-disc list-inside m-3 group-hover:block min-w-[220px] xs:min-w-[250px] sm:min-w-full max-w-[250px] xs:max-w-[280px] max-h-[140px] xs:max-h-[234px] sm:h-[208px]">
+            <div class="self-start p-2 flex flex-col w-full group-data-[expand=true]:xs:text-center group-data-[expand=true]:items-center">
+                <h3 class="font-semibold text-xl line-clamp-1 sm:text-center group-data-[expand=true]:text-center" title="\${nome}">\${nome}</h3>
+                <ul class="hidden text-left overflow-y-auto text-[#7d7d7d] text-sm font-semibold list-disc list-inside m-3 group-data-[expand=true]:block min-w-[220px] xs:min-w-[250px] sm:min-w-full max-w-[250px] xs:max-w-[280px] max-h-[140px] xs:max-h-[234px] sm:h-[208px]">
                     \${ing-item}
                 </ul>
-                <p class="font-bold text-lg xs:text-xl sm:text-2xl text-primary group-hover:text-center sm:text-center">R$ \${preco}</p>
-                <button class="border-2 border-default rounded-2xl p-2 py-1 w-fit hidden group-hover:block hover:bg-primary hover:text-white hover:border-primary">Adicionar ao pedido</button>
+                <p class="font-bold text-lg xs:text-xl sm:text-2xl text-primary group-data-[expand=true]:text-center sm:text-center">R$ \${preco}</p>
+                <button class="border-2 border-default rounded-2xl p-2 py-1 w-fit hidden group-data-[expand=true]:block lg:hover:bg-primary lg:hover:text-white lg:hover:border-primary active:bg-primary active:text-white active:border-primary" onclick="cardapio.metodos.adicionarAoCarrinho('\${id}')">Adicionar ao pedido</button>
             </div>
         </div>
     `,
