@@ -554,11 +554,15 @@ cardapio.metodos = {
 
     handleCardExpansion: (el) => {
 
+        let viewport =  $(document).width();
+
         $("#itens-cardapio").children().each((ind, card) => {
             $(card).removeAttr('data-expand');
         })
 
-        $(el).attr('data-expand', 'true');
+        if (viewport < 640) {
+            $(el).attr('data-expand', 'true');
+        };
     }
 }
 
@@ -566,16 +570,16 @@ cardapio.templates = {
 
     item: `
         <div id="\${id}" class="bg-white w-10/12 max-w-sm sm:w-[255px] p-2 shadow-md rounded-2xl max-h-[110px] sm:max-h-[360px] xs:max-h-32 sm:h-[360px] group data-[expand=true]:max-h-[290px] xs:data-[expand=true]:max-h-96 sm:hover:h-[360px] flex flex-row sm:block transition-all mb-3 overflow-hidden mx-auto" onclick="cardapio.metodos.handleCardExpansion(this)">
-            <div class="h-20 w-20 xs:h-24 xs:w-24 sm:h-56 sm:w-56 bg-gray-200 rounded-xl m-2 shrink-0 group-data-[expand=true]:hidden">
+            <div class="h-20 w-20 xs:h-24 xs:w-24 sm:h-56 sm:w-56 bg-gray-200 rounded-xl m-2 shrink-0 group-data-[expand=true]:hidden sm:group-hover:hidden">
                 <img src="\${img}" alt="" class="rounded-xl">
             </div>
-            <div class="self-start p-2 flex flex-col w-full group-data-[expand=true]:xs:text-center group-data-[expand=true]:items-center">
-                <h3 class="font-semibold text-xl line-clamp-1 sm:text-center group-data-[expand=true]:text-center" title="\${nome}">\${nome}</h3>
-                <ul class="hidden text-left overflow-y-auto text-[#7d7d7d] text-sm font-semibold list-disc list-inside m-3 group-data-[expand=true]:block min-w-[220px] xs:min-w-[250px] sm:min-w-full max-w-[250px] xs:max-w-[280px] max-h-[140px] xs:max-h-[234px] sm:h-[208px]">
+            <div class="self-start p-2 flex flex-col w-full group-data-[expand=true]:xs:text-center group-data-[expand=true]:items-center sm:group-hover:text-center sm:group-hover:items-center">
+                <h3 class="font-semibold text-xl line-clamp-1 sm:text-center group-data-[expand=true]:text-center sm:group-hover:text-center" title="\${nome}">\${nome}</h3>
+                <ul class="hidden text-left overflow-y-auto text-[#7d7d7d] text-sm font-semibold list-disc list-inside m-3 group-data-[expand=true]:block sm:group-hover:block min-w-[220px] xs:min-w-[250px] sm:min-w-full max-w-[250px] xs:max-w-[280px] max-h-[140px] xs:max-h-[234px] sm:h-[208px]">
                     \${ing-item}
                 </ul>
-                <p class="font-bold text-lg xs:text-xl sm:text-2xl text-primary group-data-[expand=true]:text-center sm:text-center">R$ \${preco}</p>
-                <button class="border-2 border-default rounded-2xl p-2 py-1 w-fit hidden group-data-[expand=true]:block lg:hover:bg-primary lg:hover:text-white lg:hover:border-primary active:bg-primary active:text-white active:border-primary" onclick="cardapio.metodos.adicionarAoCarrinho('\${id}')">Adicionar ao pedido</button>
+                <p class="font-bold text-lg xs:text-xl sm:text-2xl text-primary group-data-[expand=true]:text-center sm:group-hover:text-center sm:text-center">R$ \${preco}</p>
+                <button class="border-2 border-default rounded-2xl p-2 py-1 w-fit hidden group-data-[expand=true]:block sm:group-hover:block lg:hover:bg-primary lg:hover:text-white lg:hover:border-primary active:bg-primary active:text-white active:border-primary" onclick="cardapio.metodos.adicionarAoCarrinho('\${id}')">Adicionar ao pedido</button>
             </div>
         </div>
     `,

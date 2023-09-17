@@ -729,14 +729,6 @@ video {
   height: 2.25rem;
 }
 
-.h-\[110px\] {
-  height: 110px;
-}
-
-.h-\[140px\] {
-  height: 140px;
-}
-
 .h-\[35px\] {
   height: 35px;
 }
@@ -869,10 +861,6 @@ video {
 
 .self-start {
   align-self: flex-start;
-}
-
-.self-center {
-  align-self: center;
 }
 
 .overflow-hidden {
@@ -1009,10 +997,6 @@ video {
 .py-4 {
   padding-top: 1rem;
   padding-bottom: 1rem;
-}
-
-.pr-0 {
-  padding-right: 0px;
 }
 
 .text-left {
@@ -1182,15 +1166,6 @@ video {
   background-color: rgb(255 191 0 / var(--tw-bg-opacity));
 }
 
-.hover\:h-\[290px\]:hover {
-  height: 290px;
-}
-
-.hover\:border-primary:hover {
-  --tw-border-opacity: 1;
-  border-color: rgb(255 191 0 / var(--tw-border-opacity));
-}
-
 .hover\:bg-primary:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(255 191 0 / var(--tw-bg-opacity));
@@ -1219,22 +1194,6 @@ video {
 .active\:text-white:active {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
-}
-
-.group:hover .group-hover\:block {
-  display: block;
-}
-
-.group:hover .group-hover\:hidden {
-  display: none;
-}
-
-.group:hover .group-hover\:items-center {
-  align-items: center;
-}
-
-.group:hover .group-hover\:text-center {
-  text-align: center;
 }
 
 .data-\[expand\=true\]\:max-h-\[290px\][data-expand=true] {
@@ -1266,32 +1225,16 @@ video {
   background-color: rgb(255 191 0 / var(--tw-bg-opacity));
 }
 
-.group[data-] .group-data-\[\]\:block {
-  display: block;
-}
-
 .group[data-expand=true] .group-data-\[expand\=true\]\:block {
   display: block;
-}
-
-.group[data-] .group-data-\[\]\:hidden {
-  display: none;
 }
 
 .group[data-expand=true] .group-data-\[expand\=true\]\:hidden {
   display: none;
 }
 
-.group[data-] .group-data-\[\]\:items-center {
-  align-items: center;
-}
-
 .group[data-expand=true] .group-data-\[expand\=true\]\:items-center {
   align-items: center;
-}
-
-.group[data-] .group-data-\[\]\:text-center {
-  text-align: center;
 }
 
 .group[data-expand=true] .group-data-\[expand\=true\]\:text-center {
@@ -1301,10 +1244,6 @@ video {
 @media (min-width: 475px) {
   .xs\:h-24 {
     height: 6rem;
-  }
-
-  .xs\:h-\[234px\] {
-    height: 234px;
   }
 
   .xs\:max-h-32 {
@@ -1332,20 +1271,8 @@ video {
     line-height: 1.75rem;
   }
 
-  .xs\:hover\:h-96:hover {
-    height: 24rem;
-  }
-
-  .group:hover .group-hover\:xs\:text-center {
-    text-align: center;
-  }
-
   .xs\:data-\[expand\=true\]\:max-h-96[data-expand=true] {
     max-height: 24rem;
-  }
-
-  .group[data-] .group-data-\[\]\:xs\:text-center {
-    text-align: center;
   }
 
   .group[data-expand=true] .group-data-\[expand\=true\]\:xs\:text-center {
@@ -1356,14 +1283,6 @@ video {
 @media (min-width: 640px) {
   .sm\:block {
     display: block;
-  }
-
-  .sm\:h-24 {
-    height: 6rem;
-  }
-
-  .sm\:h-32 {
-    height: 8rem;
   }
 
   .sm\:h-56 {
@@ -1432,9 +1351,20 @@ video {
     height: 360px;
   }
 
-  .group:hover .group-hover\:sm\:text-base {
-    font-size: 1rem;
-    line-height: 1.5rem;
+  .group:hover .sm\:group-hover\:block {
+    display: block;
+  }
+
+  .group:hover .sm\:group-hover\:hidden {
+    display: none;
+  }
+
+  .group:hover .sm\:group-hover\:items-center {
+    align-items: center;
+  }
+
+  .group:hover .sm\:group-hover\:text-center {
+    text-align: center;
   }
 }
 
@@ -1448,24 +1378,8 @@ video {
     margin-top: 4rem;
   }
 
-  .md\:block {
-    display: block;
-  }
-
   .md\:h-5 {
     height: 1.25rem;
-  }
-
-  .md\:h-56 {
-    height: 14rem;
-  }
-
-  .md\:h-\[204px\] {
-    height: 204px;
-  }
-
-  .md\:h-\[360px\] {
-    height: 360px;
   }
 
   .md\:w-1\/5 {
@@ -1474,14 +1388,6 @@ video {
 
   .md\:w-2\/5 {
     width: 40%;
-  }
-
-  .md\:w-56 {
-    width: 14rem;
-  }
-
-  .md\:w-\[255px\] {
-    width: 255px;
   }
 
   .md\:max-w-none {
@@ -1501,15 +1407,6 @@ video {
     padding-right: 5rem;
   }
 
-  .md\:text-center {
-    text-align: center;
-  }
-
-  .md\:text-2xl {
-    font-size: 1.5rem;
-    line-height: 2rem;
-  }
-
   .md\:text-4xl {
     font-size: 2.25rem;
     line-height: 2.5rem;
@@ -1523,15 +1420,6 @@ video {
   .md\:text-xl {
     font-size: 1.25rem;
     line-height: 1.75rem;
-  }
-
-  .md\:hover\:h-\[360px\]:hover {
-    height: 360px;
-  }
-
-  .group:hover .group-hover\:md\:text-sm {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
   }
 }
 
