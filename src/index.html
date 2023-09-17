@@ -24,23 +24,23 @@
         </button>
 
         <!-- modal carrinho -->
-        <div id="modal-carrinho" class="hidden fixed top-0 left-0 w-full h-full p-6 md:p-12 md:px-20 bg-white">
+        <div id="modal-carrinho" data-etapa="1" class="hidden group fixed top-0 left-0 w-full h-full p-6 md:p-12 md:px-20 bg-white">
             <div class="max-w-6xl mx-auto flex flex-col justify-between h-full">
                 <!-- header -->
                 <div>
                     <div class="flex justify-between items-center">
                         <div class="flex space-x-5">
                             <div class="relative h-[35px] w-[35px] rounded-full bg-primary flex justify-center items-center shadow-xl after:w-6 after:h-[2px] after:bg-primary after:absolute after:left-full">1</div>
-                            <div data-active="" class="relative h-[35px] w-[35px] rounded-full bg-white flex justify-center items-center shadow-xl data-[active=true]:bg-primary after:w-6 after:h-[2px] after:bg-gray-300 after:absolute after:left-full after:data-[active=true]:bg-primary">2</div>
-                            <div data-active="" class="relative h-[35px] w-[35px] rounded-full bg-white flex justify-center items-center shadow-xl data-[active=true]:bg-primary">3</div>
+                            <div class="relative h-[35px] w-[35px] rounded-full bg-white flex justify-center items-center shadow-xl group-data-[etapa='2']:bg-primary group-data-[etapa='3']:bg-primary after:w-6 after:h-[2px] after:bg-gray-300 after:absolute after:left-full after:group-data-[etapa='2']:bg-primary after:group-data-[etapa='3']:bg-primary">2</div>
+                            <div class="relative h-[35px] w-[35px] rounded-full bg-white flex justify-center items-center shadow-xl group-data-[etapa='3']:bg-primary">3</div>
                         </div>
                         <button class="bg-white hover:bg-primary hover:text-white px-4 py-2 shadow-xl text-lg rounded-2xl font-medium" onclick="cardapio.metodos.abrirCarrinho(false)">Fechar</button>
                     </div>
-                    <p data-label="Seu pedido:" class="font-semibold mt-4 mb-2 text-xl before:content-[attr(data-label)]"></p>
+                    <p id="etapa-label" class="font-semibold mt-4 mb-2 text-xl">Seu pedido:</p>
                 </div>
 
                 <!-- content -->
-                <div id="items-pedido" class="flex flex-col h-full w-full mt-6 md:mt-16 overflow-y-auto">
+                <div class="flex flex-col h-full w-full mt-6 md:mt-16 overflow-y-auto">
                     <!-- empty state -->
                     <div id="default-view" class="flex flex-col items-center justify-center">
                         <div class="bg-[#FFF2CC] h-12 w-12 rounded-full flex items-center justify-center">
@@ -49,8 +49,12 @@
                         <p>Seu pedido está vazio.</p>
                     </div>
 
+                    <div id="items-pedido" class="group-data-[etapa='1']:flex">
+
+                    </div>
+
                     <!-- delivery -->
-                    <form id="delivery-view" class="hidden flex-col px-1 max-w-lg md:max-w-none w-full mx-auto min-[830px]:text-lg">
+                    <form id="delivery-view" class="hidden group-data-[etapa='2']:flex flex-col px-1 max-w-lg md:max-w-none w-full mx-auto min-[830px]:text-lg">
                         <label for="form-cep">CEP:</label>
                         <input type="number" id="data-cep" name="form-cep" placeholder="Apenas números" class="bg-white p-3 shadow-md rounded-2xl mb-4">
 
@@ -67,7 +71,7 @@
 
                             <div class="flex flex-col md:w-1/5">
                                 <label for="form-numero">Número:</label>
-                                <input type="text" id="data-numero" name="form-numero" placeholder="0001" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                                <input type="text" id="data-numero" name="form-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl mb-4">
                             </div>
                         </div>
 
@@ -82,7 +86,7 @@
                     </form>
 
                     <!-- summary -->
-                    <div id="summary-view" class="hidden flex-col h-full overflow-y-auto">
+                    <div id="summary-view" class="hidden group-data-[etapa='3']:flex flex-col h-full overflow-y-auto">
                         <p class="text-xl font-semibold mb-4">Itens do pedido:</p>
                         <div id="resumo-items-pedido"></div>
                         <p class="text-xl font-semibold mb-4">Local de Entrega:</p>
@@ -143,7 +147,7 @@
                     <h2 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Cardápio</h2>
                     <p class="font-semibold text-3xl md:text-4xl tracking-wide">Conheça o nosso cardápio</p>
                 </div>
-                <div class="font-medium text-md flex overflow-x-auto space-x-4 p-4 sm:justify-center cardapio-menu">
+                <div id="menu-cardapio" class="font-medium text-md flex overflow-x-auto space-x-4 p-4 sm:justify-center cardapio-menu">
                     <button id="cardapio-btn-burgers" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('burgers')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/burger.png" alt="burger icon" onerror="">
                         Burger

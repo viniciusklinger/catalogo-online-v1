@@ -95,16 +95,25 @@ cardapio.metodos = {
 
     },
 
-    // adicionar ao carrinho o item do cardápio
     adicionarAoCarrinho: (id) => {
 
+        let cat = $("#menu-cardapio").find(`[data-active=true]`).attr('id').split('cardapio-btn-')[1];
+        let item = MENU[cat].filter(el => el.id == id)[0] ?? null;
         let existe = MEU_CARRINHO.filter( el => el.id == id);
 
+        if (!item) {
+            console.error('Erro ao adicionar item à sacola. Item não encontrado');
+            return;
+        };
+
         if (existe.length == 0) {
-            let item = {};
-            item.id = id;
-            item.qtd = 1;
-            MEU_CARRINHO.push(item);
+            let temp = {};
+            temp.id = item.id;
+            temp.nome = item.nome;
+            temp.img = item.img;
+            temp.preco = item.preco;
+            temp.qtd = 1;
+            MEU_CARRINHO.push(temp);
         } else {
             existe[0].qtd += 1;
         }
@@ -117,7 +126,6 @@ cardapio.metodos = {
     atualizarContagemCarrinho: () => {
 
         var total = 0;
-
         $.each(MEU_CARRINHO, (i, e) => {
             total += e.qtd
         })
@@ -130,16 +138,15 @@ cardapio.metodos = {
             $(".botao-carrinho").addClass('hidden')
             $(".container-total-carrinho").addClass('hidden');
         };
-
         $("#cart-count").html(total.toString());
 
     },
 
-    // abrir a modal de carrinho
     abrirCarrinho: (abrir) => {
 
         if (abrir) {
             $("#modal-carrinho").removeClass('hidden');
+            /* block scrolling on body */
             $("#body-data").attr('data-modal', 'open');
             cardapio.metodos.carregarCarrinho();
         }
@@ -150,10 +157,12 @@ cardapio.metodos = {
 
     },
 
-    // altera os texto e exibe os botões das etapas
     carregarEtapa: (etapa) => {
 
-        if (etapa == 1) {
+        $('#modal-carrinho').attr('data-etapa', etapa);
+        $('#etapa-label').text(`${etapa === 1 ? 'Seu pedido' : etapa === 2 ? 'Endereço de entrega' : 'Resumo do pedido'}:`);
+
+        if (etapa == 10) {
             $("#lblTituloEtapa").text('Seu carrinho:');
             $("#itensCarrinho").removeClass('hidden');
             $("#localEntrega").addClass('hidden');
@@ -168,7 +177,7 @@ cardapio.metodos = {
             $("#btnVoltar").addClass('hidden');
         }
         
-        if (etapa == 2) {
+        if (etapa == 20) {
             $("#lblTituloEtapa").text('Endereço de entrega:');
             $("#itensCarrinho").addClass('hidden');
             $("#localEntrega").removeClass('hidden');
@@ -184,7 +193,7 @@ cardapio.metodos = {
             $("#btnVoltar").removeClass('hidden');
         }
 
-        if (etapa == 3) {
+        if (etapa == 30) {
             $("#lblTituloEtapa").text('Resumo do pedido:');
             $("#itensCarrinho").addClass('hidden');
             $("#localEntrega").addClass('hidden');
@@ -214,11 +223,15 @@ cardapio.metodos = {
     // carrega a lista de itens do carrinho
     carregarCarrinho: () => {
 
-        cardapio.metodos.carregarEtapa(1);
+
+        /* MEU_CARRINHO = load cache */
+        /* let etapa = meuCarrinho.etapa ?? 1; */
+        let etapa = 1;
+        cardapio.metodos.carregarEtapa(etapa);
 
         if (MEU_CARRINHO.length > 0) {
 
-            $("#itensCarrinho").html('');
+            $("#items-pedido").html('');
 
             $.each(MEU_CARRINHO, (i, e) => {
 
@@ -228,7 +241,7 @@ cardapio.metodos = {
                 .replace(/\${id}/g, e.id)
                 .replace(/\${qntd}/g, e.qntd)
 
-                $("#itensCarrinho").append(temp);
+                $("#items-pedido").append(temp);
 
                 // último item
                 if ((i + 1) == MEU_CARRINHO.length) {
