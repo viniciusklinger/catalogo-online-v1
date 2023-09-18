@@ -13,7 +13,7 @@
     <header class="h-9 w-full"></header>
     <main>
         <!-- toast -->
-        <div class="fixed max-w-[300px] h-5 z-50 right-5 top-5 pointer-events-none select-none" id="toast-container"></div>
+        <div class="fixed text-sm max-w-[300px] h-5 z-50 right-5 top-5 pointer-events-none select-none" id="toast-container"></div>
 
         <!-- carrinho -->
         <button id="btn-carrinho" class="hidden fixed bottom-10 h-14 w-14 right-6 rounded-full bg-primary" onclick="cardapio.metodos.abrirCarrinho(true)">
@@ -24,7 +24,7 @@
         </button>
 
         <!-- modal carrinho -->
-        <div id="modal-carrinho" data-etapa="1" class="hidden group fixed top-0 left-0 w-full h-full p-6 md:p-12 md:px-20 bg-white">
+        <div id="modal-carrinho" data-etapa="1" class="hidden group fixed top-0 left-0 w-full h-full p-3 sm:p-6 md:p-12 md:px-20 bg-white">
             <div class="max-w-6xl mx-auto flex flex-col justify-between h-full">
                 <!-- header -->
                 <div>
@@ -106,18 +106,18 @@
                 <div class="flex flex-col items-end border-t border-gray-300 font-normal">
                     <p class="mt-4">
                         <span>Subtotal:</span>
-                        <span id="subtotal">R$ 0,00</span>
+                        <span id="cart-subtotal">R$ 0,00</span>
                     </p>
                     <div class="flex items-center justify-center font-medium">
                         <img class="h-5 mr-2 text-gray-300" src="./imgs/icon/moto.png" alt="delivery icon">
                         <p class="text-gray-300">
                             <span>Entrega:</span>
-                            <span id="valor-entrega">+ R$ 0,00</span>
+                            <span id="cart-entrega">R$ 0,00</span>
                         </p>
                     </div>
                     <p class="my-3 font-bold">
                         <span class="text-xl">Total:</span>
-                        <span id="valor-total" class="text-2xl text-primary">R$ 0,00</span>
+                        <span id="cart-total" class="text-2xl text-primary">R$ 0,00</span>
                     </p>
                     <button class="bg-primary text-white hover:text-default px-6 py-4 shadow-xl text-xl rounded-2xl font-medium mt-2">Continuar</button>
                 </div>

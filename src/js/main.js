@@ -240,7 +240,7 @@ cardapio.metodos = {
             $('#default-view').addClass('hidden');
 
             $.each(MEU_CARRINHO, (i, e) => {
-                let temp = cardapio.templates.itemCarrinho2.replace(/\${img}/g, e.img)
+                let temp = cardapio.templates.itemCarrinho.replace(/\${img}/g, e.img)
                 .replace(/\${nome}/g, e.name)
                 .replace(/\${preco}/g, e.price.toFixed(2).replace('.', ','))
                 .replace(/\${id}/g, e.id)
@@ -274,8 +274,6 @@ cardapio.metodos = {
         }
         else {
             $("#qtd-sacola-" + id).text(0);
-            /* controls when to show/hide trash icon to delete item */
-            $('#item-sacola-' + id).attr('data-status', 'del');
         }
 
     },
@@ -283,7 +281,6 @@ cardapio.metodos = {
     aumentarQuantidadeCarrinho: (id) => {
 
         let qntdAtual = parseInt($("#qtd-sacola-" + id).text());
-        $('#item-sacola-' + id).removeAttr('data-status');
         $("#qtd-sacola-" + id).text(qntdAtual + 1);
         cardapio.metodos.atualizarCarrinho(id, qntdAtual + 1);
 
@@ -316,7 +313,6 @@ cardapio.metodos = {
 
     },
 
-    // carrega os valores de SubTotal, Entrega e Total
     carregarValores: () => {
 
         VALOR_CARRINHO = 0;
@@ -327,12 +323,12 @@ cardapio.metodos = {
 
         $.each(MEU_CARRINHO, (i, e) => {
 
-            VALOR_CARRINHO += parseFloat(e.price * e.qntd);
+            VALOR_CARRINHO += parseFloat(e.price * e.qtd);
 
             if ((i + 1) == MEU_CARRINHO.length) {
-                $("#lblSubTotal").text(`R$ ${VALOR_CARRINHO.toFixed(2).replace('.', ',')}`);
-                $("#lblValorEntrega").text(`+ R$ ${VALOR_ENTREGA.toFixed(2).replace('.', ',')}`);
-                $("#lblValorTotal").text(`R$ ${(VALOR_CARRINHO + VALOR_ENTREGA).toFixed(2).replace('.', ',')}`);
+                $("#cart-subtotal").text(`R$ ${VALOR_CARRINHO.toFixed(2).replace('.', ',')}`);
+                /* $("#cart-entrega").text(`+ R$ ${VALOR_ENTREGA.toFixed(2).replace('.', ',')}`); */
+                $("#cart-total").text(`R$ ${(VALOR_CARRINHO + VALOR_ENTREGA).toFixed(2).replace('.', ',')}`);
             }
 
         })
@@ -556,11 +552,11 @@ cardapio.metodos = {
     },
 
     // mensagens
-    mensagem: (texto, cor = 'red', tempo = 3500) => {
+    mensagem: (texto, cor = 'red', tempo = 2500) => {
 
         let id = Math.floor(Date.now() * Math.random()).toString();
 
-        let msg = `<div data-color="${cor}" id="msg-${id}" class="data-[color=red]:bg-red-400 data-[color=green]:bg-green-400 text-white px-4 py-3 rounded-lg shadow-xl mt-2">${texto}</div>`;
+        let msg = `<div data-color="${cor}" id="msg-${id}" class="data-[color=red]:bg-red-400 data-[color=green]:bg-green-400 text-white p-2 sm:px-4 sm:py-3 mt-1 sm:mt-2 rounded-lg shadow-xl">${texto}</div>`;
 
         $("#toast-container").append(msg);
 
@@ -607,46 +603,25 @@ cardapio.templates = {
     `,
 
     itemCarrinho: `
-        <div class="">
-            <div class="img-produto">
-                <img src="\${img}" />
-            </div>
-            <div class="dados-produto">
-                <p class="title-produto"><b>\${nome}</b></p>
-                <p class="price-produto"><b>R$ \${preco}</b></p>
-            </div>
-            <div class="add-carrinho">
-                <span class="btn-menos" onclick="cardapio.metodos.diminuirQuantidadeCarrinho('\${id}')"><i class="fas fa-minus"></i></span>
-                <span class="add-numero-itens" id="qntd-carrinho-\${id}">\${qntd}</span>
-                <span class="btn-mais" onclick="cardapio.metodos.aumentarQuantidadeCarrinho('\${id}')"><i class="fas fa-plus"></i></span>
-                <span class="btn btn-remove no-mobile" onclick="cardapio.metodos.removerItemCarrinho('\${id}')"><i class="fa fa-times"></i></span>
-            </div>
-        </div>
-    `,
-
-    itemCarrinho2: `
         <div class="flex flex-row justify-between p-2 \${border} border-gray-300 w-full items-center">
             <div class="flex">
-                <div class="h-20 w-20 xs:h-24 xs:w-24 bg-gray-200 rounded-xl m-2 shrink-0 flex">
+                <div class="h-12 w-12 sm:h-24 sm:w-24 bg-gray-200 rounded-xl p-1 sm:p-2 shrink-0 flex">
                     <img src="\${img}" alt="" class="rounded-xl">
                 </div>
-                <div class="font-medium px-2 flex flex-col justify-center">
-                    <p class="text-xl"><b>\${nome}</b></p>
-                    <p class="text-primary text-2xl"><b>R$ \${preco}</b></p>
+                <div class="px-2 flex flex-col justify-center font-bold">
+                    <p class="text-sm">\${nome}</p>
+                    <p class="text-primary text-lg">R$ \${preco}</p>
                 </div>
             </div>
-            <div id="item-sacola-\${id}" class="flex group">
-                <div class="flex flex-col xs:flex-row border-2 border-default rounded-xl h-9 text-center font-medium text-xl">
+            <div id="item-sacola-\${id}" class="flex group shrink-0">
+                <div class="flex flex-row border-2 border-default rounded-xl h-9 text-center font-medium text-sm sm:text-xl">
                     <button class="px-2" onclick="cardapio.metodos.diminuirQuantidadeCarrinho('\${id}')">-</button>
-                    <div class="border-l-2 border-r-2 border-default w-12 flex items-center justify-center">
-                        <span id="qtd-sacola-\${id}" class="pointer-events-none select-none group-data-[status=del]:hidden">\${qntd}</span>
-                        <button class="hidden group-data-[status=del]:block" onclick="cardapio.metodos.removerItemCarrinho('\${id}')">
-                            <img class="h-6 w-6" src="./imgs/icon/trash.png" />
-                        </button>
+                    <div class="border-l-2 border-r-2 border-default w-7 sm:w-12 flex items-center justify-center">
+                        <span id="qtd-sacola-\${id}" class="pointer-events-none select-none">\${qntd}</span>
                     </div>
                     <button id="item-btn-inc"class="px-2" onclick="cardapio.metodos.aumentarQuantidadeCarrinho('\${id}')">+</button>
                 </div>
-                <button class="ml-2 group-data-[status=del]:hidden" onclick="cardapio.metodos.removerItemCarrinho('\${id}')">
+                <button class="ml-1 sm:ml-2" onclick="cardapio.metodos.removerItemCarrinho('\${id}')">
                     <img class="h-6 w-6" src="./imgs/icon/trash.png" />
                 </button>
             </div>
