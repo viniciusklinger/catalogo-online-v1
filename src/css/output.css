@@ -618,6 +618,10 @@ video {
   top: 1.25rem;
 }
 
+.right-0 {
+  right: 0px;
+}
+
 .z-50 {
   z-index: 50;
 }
@@ -666,6 +670,10 @@ video {
   margin-bottom: 2rem;
 }
 
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
 .ml-6 {
   margin-left: 1.5rem;
 }
@@ -686,10 +694,6 @@ video {
   margin-top: 1.5rem;
 }
 
-.ml-2 {
-  margin-left: 0.5rem;
-}
-
 .line-clamp-1 {
   overflow: hidden;
   display: -webkit-box;
@@ -699,10 +703,6 @@ video {
 
 .block {
   display: block;
-}
-
-.inline-block {
-  display: inline-block;
 }
 
 .flex {
@@ -1283,10 +1283,6 @@ video {
 
 .group[data-status=del] .group-data-\[status\=del\]\:hidden {
   display: none;
-}
-
-.group[data-status=del] .group-data-\[status\=del\]\:cursor-not-allowed {
-  cursor: not-allowed;
 }
 
 .group[data-expand=true] .group-data-\[expand\=true\]\:items-center {

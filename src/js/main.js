@@ -646,7 +646,7 @@ cardapio.templates = {
                     </div>
                     <button id="item-btn-inc"class="px-2" onclick="cardapio.metodos.aumentarQuantidadeCarrinho('\${id}')">+</button>
                 </div>
-                <button class="ml-2 group-data-[status=del]:cursor-not-allowed" onclick="cardapio.metodos.removerItemCarrinho('\${id}')">
+                <button class="ml-2 group-data-[status=del]:hidden" onclick="cardapio.metodos.removerItemCarrinho('\${id}')">
                     <img class="h-6 w-6" src="./imgs/icon/trash.png" />
                 </button>
             </div>
