@@ -76,7 +76,7 @@ cardapio.metodos = {
 
     },
 
-    // diminuir a quantidade do item no cardapio
+  /*   // diminuir a quantidade do item no cardapio
     diminuirQuantidade: (id) => {
 
         let qntdAtual = parseInt($("#qntd-" + id).text());
@@ -93,7 +93,7 @@ cardapio.metodos = {
         let qntdAtual = parseInt($("#qntd-" + id).text());
         $("#qntd-" + id).text(qntdAtual + 1)
 
-    },
+    }, */
 
     adicionarAoCarrinho: (id) => {
 
@@ -109,15 +109,20 @@ cardapio.metodos = {
         if (existe.length == 0) {
             let temp = {};
             temp.id = item.id;
-            temp.nome = item.nome;
+            temp.name = item.name;
             temp.img = item.img;
-            temp.preco = item.preco;
+            temp.price = item.price;
             temp.qtd = 1;
             MEU_CARRINHO.push(temp);
         } else {
             existe[0].qtd += 1;
         }
 
+        if (MEU_CARRINHO.length > 0) {
+            $('#btn-carrinho').removeClass('hidden');
+        } else {
+            $('#btn-carrinho').addClass('hidden');
+        };
         cardapio.metodos.mensagem('Adicionado ao carrinho!', 'green')
         cardapio.metodos.atualizarContagemCarrinho();
 
@@ -220,7 +225,7 @@ cardapio.metodos = {
 
     },
 
-    // carrega a lista de itens do carrinho
+
     carregarCarrinho: () => {
 
 
@@ -232,77 +237,81 @@ cardapio.metodos = {
         if (MEU_CARRINHO.length > 0) {
 
             $("#items-pedido").html('');
+            $('#default-view').addClass('hidden');
 
             $.each(MEU_CARRINHO, (i, e) => {
-
-                let temp = cardapio.templates.itemCarrinho.replace(/\${img}/g, e.img)
+                let temp = cardapio.templates.itemCarrinho2.replace(/\${img}/g, e.img)
                 .replace(/\${nome}/g, e.name)
                 .replace(/\${preco}/g, e.price.toFixed(2).replace('.', ','))
                 .replace(/\${id}/g, e.id)
-                .replace(/\${qntd}/g, e.qntd)
+                .replace(/\${qntd}/g, e.qtd)
+                .replace(/\${border}/g, i+1 == MEU_CARRINHO.length ? '' : 'border-b')
 
                 $("#items-pedido").append(temp);
 
-                // último item
-                if ((i + 1) == MEU_CARRINHO.length) {
-                    cardapio.metodos.carregarValores();
-                }
-
             })
 
+            cardapio.metodos.carregarValores();
         }
         else {
-            $("#itensCarrinho").html('<p class="carrinho-vazio"><i class="fa fa-shopping-bag"></i> Seu carrinho está vazio.</p>');
+            $("#items-pedido").html('');
+            $('#default-view').removeClass('hidden');
+            $('#btn-carrinho').addClass('hidden');
+            
             cardapio.metodos.carregarValores();
         }
 
     },
 
-    // diminuir quantidade do item no carrinho
+
     diminuirQuantidadeCarrinho: (id) => {
 
-        let qntdAtual = parseInt($("#qntd-carrinho-" + id).text());
+        let qtdAtual = parseInt($("#qtd-sacola-" + id).text());
 
-        if (qntdAtual > 1) {
-            $("#qntd-carrinho-" + id).text(qntdAtual - 1);
-            cardapio.metodos.atualizarCarrinho(id, qntdAtual - 1);
+        if (qtdAtual > 1) {
+            $("#qtd-sacola-" + id).text(qtdAtual - 1);
+            cardapio.metodos.atualizarCarrinho(id, qtdAtual - 1);
         }
         else {
-            cardapio.metodos.removerItemCarrinho(id)
+            $("#qtd-sacola-" + id).text(0);
+            /* controls when to show/hide trash icon to delete item */
+            $('#item-sacola-' + id).attr('data-status', 'del');
         }
 
     },
 
-    // aumentar quantidade do item no carrinho
     aumentarQuantidadeCarrinho: (id) => {
 
-        let qntdAtual = parseInt($("#qntd-carrinho-" + id).text());
-        $("#qntd-carrinho-" + id).text(qntdAtual + 1);
+        let qntdAtual = parseInt($("#qtd-sacola-" + id).text());
+        $('#item-sacola-' + id).removeAttr('data-status');
+        $("#qtd-sacola-" + id).text(qntdAtual + 1);
         cardapio.metodos.atualizarCarrinho(id, qntdAtual + 1);
 
     },
 
-    // botão remover item do carrinho
     removerItemCarrinho: (id) => {
 
-        MEU_CARRINHO = $.grep(MEU_CARRINHO, (e, i) => { return e.id != id });
+        let newValues = MEU_CARRINHO.filter(el => el.id != id);
+        if (MEU_CARRINHO.length == newValues.length) {
+            console.error('ID não encontrado no carrinho.');
+            return;
+        }
+        MEU_CARRINHO = newValues
         cardapio.metodos.carregarCarrinho();
-
-        // atualiza o botão carrinho com a quantidade atualizada
         cardapio.metodos.atualizarContagemCarrinho();
         
     },
 
-    // atualiza o carrinho com a quantidade atual
     atualizarCarrinho: (id, qntd) => {
 
-        let objIndex = MEU_CARRINHO.findIndex((obj => obj.id == id));
-        MEU_CARRINHO[objIndex].qntd = qntd;
+        let item = MEU_CARRINHO.filter(el => el.id == id)[0];
+        if (!item) {
+            console.error('ID não encontrado no carrinho.');
+            return;
+        }
+        item.qtd = qntd
 
-        // atualiza o botão carrinho com a quantidade atualizada
         cardapio.metodos.atualizarContagemCarrinho();
-
-        // atualiza os valores (R$) totais do carrinho
         cardapio.metodos.carregarValores();
 
     },
@@ -598,7 +607,7 @@ cardapio.templates = {
     `,
 
     itemCarrinho: `
-        <div class="col-12 item-carrinho">
+        <div class="">
             <div class="img-produto">
                 <img src="\${img}" />
             </div>
@@ -611,6 +620,35 @@ cardapio.templates = {
                 <span class="add-numero-itens" id="qntd-carrinho-\${id}">\${qntd}</span>
                 <span class="btn-mais" onclick="cardapio.metodos.aumentarQuantidadeCarrinho('\${id}')"><i class="fas fa-plus"></i></span>
                 <span class="btn btn-remove no-mobile" onclick="cardapio.metodos.removerItemCarrinho('\${id}')"><i class="fa fa-times"></i></span>
+            </div>
+        </div>
+    `,
+
+    itemCarrinho2: `
+        <div class="flex flex-row justify-between p-2 \${border} border-gray-300 w-full items-center">
+            <div class="flex">
+                <div class="h-20 w-20 xs:h-24 xs:w-24 bg-gray-200 rounded-xl m-2 shrink-0 flex">
+                    <img src="\${img}" alt="" class="rounded-xl">
+                </div>
+                <div class="font-medium px-2 flex flex-col justify-center">
+                    <p class="text-xl"><b>\${nome}</b></p>
+                    <p class="text-primary text-2xl"><b>R$ \${preco}</b></p>
+                </div>
+            </div>
+            <div id="item-sacola-\${id}" class="flex group">
+                <div class="flex flex-col xs:flex-row border-2 border-default rounded-xl h-9 text-center font-medium text-xl">
+                    <button class="px-2" onclick="cardapio.metodos.diminuirQuantidadeCarrinho('\${id}')">-</button>
+                    <div class="border-l-2 border-r-2 border-default w-12 flex items-center justify-center">
+                        <span id="qtd-sacola-\${id}" class="pointer-events-none select-none group-data-[status=del]:hidden">\${qntd}</span>
+                        <button class="hidden group-data-[status=del]:block" onclick="cardapio.metodos.removerItemCarrinho('\${id}')">
+                            <img class="h-6 w-6" src="./imgs/icon/trash.png" />
+                        </button>
+                    </div>
+                    <button id="item-btn-inc"class="px-2" onclick="cardapio.metodos.aumentarQuantidadeCarrinho('\${id}')">+</button>
+                </div>
+                <button class="ml-2 group-data-[status=del]:cursor-not-allowed" onclick="cardapio.metodos.removerItemCarrinho('\${id}')">
+                    <img class="h-6 w-6" src="./imgs/icon/trash.png" />
+                </button>
             </div>
         </div>
     `,

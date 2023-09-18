@@ -13,10 +13,10 @@
     <header class="h-9 w-full"></header>
     <main>
         <!-- toast -->
-        <div class="fixed max-w-[300px] h-5 z-50 right-5 top-5" id="toast-container"></div>
+        <div class="fixed max-w-[300px] h-5 z-50 right-5 top-5 pointer-events-none select-none" id="toast-container"></div>
 
         <!-- carrinho -->
-        <button class="fixed bottom-10 h-14 w-14 right-6 rounded-full bg-primary" onclick="cardapio.metodos.abrirCarrinho(true)">
+        <button id="btn-carrinho" class="hidden fixed bottom-10 h-14 w-14 right-6 rounded-full bg-primary" onclick="cardapio.metodos.abrirCarrinho(true)">
             <div id="cart-count" class="rounded-full h-6 w-6 absolute bg-[#fff2cc] top-0 -right-1 text-sm font-semibold flex justify-center items-center">
                 0
             </div>
@@ -49,7 +49,7 @@
                         <p>Seu pedido está vazio.</p>
                     </div>
 
-                    <div id="items-pedido" class="group-data-[etapa='1']:flex">
+                    <div id="items-pedido" class="group-data-[etapa='1']:flex flex-col">
 
                     </div>
 
