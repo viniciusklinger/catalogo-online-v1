@@ -13,6 +13,10 @@ var VALOR_ENTREGA = 0;
 
 var CELULAR_EMPRESA = '5542998663675';
 
+var map;
+
+var LOCAL_LOJA = { lat: -25.09797509988559, lng: -50.16480066847686 };
+
 cardapio.eventos = {
 
     init: () => {
@@ -157,7 +161,6 @@ cardapio.metodos = {
     },
 
     abrirCarrinho: (abrir) => {
-
         if (abrir) {
             $("#modal-carrinho").removeClass('hidden');
             /* block scrolling on body */
@@ -288,6 +291,7 @@ cardapio.metodos = {
                 cardapio.metodos.toast('Sua sacola está vazia.')
                 return;
             };
+            if (!map) cardapio.metodos.carregarMapa();
         } else if (newEtapa == 3) {
             if (!cardapio.metodos.validarEndereco()) return;
             cardapio.metodos.carregarResumo();
@@ -510,7 +514,31 @@ cardapio.metodos = {
         if (viewport < 640) {
             $(el).attr('data-expand', 'true');
         };
-    }
+    },
+
+    carregarMapa: async () => {
+        const position = LOCAL_LOJA;
+        const { Map } = await google.maps.importLibrary("maps");
+        const { Marker } = await google.maps.importLibrary("marker")
+      
+        map = new Map(document.getElementById("delivery-map"), {
+          zoom: 13,
+          center: position,
+        });
+
+        const marker = new Marker({
+            position: position,
+            map,
+        });
+
+        google.maps.event.addListener(map, 'click', function (event) {
+            marker.setPosition(event.latLng);
+            console.log(event.latLng.toJSON());
+            window.setTimeout(() => {
+              map.panTo(event.latLng);
+            }, 400);
+        });
+      }
 }
 
 cardapio.templates = {
