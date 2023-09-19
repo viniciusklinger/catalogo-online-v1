@@ -24,7 +24,7 @@
         </button>
 
         <!-- modal carrinho -->
-        <div id="modal-carrinho" data-etapa="1" class="hidden group fixed top-0 left-0 w-full h-full p-3 sm:p-6 md:p-12 md:px-20 bg-white">
+        <div id="modal-carrinho" data-etapa="1" class="hidden group fixed top-0 left-0 w-full h-full p-3 xs:p-6 sm:p-8 bg-white">
             <div class="max-w-6xl mx-auto flex flex-col justify-between h-full">
                 <!-- header -->
                 <div>
@@ -40,7 +40,7 @@
                 </div>
 
                 <!-- content -->
-                <div class="flex flex-col h-full w-full mt-6 md:mt-16 overflow-y-auto">
+                <div class="flex flex-col h-full w-full mt-6 overflow-y-auto">
                     <!-- empty state -->
                     <div id="default-view" class="flex flex-col items-center justify-center">
                         <div class="bg-[#FFF2CC] h-12 w-12 rounded-full flex items-center justify-center">
@@ -49,29 +49,29 @@
                         <p>Seu pedido está vazio.</p>
                     </div>
 
-                    <div id="items-pedido" class="group-data-[etapa='1']:flex flex-col">
+                    <div id="items-pedido" class="hidden group-data-[etapa='1']:flex flex-col px-2">
 
                     </div>
 
                     <!-- delivery -->
-                    <form id="delivery-view" class="hidden group-data-[etapa='2']:flex flex-col px-1 max-w-lg md:max-w-none w-full mx-auto min-[830px]:text-lg">
+                    <form id="delivery-view" class="hidden group-data-[etapa='2']:flex flex-col px-2 max-w-lg md:max-w-none w-full mx-auto min-[830px]:text-lg group/loading">
                         <label for="form-cep">CEP:</label>
-                        <input type="number" id="data-cep" name="form-cep" placeholder="Apenas números" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                        <input type="text" pattern="[0-9]{5}-[0-9]{3}" id="data-cep" name="form-cep" placeholder="00000-000" class="bg-white p-3 shadow-md rounded-2xl w-52 mb-4">
 
                         <div class="flex flex-col md:flex-row">
                             <div class="flex flex-col md:w-2/5">
                                 <label for="form-rua">Rua:</label>
-                                <input type="text" id="data-rua" name="form-rua" placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                                <input type="text" id="data-rua" name="form-rua" placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl mb-4 group-data-[loading='true']/loading:bg-gray-200">
                             </div>
                             
                             <div class="flex flex-col md:w-2/5 md:mx-4">
                                 <label for="form-bairro">Bairro:</label>
-                                <input type="text" id="data-bairro" name="form-bairro" placeholder="Centro" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                                <input type="text" id="data-bairro" name="form-bairro" placeholder="Centro" class="bg-white p-3 shadow-md rounded-2xl mb-4 group-data-[loading='true']/loading:bg-gray-200">
                             </div>
 
                             <div class="flex flex-col md:w-1/5">
                                 <label for="form-numero">Número:</label>
-                                <input type="text" id="data-numero" name="form-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                                <input type="text" id="data-numero" name="form-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl mb-4  max-w-[208px]">
                             </div>
                         </div>
 
@@ -86,17 +86,17 @@
                     </form>
 
                     <!-- summary -->
-                    <div id="summary-view" class="hidden group-data-[etapa='3']:flex flex-col h-full overflow-y-auto">
+                    <div id="summary-view" class="hidden group-data-[etapa='3']:flex flex-col h-full overflow-y-auto px-3">
                         <p class="text-xl font-semibold mb-4">Itens do pedido:</p>
-                        <div id="resumo-items-pedido"></div>
+                        <div id="resumo-items-pedido" class="mb-6"></div>
                         <p class="text-xl font-semibold mb-4">Local de Entrega:</p>
                         <div class="flex flex-row">
                             <div class="h-12 w-12 bg-[#fff2cc] rounded-lg flex justify-center items-center">
                                 <img src="./imgs/icon/map.png" alt="map icon">
                             </div>
-                            <div class="ml-6">
-                                <p class="font-medium" id="resumo-endereco">Rua Carlos Primor, 98, Uvaranas</p>
-                                <p class="text-gray-700" id="resumo-endereco-2">Ponta Grossa-PR / 84031-570</p>
+                            <div class="ml-6 mb-4">
+                                <p class="font-bold text-sm md:text-base" id="resumo-endereco">Rua Primeira, 01, Centro</p>
+                                <p class="text-gray-700 text-sm md:text-base" id="resumo-endereco-2">Ponta Grossa-PR / 00000-001</p>
                             </div>
                         </div>
                     </div>
@@ -119,7 +119,10 @@
                         <span class="text-xl">Total:</span>
                         <span id="cart-total" class="text-2xl text-primary">R$ 0,00</span>
                     </p>
-                    <button class="bg-primary text-white hover:text-default px-6 py-4 shadow-xl text-xl rounded-2xl font-medium mt-2">Continuar</button>
+                    <div class="flex flex-row flex-wrap justify-end">
+                        <button id="cart-nav-voltar" class="bg-white hover:bg-primary hover:text-white px-6 py-4 shadow-xl text-xl rounded-2xl font-medium mt-2 hidden data-[show=true]:block" onclick="cardapio.metodos.navegarEtapa('false')">Voltar</button>
+                        <button id="cart-nav-avancar" class="bg-primary text-white hover:text-default w-52 px-6 py-4 shadow-xl text-xl rounded-2xl font-medium ml-3 mt-2" onclick="cardapio.metodos.navegarEtapa('true')">Continuar</button>
+                    </div>
                 </div>
             </div>
         </div>

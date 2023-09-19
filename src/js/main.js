@@ -1,5 +1,6 @@
 $(document).ready(function () {
     cardapio.eventos.init();
+    $("#data-cep").on("input", debounce(cardapio.metodos.buscarCep, 150));
 })
 
 var cardapio = {};
@@ -8,7 +9,7 @@ var MEU_CARRINHO = [];
 var MEU_ENDERECO = null;
 
 var VALOR_CARRINHO = 0;
-var VALOR_ENTREGA = 7.5;
+var VALOR_ENTREGA = 0;
 
 var CELULAR_EMPRESA = '5542998663675';
 
@@ -21,6 +22,14 @@ cardapio.eventos = {
     }
 
 }
+
+function debounce(func, timeout = 300){
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { func(this, args); }, timeout);
+    };
+  }
 
 cardapio.metodos = {
 
@@ -123,7 +132,7 @@ cardapio.metodos = {
         } else {
             $('#btn-carrinho').addClass('hidden');
         };
-        cardapio.metodos.mensagem('Adicionado ao carrinho!', 'green')
+        cardapio.metodos.toast('Adicionado ao carrinho!', 'green')
         cardapio.metodos.atualizarContagemCarrinho();
 
     },
@@ -162,69 +171,10 @@ cardapio.metodos = {
 
     },
 
-    carregarEtapa: (etapa) => {
-
+    trocarEtapa: (etapa) => {
         $('#modal-carrinho').attr('data-etapa', etapa);
         $('#etapa-label').text(`${etapa === 1 ? 'Seu pedido' : etapa === 2 ? 'Endereço de entrega' : 'Resumo do pedido'}:`);
-
-        if (etapa == 10) {
-            $("#lblTituloEtapa").text('Seu carrinho:');
-            $("#itensCarrinho").removeClass('hidden');
-            $("#localEntrega").addClass('hidden');
-            $("#resumoCarrinho").addClass('hidden');
-
-            $(".etapa").removeClass('active');
-            $(".etapa1").addClass('active');
-
-            $("#btnEtapaPedido").removeClass('hidden');
-            $("#btnEtapaEndereco").addClass('hidden');
-            $("#btnEtapaResumo").addClass('hidden');
-            $("#btnVoltar").addClass('hidden');
-        }
-        
-        if (etapa == 20) {
-            $("#lblTituloEtapa").text('Endereço de entrega:');
-            $("#itensCarrinho").addClass('hidden');
-            $("#localEntrega").removeClass('hidden');
-            $("#resumoCarrinho").addClass('hidden');
-
-            $(".etapa").removeClass('active');
-            $(".etapa1").addClass('active');
-            $(".etapa2").addClass('active');
-
-            $("#btnEtapaPedido").addClass('hidden');
-            $("#btnEtapaEndereco").removeClass('hidden');
-            $("#btnEtapaResumo").addClass('hidden');
-            $("#btnVoltar").removeClass('hidden');
-        }
-
-        if (etapa == 30) {
-            $("#lblTituloEtapa").text('Resumo do pedido:');
-            $("#itensCarrinho").addClass('hidden');
-            $("#localEntrega").addClass('hidden');
-            $("#resumoCarrinho").removeClass('hidden');
-
-            $(".etapa").removeClass('active');
-            $(".etapa1").addClass('active');
-            $(".etapa2").addClass('active');
-            $(".etapa3").addClass('active');
-
-            $("#btnEtapaPedido").addClass('hidden');
-            $("#btnEtapaEndereco").addClass('hidden');
-            $("#btnEtapaResumo").removeClass('hidden');
-            $("#btnVoltar").removeClass('hidden');
-        }
-
     },
-
-    // botão de voltar etapa
-    voltarEtapa: () => {
-
-        let etapa = $(".etapa.active").length;
-        cardapio.metodos.carregarEtapa(etapa - 1);
-
-    },
-
 
     carregarCarrinho: () => {
 
@@ -232,7 +182,7 @@ cardapio.metodos = {
         /* MEU_CARRINHO = load cache */
         /* let etapa = meuCarrinho.etapa ?? 1; */
         let etapa = 1;
-        cardapio.metodos.carregarEtapa(etapa);
+        cardapio.metodos.trocarEtapa(etapa);
 
         if (MEU_CARRINHO.length > 0) {
 
@@ -263,18 +213,11 @@ cardapio.metodos = {
 
     },
 
-
     diminuirQuantidadeCarrinho: (id) => {
-
-        let qtdAtual = parseInt($("#qtd-sacola-" + id).text());
-
-        if (qtdAtual > 1) {
-            $("#qtd-sacola-" + id).text(qtdAtual - 1);
-            cardapio.metodos.atualizarCarrinho(id, qtdAtual - 1);
-        }
-        else {
-            $("#qtd-sacola-" + id).text(0);
-        }
+        let qtd = parseInt($("#qtd-sacola-" + id).text());
+        qtd = qtd > 1 ? qtd - 1 : 0;
+        $("#qtd-sacola-" + id).text(qtd);
+        cardapio.metodos.atualizarCarrinho(id, qtd);
 
     },
 
@@ -335,110 +278,107 @@ cardapio.metodos = {
 
     },
 
-    // carregar a etapa enderecos
-    carregarEndereco: () => {
+    navegarEtapa: (direcao) => {
 
-        if (MEU_CARRINHO.length <= 0) {
-            cardapio.metodos.mensagem('Seu carrinho está vazio.')
+        let oldEtapa = parseInt($('#modal-carrinho').attr('data-etapa')) + (direcao == 'true' ? 1 : - 1);
+        let newEtapa = oldEtapa > 0 ? oldEtapa : 1;
+
+        if (newEtapa == 2) {
+            if (MEU_CARRINHO.length == 0) {
+                cardapio.metodos.toast('Sua sacola está vazia.')
+                return;
+            };
+        } else if (newEtapa == 3) {
+            if (!cardapio.metodos.validarEndereco()) return;
+            cardapio.metodos.carregarResumo();
+        } else if (newEtapa == 4) {
+            cardapio.metodos.finalizarPedido();
             return;
-        } 
+        };
 
-        cardapio.metodos.carregarEtapa(2);
+        if (newEtapa != 1) {
+            $('#cart-nav-voltar').attr('data-show', 'true');
+        } else {
+            $('#cart-nav-voltar').removeAttr('data-show');
+        };
+
+        newEtapa = newEtapa <= 3 ? newEtapa : 3;
+        $('#modal-carrinho').attr('data-etapa', newEtapa);
+        $('#cart-nav-avancar').text(newEtapa === 1 ? 'Continuar' : newEtapa === 2 ? 'Revisar pedido' : 'Fazer pedido');
+        cardapio.metodos.trocarEtapa(newEtapa);
 
     },
 
-    // API ViaCEP
-    buscarCep: () => {
+    buscarCep: async () => {
 
-        // cria a variavel com o valor do cep
-        var cep = $("#txtCEP").val().trim().replace(/\D/g, '');
-
-        // verifica se o CEP possui valor informado
+        let cep = $("#data-cep").val().trim().replace(/\D/g, '');
         if (cep != "") {
 
-            // Expressão regular para validar o CEP
             var validacep = /^[0-9]{8}$/;
-
             if (validacep.test(cep)) {
+                try {
+                    $("#delivery-view").attr('data-loading', 'true');
+                    await $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
+                        if (!("erro" in dados)) {
+                            $("#data-rua").val(dados.logradouro);
+                            $("#data-bairro").val(dados.bairro);
+                            $("#data-cidade").val(dados.localidade);
+                            $("#data-uf").val(dados.uf);
+                            $("#data-numero").focus();
+                        }
+                        else {
+                            cardapio.metodos.toast('CEP não encontrado. Preencha as informações manualmente ou tente novamente.');
+                            $("#txtEndereco").focus();
+                        }
+                    });
 
-                $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
-
-                    if (!("erro" in dados)) {
-
-                        // Atualizar os campos com os valores retornados
-                        $("#txtEndereco").val(dados.logradouro);
-                        $("#txtBairro").val(dados.bairro);
-                        $("#txtCidade").val(dados.localidade);
-                        $("#ddlUf").val(dados.uf);
-                        $("#txtNumero").focus();
-
-                    }
-                    else {
-                        cardapio.metodos.mensagem('CEP não encontrado. Preencha as informações manualmente.');
-                        $("#txtEndereco").focus();
-                    }
-
-                })
-
-            }
-            else {
-                cardapio.metodos.mensagem('Formato do CEP inválido.');
-                $("#txtCEP").focus();
-            }
-
-        }
-        else {
-            cardapio.metodos.mensagem('Informe o CEP, por favor.');
-            $("#txtCEP").focus();
-        }
+                } finally {
+                    $("#delivery-view").removeAttr('data-loading');
+                };
+            };
+        };
 
     },
 
-    // validação antes de prosseguir para a etapa 3
-    resumoPedido: () => {
+    validarEndereco: () => {
 
-        let cep = $("#txtCEP").val().trim();
-        let endereco = $("#txtEndereco").val().trim();
-        let bairro = $("#txtBairro").val().trim();
-        let cidade = $("#txtCidade").val().trim();
-        let uf = $("#ddlUf").val().trim();
-        let numero = $("#txtNumero").val().trim();
-        let complemento = $("#txtComplemento").val().trim();
+        let cep = $("#data-cep").val().trim();
+        let endereco = $("#data-rua").val().trim();
+        let bairro = $("#data-bairro").val().trim();
+        let cidade = $("#data-cidade").val().trim();
+        let uf = $("#data-uf").val().trim();
+        let numero = $("#data-numero").val().trim();
+        let complemento = $("#data-complemento").val().trim();
 
         if (cep.length <= 0) {
-            cardapio.metodos.mensagem('Informe o CEP, por favor.');
-            $("#txtCEP").focus();
-            return;
+            cardapio.metodos.toast('Informe o CEP, por favor.');
+            $("#data-cep").focus();
+            return false;
         }
-
         if (endereco.length <= 0) {
-            cardapio.metodos.mensagem('Informe o Endereço, por favor.');
-            $("#txtEndereco").focus();
-            return;
+            cardapio.metodos.toast('Informe a Rua, por favor.');
+            $("#data-rua").focus();
+            return false;
         }
-
         if (bairro.length <= 0) {
-            cardapio.metodos.mensagem('Informe o Bairro, por favor.');
-            $("#txtBairro").focus();
-            return;
+            cardapio.metodos.toast('Informe o Bairro, por favor.');
+            $("#data-bairro").focus();
+            return false;
         }
-
-        if (cidade.length <= 0) {
-            cardapio.metodos.mensagem('Informe a Cidade, por favor.');
-            $("#txtCidade").focus();
-            return;
+        /* if (cidade.length <= 0) {
+            cardapio.metodos.toast('Informe a Cidade, por favor.');
+            $("#data-cidade").focus();
+            return false;
         }
-
         if (uf == "-1") {
-            cardapio.metodos.mensagem('Informe a UF, por favor.');
-            $("#ddlUf").focus();
-            return;
-        }
-
+            cardapio.metodos.toast('Informe a UF, por favor.');
+            $("#data-uf").focus();
+            return false;
+        } */
         if (numero.length <= 0) {
-            cardapio.metodos.mensagem('Informe o Número, por favor.');
-            $("#txtNumero").focus();
-            return;
+            cardapio.metodos.toast('Informe o Número, por favor.');
+            $("#data-numero").focus();
+            return false;
         }
 
         MEU_ENDERECO = {
@@ -451,64 +391,54 @@ cardapio.metodos = {
             complemento: complemento
         }
 
-        cardapio.metodos.carregarEtapa(3);
-        cardapio.metodos.carregarResumo();
+        return true
 
     },
 
-    // carrega a etapa de Resumo do pedido
     carregarResumo: () => {
 
-        $("#listaItensResumo").html('');
+        $("#resumo-items-pedido").html('');
 
         $.each(MEU_CARRINHO, (i, e) => {
 
             let temp = cardapio.templates.itemResumo.replace(/\${img}/g, e.img)
                 .replace(/\${nome}/g, e.name)
-                .replace(/\${preco}/g, e.price.toFixed(2).replace('.', ','))
-                .replace(/\${qntd}/g, e.qntd)
+                .replace(/\${preco}/g, (e.price * e.qtd).toFixed(2).replace('.', ','))
+                .replace(/\${qntd}/g, e.qtd)
+                .replace(/\${border}/g, i+1 == MEU_CARRINHO.length ? '' : 'border-b')
 
-            $("#listaItensResumo").append(temp);
+            $("#resumo-items-pedido").append(temp);
 
         });
 
-        $("#resumoEndereco").html(`${MEU_ENDERECO.endereco}, ${MEU_ENDERECO.numero}, ${MEU_ENDERECO.bairro}`);
-        $("#cidadeEndereco").html(`${MEU_ENDERECO.cidade}-${MEU_ENDERECO.uf} / ${MEU_ENDERECO.cep} ${MEU_ENDERECO.complemento}`);
-
-        cardapio.metodos.finalizarPedido();
+        $("#resumo-endereco").html(`${MEU_ENDERECO.endereco}, ${MEU_ENDERECO.numero}, ${MEU_ENDERECO.bairro}`);
+        $("#resumo-endereco-2").html(`${MEU_ENDERECO.cidade}-${MEU_ENDERECO.uf} / ${MEU_ENDERECO.cep} - ${MEU_ENDERECO.complemento}`);
 
     },
 
-    // Atualiza o link do botão do WhatsApp
     finalizarPedido: () => {
-
         if (MEU_CARRINHO.length > 0 && MEU_ENDERECO != null) {
 
-            var texto = 'Olá! gostaria de fazer um pedido:';
-            texto += `\n*Itens do pedido:*\n\n\${itens}`;
+
+            let texto = 'Olá! gostaria de fazer um pedido:';
+            texto += `\n\n\${itens}`;
             texto += '\n*Endereço de entrega:*';
             texto += `\n${MEU_ENDERECO.endereco}, ${MEU_ENDERECO.numero}, ${MEU_ENDERECO.bairro}`;
             texto += `\n${MEU_ENDERECO.cidade}-${MEU_ENDERECO.uf} / ${MEU_ENDERECO.cep} ${MEU_ENDERECO.complemento}`;
-            texto += `\n\n*Total (com entrega): R$ ${(VALOR_CARRINHO + VALOR_ENTREGA).toFixed(2).replace('.', ',')}*`;
+            texto += `\n\nEntrega: R$ ${VALOR_ENTREGA.toFixed(2).replace('.', ',')}`;
+            texto += `\n*Total: R$ ${(VALOR_CARRINHO + VALOR_ENTREGA).toFixed(2).replace('.', ',')}*`;
 
-            var itens = '';
-
+            let itens = '';
             $.each(MEU_CARRINHO, (i, e) => {
+                
+                itens += `*${e.qtd}x* ${e.name} ....... R$ ${(e.price * e.qtd).toFixed(2).replace('.', ',')}\n`;
 
-                itens += `*${e.qntd}x* ${e.name} ....... R$ ${e.price.toFixed(2).replace('.', ',')} \n`;
-
-                // último item
                 if ((i + 1) == MEU_CARRINHO.length) {
-
                     texto = texto.replace(/\${itens}/g, itens);
-
-                    // converte a URL
-                    let encode = encodeURI(texto);
-                    let URL = `https://wa.me/${CELULAR_EMPRESA}?text=${encode}`;
-
-                    $("#btnEtapaResumo").attr('href', URL);
-
-                }
+                    let encoded = encodeURI(texto);
+                    let URL = `https://wa.me/${CELULAR_EMPRESA}?text=${encoded}`;
+                    window.open(URL, '_blank');
+                };
 
             })
 
@@ -551,8 +481,7 @@ cardapio.metodos = {
 
     },
 
-    // mensagens
-    mensagem: (texto, cor = 'red', tempo = 2500) => {
+    toast: (texto, cor = 'red', tempo = 2500) => {
 
         let id = Math.floor(Date.now() * Math.random()).toString();
 
@@ -605,12 +534,12 @@ cardapio.templates = {
     itemCarrinho: `
         <div class="flex flex-row justify-between p-2 \${border} border-gray-300 w-full items-center">
             <div class="flex">
-                <div class="h-12 w-12 sm:h-24 sm:w-24 bg-gray-200 rounded-xl p-1 sm:p-2 shrink-0 flex">
+                <div class="h-12 w-12 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-xl shrink-0 flex">
                     <img src="\${img}" alt="" class="rounded-xl">
                 </div>
                 <div class="px-2 flex flex-col justify-center font-bold">
-                    <p class="text-sm">\${nome}</p>
-                    <p class="text-primary text-lg">R$ \${preco}</p>
+                    <p class="text-sm sm:text-lg lg:text-xl">\${nome}</p>
+                    <p class="text-primary text-lg lg:text-2xl">R$ \${preco}</p>
                 </div>
             </div>
             <div id="item-sacola-\${id}" class="flex group shrink-0">
@@ -629,20 +558,22 @@ cardapio.templates = {
     `,
 
     itemResumo: `
-        <div class="col-12 item-carrinho resumo">
-            <div class="img-produto-resumo">
-                <img src="\${img}" />
+        <div class="flex flex-row justify-between items-center \${border} border-gray-300 py-2">
+            <div class="flex">
+                <div class="shrink-0 p-1">
+                    <img class="h-12 w-12 rounded-xl" src="\${img}" />
+                </div>
+                <div class="flex flex-col ml-2 justify-center">
+                    <p class="text-default text-sm md:text-base">
+                        <b>\${nome}</b>
+                    </p>
+                    <p class="text-primary md:text-lg">
+                        <b>R$ \${preco}</b>
+                    </p>
+                </div>
             </div>
-            <div class="dados-produto">
-                <p class="title-produto-resumo">
-                    <b>\${nome}</b>
-                </p>
-                <p class="price-produto-resumo">
-                    <b>R$ \${preco}</b>
-                </p>
-            </div>
-            <p class="quantidade-produto-resumo">
-                x <b>\${qntd}</b>
+            <p class="mr-2 font-bold">
+                x \${qntd}
             </p>
         </div>
     `

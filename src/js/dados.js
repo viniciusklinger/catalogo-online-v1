@@ -4,7 +4,7 @@ var MENU = {
             "id": "ribs-brisket-and-burnt-ends",
             "img": "./imgs/cardapio/churrasco/joes-kc-ribs-brisket-and-burnt-ends.6710e994980e485e6441b794717ad6fb.jpg",
             "name": "Joe's KC BBQ",
-            "dsc": "Joe's KC Ribs, Brisket & Burnt Ends",
+            "dsc": "Joe's KC Ribs, Brisket and Burnt Ends",
             "price": 110.99,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
@@ -44,7 +44,7 @@ var MENU = {
             "id": "mini-trinity-bbq-combo-brisket-ribs-and-links",
             "img": "./imgs/cardapio/churrasco/mini-trinity-bbq-combo-brisket-ribs-and-links.245582f593bf64b23b57dfca2be18cfd.jpg",
             "name": "Bludso's BBQ",
-            "dsc": "Mini Trinity BBQ Combo - Brisket, Ribs & Links",
+            "dsc": "Mini Trinity BBQ Combo - Brisket, Ribs and Links",
             "price": 139,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"]
         },
@@ -83,7 +83,7 @@ var MENU = {
         {
             "id": "post-oak-smoked-half-brisket",
             "img": "./imgs/cardapio/churrasco/post-oak-smoked-usda-prime-half-brisket.6f17178dde7d806670bcc73ff11762b3.jpg",
-            "name": "Southside Market & Barbeque",
+            "name": "Southside Market and Barbeque",
             "dsc": "Post Oak Smoked USDA Prime Half Brisket",
             "price": 109,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"]
@@ -103,7 +103,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/Gramercy-Tavern-Burger-and-Kielbasa-Kit-6.4.21-72ppi-1x1-15.jpg",
             "name": "Gramercy Tavern 1",
             "dsc": "The Gramercy Tavern Burger - 4 Pack",
-            "price": 99,
+            "price": 20,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz"],
         },
         {
@@ -111,7 +111,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/shake-shack-shackburger-8-pack.973a5e26836ea86d7e86a327becea2b0.jpg",
             "name": "Shake Shack 2",
             "dsc": "Shake Shack ShackBurger® - 8 Pack",
-            "price": 49,
+            "price": 22,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Queijo cheddar", "Ingrediente super secreto e super longo", "Alface", "Tomate",],
         },
         {
@@ -119,7 +119,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/gotts-complete-cheeseburger-kit-for-4.7bdc74104b193427b3fe6eae39e05b5e.jpg",
             "name": "Gott's Roadside 3",
             "dsc": "Gott's Complete Cheeseburger Kit for 4",
-            "price": 99,
+            "price": 18,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Cheddar", "Ovos", "Cebola roxa", "Orégano", "Alface", "Tomate", "ing", "ing", "ing"],
         },
         {
@@ -127,7 +127,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/le-big-matt-kit-for-6.1ddae6e382bb3218eeb0fd5247de115a.jpg",
             "name": "Emmy Squared 4",
             "dsc": "Le Big Matt Burger Kit for 6",
-            "price": 99,
+            "price": 24,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -135,7 +135,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/shake-shack-shackburger-16-pack.316f8b09144db65931ea29e34869287a.jpg",
             "name": "Shake Shack 5",
             "dsc": "Shake Shack Shackburger® - 16 Pack",
-            "price": 89,
+            "price": 22.9,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -143,15 +143,15 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/usda-prime-burgers-pack-of-18-8oz-each.274c67f15aa1c0b210dbf51801706670.jpg",
             "name": "Peter Luger Steak House 6",
             "dsc": "USDA Prime Burgers - Pack of 18 (8oz each)",
-            "price": 175.95,
+            "price": 28,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
             "id": "double-stack-burger-kit-for-4",
             "img": "./imgs/cardapio/burguers/handf-double-stack-burger-kit-for-4.4ee9f54b1d6087e9996335f07c13e5cd.jpg",
-            "name": "Holeman & Finch 7",
+            "name": "Holeman and Finch 7",
             "dsc": "Double Stack Burger Kit for 4",
-            "price": 79,
+            "price": 32.5,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -159,7 +159,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/the-burger-bash-package.bd9d12d031865940bbe5faf15f1a62f8.jpg",
             "name": "Pat LaFrieda Meats 8",
             "dsc": "Goldbelly \"Burger Bash\" Pack",
-            "price": 109,
+            "price": 20,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -167,7 +167,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/burger-au-poivre-kit-4-pack.3ca0e39b02db753304cd185638dad518.jpg",
             "name": "Raoul's 9",
             "dsc": "Burger Au Poivre Kit - 4 Pack",
-            "price": 99,
+            "price": 20,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -175,7 +175,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/goldbelly-burger-blend-1-lb.13a21b66edf7173a59c75c3a6d2f981b.jpg",
             "name": "Flannery Beef 10",
             "dsc": "Goldbelly Burger Blend - 4 lbs.",
-            "price": 79,
+            "price": 20,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -183,7 +183,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/gotts-complete-cheeseburger-kit-for-8.092aa049d00286fa1733d720decc782e.jpg",
             "name": "Gott's Roadside 11",
             "dsc": "Gott's Complete Cheeseburger Kit for 8",
-            "price": 149,
+            "price": 20,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -191,7 +191,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/Gramercy-Tavern-Burger-and-Kielbasa-Kit-6.4.21-72ppi-1x1-47.jpg",
             "name": "Gramercy Tavern 12",
             "dsc": "Gramercy Tavern Burger + Kielbasa Combo",
-            "price": 149,
+            "price": 22.99,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -199,7 +199,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/Gramercy-Tavern-Burger-and-Kielbasa-Kit-6.4.21-72ppi-1x1-47.jpg",
             "name": "Gramercy Tavern 13",
             "dsc": "Gramercy Tavern Burger + Kielbasa Combo",
-            "price": 149,
+            "price": 36.99,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -207,7 +207,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/Gramercy-Tavern-Burger-and-Kielbasa-Kit-6.4.21-72ppi-1x1-47.jpg",
             "name": "Gramercy Tavern 14",
             "dsc": "Gramercy Tavern Burger + Kielbasa Combo",
-            "price": 149,
+            "price": 41,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         },
         {
@@ -215,7 +215,7 @@ var MENU = {
             "img": "./imgs/cardapio/burguers/Gramercy-Tavern-Burger-and-Kielbasa-Kit-6.4.21-72ppi-1x1-47.jpg",
             "name": "Gramercy Tavern 15",
             "dsc": "Gramercy Tavern Burger + Kielbasa Combo",
-            "price": 149,
+            "price": 20,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz", "Alface", "Tomate"],
         }
     ],
@@ -358,7 +358,7 @@ var MENU = {
         {
             "id": "chickpea-chiller-kit-for-6",
             "img": "./imgs/cardapio/bebidas/chickpea-chiller-kit-for-6.4310765c71ba524b5462ea9330d32446.jpg",
-            "name": "The Hummus & Pita Co.",
+            "name": "The Hummus and Pita Co.",
             "dsc": "Chickpea Chiller Kit for 6",
             "price": 89
         },
@@ -380,7 +380,7 @@ var MENU = {
             "id": "002-charleston-bloody-mary-mix-weekender-bold-and-spicy",
             "img": "./imgs/cardapio/bebidas/weekender-charleston-bloody-mary-mix-bold-and-spicy.c372868c9937e407a299a22001e210e2.jpg",
             "name": "Charleston Beverage Company",
-            "dsc": "Weekender | Charleston Bloody Mary Mix Bold & Spicy",
+            "dsc": "Weekender | Charleston Bloody Mary Mix Bold and Spicy",
             "price": 39.95
         },
         {
