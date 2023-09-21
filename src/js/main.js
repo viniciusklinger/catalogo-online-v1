@@ -1,6 +1,7 @@
 $(document).ready(function () {
     cardapio.eventos.init();
     $("#data-cep").on("input", debounce(cardapio.metodos.buscarCep, 150));
+    /* $("#data-numero").on("input", debounce(cardapio.metodos.calcularEntrega, 600)); */
 })
 
 var cardapio = {};
@@ -10,12 +11,13 @@ var MEU_ENDERECO = null;
 
 var VALOR_CARRINHO = 0;
 var VALOR_ENTREGA = 0;
+var TAXA_ENTREGA = 1.8;
 
 var CELULAR_EMPRESA = '5542998663675';
 
 var map;
 
-var LOCAL_LOJA = { lat: -25.09797509988559, lng: -50.16480066847686 };
+var LOCAL_LOJA = { lat: -25.109664656607833, lng: -50.12425511392971 };
 
 cardapio.eventos = {
 
@@ -273,7 +275,7 @@ cardapio.metodos = {
 
             if ((i + 1) == MEU_CARRINHO.length) {
                 $("#cart-subtotal").text(`R$ ${VALOR_CARRINHO.toFixed(2).replace('.', ',')}`);
-                /* $("#cart-entrega").text(`+ R$ ${VALOR_ENTREGA.toFixed(2).replace('.', ',')}`); */
+                $("#cart-entrega").text(`+ R$ ${VALOR_ENTREGA.toFixed(2).replace('.', ',')}`);
                 $("#cart-total").text(`R$ ${(VALOR_CARRINHO + VALOR_ENTREGA).toFixed(2).replace('.', ',')}`);
             }
 
@@ -344,6 +346,46 @@ cardapio.metodos = {
 
     },
 
+    calcularEntrega: async () => {
+        let cep = $("#data-cep").val().trim().replace(/\D/g, '');
+        let rua = $("#data-rua").val().trim();
+        let numero = $("#data-numero").val().trim();
+        let bairro = $("#data-bairro").val().trim();
+        let cidade = $("#data-cidade").val().trim();
+        let uf = $("#data-uf").val().trim();
+
+        let body = {
+            "origin":{
+                "location": {
+                    "latLng" : LOCAL_LOJA
+                }
+            },
+            "destination":{
+                "address": `${rua}, ${numero}, ${bairro} ${cidade} ${uf} ${cep}`
+            },
+            "travelMode": "DRIVE",
+            "units": "METRIC"
+        }
+        let header = {
+            "Content-Type": "application/json", 
+            "X-Goog-Api-Key": "AIzaSyBXNR4fufFl1SbFuab52Ito48xYqRmzw2U",
+            "X-Goog-FieldMask": "routes.duration,routes.distanceMeters",
+            "Access-Control-Allow-Origin": "https://teste.boraboy.com.br/",
+        }
+
+        await $.ajax({
+            headers: header,
+            dataType: "jsonp",
+            url: "https://routes.googleapis.com/directions/v2:computeRoutes",
+            data: body,
+            success: function(res) {
+                console.log('res: ', res)
+                let parsed = $.parseJSON(res)
+                console.log('parsed: ', parsed);
+            }
+        });
+    },
+
     validarEndereco: () => {
 
         let cep = $("#data-cep").val().trim();
@@ -379,6 +421,7 @@ cardapio.metodos = {
             $("#data-uf").focus();
             return false;
         } */
+
         if (numero.length <= 0) {
             cardapio.metodos.toast('Informe o Número, por favor.');
             $("#data-numero").focus();
@@ -518,18 +561,89 @@ cardapio.metodos = {
 
     carregarMapa: async () => {
         const position = LOCAL_LOJA;
-        const { Map } = await google.maps.importLibrary("maps");
-        const { Marker } = await google.maps.importLibrary("marker")
+        const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+        const { Marker } = await google.maps.importLibrary("marker");
+        const { DirectionsService } = await google.maps.importLibrary("routes");
+
+        function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+            infoWindow.setPosition(pos);
+            infoWindow.setContent(
+              browserHasGeolocation
+                ? "Error: The Geolocation service failed."
+                : "Error: Your browser doesn't support geolocation.",
+            );
+            infoWindow.open(map);
+        }
+
+        function updateDirections() {
+            console.log('rodou');
+            const route = {
+                origin: LOCAL_LOJA,
+                destination: marker.getPosition(),
+                travelMode: 'DRIVING',
+                language: '	pt-BR',
+            }
+
+            directionsService.route(route, function(response, status) {
+                if (status !== 'OK') {
+                    window.alert('Directions request failed due to ' + status);
+                    return;
+                } else {
+                    /* directionsRenderer.setDirections(response); */ // Add route to the map
+                    var directionsData = response.routes[0].legs[0]; // Get data about the mapped route
+                    console.log('dir: ', directionsData);
+                    if (!directionsData) {
+                        window.alert('Directions request failed');
+                        return;
+                    } else {
+                        console.log(" Driving distance is " + directionsData.distance.text + " (" + directionsData.duration.text + ").")
+                        VALOR_ENTREGA = (directionsData.distance.value * 2) / 1000 * TAXA_ENTREGA
+                        cardapio.metodos.carregarValores();
+                        cardapio.metodos.atualizarEndereco(directionsData.end_address);
+                        /* document.getElementById('msg').innerHTML += " Driving distance is " + directionsData.distance.text + " (" + directionsData.duration.text + ")."; */
+                    }
+                }
+            });
+        }
       
         map = new Map(document.getElementById("delivery-map"), {
           zoom: 13,
           center: position,
+          styles: [
+            {
+              "featureType": "poi.business",
+              "stylers": [
+                {
+                  "visibility": "off"
+                }
+              ]
+            },
+            
+          ]
         });
 
         const marker = new Marker({
             position: position,
+            animation: google.maps.Animation.DROP,
             map,
+            draggable: true,
         });
+
+        marker.addListener("dragend", (event) => {
+        
+            marker.setPosition(marker.getPosition())
+            updateDirections();
+            console.log('new pos: ', marker.getPosition())
+            /* infoWindow.setContent(
+              `Pin dropped at: ${position.lat()}, ${position.lng()}`,
+            );
+            infoWindow.open(draggableMarker.map, draggableMarker); */
+        });
+
+        
+        const infowindow = new InfoWindow({map});
+
+        const directionsService = new DirectionsService({});
 
         google.maps.event.addListener(map, 'click', function (event) {
             marker.setPosition(event.latLng);
@@ -537,8 +651,72 @@ cardapio.metodos = {
             window.setTimeout(() => {
               map.panTo(event.latLng);
             }, 400);
+            updateDirections();
         });
-      }
+
+        const locationButton = document.createElement("button");
+        locationButton.textContent = "Usar minha localização atual";
+        locationButton.setAttribute( 'class', 'p-2 bg-primary mt-2 text-defualt hover:text-white text-base rounded-md');
+
+        map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+        locationButton.addEventListener("click", () => {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  const pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                  };
+
+                  marker.setPosition(pos);
+                  infowindow.setContent("Clique/arraste sobre o local de entrega");
+                  infowindow.open(map, marker);
+                  map.panTo(pos);
+                  window.setTimeout(() => {
+                    map.setZoom(17);;
+                  }, 400);
+                  updateDirections();
+                },
+                () => {
+                  handleLocationError(true, infowindow, map.getCenter());
+                },
+              );
+            } else {
+              // Browser doesn't support Geolocation
+              handleLocationError(false, infoWindow, map.getCenter());
+            }
+        });
+        
+    },
+
+    atualizarEndereco(endereco) {
+        const ruaMatch = endereco.match(/([\w\s.-]+),/) ?? null;
+        const numeroMatch = endereco.match(/(\d+) -/) ?? null;
+        const bairroMatch = endereco.match(/- ([\w\s.-]+),/) ?? null;
+        const cidadeMatch = endereco.match(/([^,]+),\s+(\d+)\s+-\s+([^,]+)/) ?? null;
+        const ufMatch = endereco.match(/- ([A-Z]{2}),/) ?? null;
+        const cepMatch = endereco.match(/(\d{5}-\d{3})/) ?? null;
+
+        console.log(`
+            endereco: ${endereco}\n
+            ruaMatch: ${ruaMatch[1].trim()}\n
+            numeroMatch: ${numeroMatch[1].trim()}\n
+            bairroMatch: ${bairroMatch[1].trim()}\n
+            cidadeMatch: ${cidadeMatch[3].trim()}\n
+            ufMatch: ${ufMatch[1].trim()}\n
+            cepMatch: ${cepMatch[1].trim()}\n
+        `);
+
+        $("#data-cep").val(cepMatch[1].trim());/* 
+        $("#data-rua").val(ruaMatch[1].trim());
+        $("#data-bairro").val(bairroMatch[1].trim());
+        $("#data-cidade").val(cidadeMatch[3].trim());
+        $("data-uf").val(ufMatch[1].trim());
+        $("#data-numero").val(numeroMatch[1].trim()); */
+
+        return;
+    }
 }
 
 cardapio.templates = {
