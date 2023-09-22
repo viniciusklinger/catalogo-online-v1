@@ -14,7 +14,7 @@
     <header class="h-9 w-full"></header>
     <main>
         <!-- toast -->
-        <div class="fixed text-sm max-w-[300px] h-5 z-50 right-5 top-5 pointer-events-none select-none" id="toast-container"></div>
+        <div class="fixed text-sm max-w-[300px] h-5 z-50 right-5 top-5" id="toast-container"></div>
 
         <!-- carrinho -->
         <button id="btn-carrinho" class="hidden fixed bottom-10 h-14 w-14 right-6 rounded-full bg-primary" onclick="cardapio.metodos.abrirCarrinho(true)">
@@ -25,7 +25,7 @@
         </button>
 
         <!-- modal carrinho -->
-        <div id="modal-carrinho" data-etapa="1" class="hidden group fixed top-0 left-0 w-full h-full p-3 xs:p-6 sm:p-8 bg-white">
+        <div id="modal-carrinho" data-etapa="1" data-modo="1" class="hidden group fixed top-0 left-0 w-full h-full p-3 xs:p-6 sm:p-8 bg-white">
             <div class="max-w-6xl mx-auto flex flex-col justify-between h-full">
                 <!-- header -->
                 <div>
@@ -37,7 +37,14 @@
                         </div>
                         <button class="bg-white hover:bg-primary hover:text-white px-4 py-2 shadow-xl text-lg rounded-2xl font-medium" onclick="cardapio.metodos.abrirCarrinho(false)">Fechar</button>
                     </div>
-                    <p id="etapa-label" class="font-semibold mt-4 mb-2 text-xl">Seu pedido:</p>
+                    <div class="flex mt-4 mb-2">
+                        <p id="etapa-label" class="font-semibold text-xl group-data-[etapa='2']:hidden">Seu pedido:</p>
+                        <div class="hidden group-data-[etapa='2']:flex">
+                            <button class="border-b-2 border-gray-400 group-data-[modo='1']:border-primary group-data-[modo='1']:font-semibold" onclick="cardapio.metodos.handleDeliveryMode(1)">Entrega</button>
+                            <button class="ml-2 border-b-2 border-gray-400 group-data-[modo='2']:border-primary group-data-[modo='2']:font-semibold" onclick="cardapio.metodos.handleDeliveryMode(2)">Retirada</button>
+                        </div>
+                    </div>
+                    <!-- <p id="etapa-label" class="font-semibold mt-4 mb-2 text-xl">Seu pedido:</p> -->
                 </div>
 
                 <!-- content -->
@@ -55,51 +62,46 @@
                     </div>
 
                     <!-- delivery -->
-                    <div class="px-2 h-80 hidden group-data-[etapa='2']:flex flex-row mb-6">
-                        <div class=" w-1/2">
-                            <div class="bg-gray-200 rounded-xl p-3 mb-2 text-sm">
-                                <button class="bg-white  rounded-xl p-2 mx-auto">Usar localização atual</button>
-                                <p>O recurso de localização nem sempre funciona corretamente. Você pode ajustar o marcador no mapa, caso o recurso não funciona adequadamente</p>
-                            </div>
-                            <form id="delivery-view" class="hidden group-data-[etapa='2']:block mx-auto min-[830px]:text-lg group/loading">
-                                <div class="flex flex-col sm:grid sm:grid-cols-2 gap-x-3">
-                                    <div class="flex flex-col">
-                                        <label for="data-cep">CEP:</label>
-                                        <input type="text" pattern="[0-9]{5}-[0-9]{3}" id="data-cep" placeholder="00000-000" class="bg-white p-3 shadow-md rounded-2xl">
-                                    </div>
-                                    
-                                    <div class="flex flex-col">
-                                        <label for="data-rua">Rua:</label>
-                                        <input type="text" id="data-rua"placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
-                                    </div>
-                                    
-                                    <div class="flex flex-col">
-                                        <label for="data-bairro">Bairro:</label>
-                                        <input type="text" id="data-bairro" placeholder="Centro" class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
-                                    </div>
-                                    
-                                    <div class="flex flex-col">
-                                        <label for="data-numero">Número:</label>
-                                        <input type="text" id="data-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl"> <!-- max-w-[208px] -->
-                                    </div>
-                                    
-                                    <div class="flex flex-col col-span-2">
-                                        <label for="data-complemento">Complemento:</label>
-                                        <input type="text" id="data-complemento" class="bg-white p-3 shadow-md rounded-2xl mb-4">
-                                    </div>
-                                    
-                                    <!-- <label for="form-cidade">Cidade:</label> -->
-                                    <input type="hidden" id="data-cidade" name="form-cidade" placeholder="Ponta Grossa" class="bg-white p-3 shadow-md rounded-2xl mb-4">
-                                    
-                                    <!-- <label for="form-uf">UF:</label> -->
-                                    <input type="hidden" id="data-uf" name="form-uf" placeholder="Paraná" class="bg-white p-3 shadow-md rounded-2xl mb-4">
-                                </div>
-                            </form>
+                    <div class="px-2 h-80 hidden group-data-[etapa='2']:flex mb-6 flex-col md:flex-row">
+                        <div class="w-full md:w-1/2 group-data-[modo='2']:w-full mb-4 md:mb-0 md:mr-4">
+                            <button id="btn-use-location-service" class="group-data-[modo='2']:hidden w-full p-2 text-default hover:text-white bg-primary rounded-lg mb-3">Usar minha localização atual</button>
+                            <p id="endereco-label" data-endereco="Endereço da loja" class="hidden group-data-[modo='2']:block after:content-[attr(data-endereco)] text-center font-medium text-lg mb-3"></p>
+                            <div id="delivery-map" class="h-80 md:h-[calc(100%-83px)] rounded-lg shadow-lg bg-gray-200"></div>
                         </div>
-                        <div id="delivery-map" class="ml-4 h-full w-1/2 rounded-lg"></div>
-                        <!-- <div class="bg-gray-200 rounded-xl p-3 mb-2 text-sm w-full">
-                            <p>O recurso de localização nem sempre funciona corretamente. Você pode ajustar o marcador no mapa, caso o recurso não funciona adequadamente</p>
-                        </div> -->
+                        <form id="delivery-view" class="hidden group-data-[etapa='2']:block group-data-[modo='2']:hidden mx-auto min-[830px]:text-lg group/loading w-full md:w-1/2 pb-4 md:pb-0">
+                            <div class="flex flex-col sm:grid sm:grid-cols-2 gap-x-3 gap-y-6">
+                                <div class="flex flex-col">
+                                    <label for="data-cep">CEP:</label>
+                                    <input type="text" pattern="[0-9]{5}-[0-9]{3}" id="data-cep" placeholder="00000-000" class="bg-white p-3 shadow-md rounded-2xl">
+                                </div>
+                                
+                                <div class="flex flex-col">
+                                    <label for="data-rua">Rua:</label>
+                                    <input type="text" id="data-rua"placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
+                                </div>
+                                
+                                <div class="flex flex-col">
+                                    <label for="data-bairro">Bairro:</label>
+                                    <input type="text" id="data-bairro" placeholder="Centro" class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
+                                </div>
+                                
+                                <div class="flex flex-col">
+                                    <label for="data-numero">Número:</label>
+                                    <input type="text" id="data-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl"> <!-- max-w-[208px] -->
+                                </div>
+                                
+                                <div class="flex flex-col col-span-2">
+                                    <label for="data-complemento">Complemento:</label>
+                                    <input type="text" id="data-complemento" class="bg-white p-3 shadow-md rounded-2xl">
+                                </div>
+                                
+                                <!-- <label for="form-cidade">Cidade:</label> -->
+                                <input type="hidden" id="data-cidade" name="form-cidade" placeholder="Ponta Grossa" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                                
+                                <!-- <label for="form-uf">UF:</label> -->
+                                <input type="hidden" id="data-uf" name="form-uf" placeholder="Paraná" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                            </div>
+                        </form>
                     </div>
                         
                     <!-- summary -->
@@ -120,25 +122,25 @@
                 </div>
 
                 <!-- footer -->
-                <div class="flex flex-col items-end border-t border-gray-300 font-normal">
+                <div class="flex flex-col items-end border-t border-gray-300 font-normal text-sm sm:text-lg">
                     <p class="mt-4">
                         <span>Subtotal:</span>
                         <span id="cart-subtotal">R$ 0,00</span>
                     </p>
                     <div class="flex items-center justify-center font-medium">
                         <img class="h-5 mr-2 text-gray-300" src="./imgs/icon/moto.png" alt="delivery icon">
-                        <p class="text-gray-300">
+                        <p id="entrega-label" class="text-gray-300 data-[max='true']:text-red-400">
                             <span>Entrega:</span>
                             <span id="cart-entrega">R$ 0,00</span>
                         </p>
                     </div>
-                    <p class="my-3 font-bold">
-                        <span class="text-xl">Total:</span>
-                        <span id="cart-total" class="text-2xl text-primary">R$ 0,00</span>
+                    <p class="my-1 sm:my-3 font-bold">
+                        <span class="text-lg sm:text-xl">Total:</span>
+                        <span id="cart-total" class="text-lg sm:text-2xl text-primary">R$ 0,00</span>
                     </p>
-                    <div class="flex flex-row flex-wrap justify-end">
-                        <button id="cart-nav-voltar" class="bg-white hover:bg-primary hover:text-white px-6 py-4 shadow-xl text-xl rounded-2xl font-medium mt-2 hidden data-[show=true]:block" onclick="cardapio.metodos.navegarEtapa('false')">Voltar</button>
-                        <button id="cart-nav-avancar" class="bg-primary text-white hover:text-default w-52 px-6 py-4 shadow-xl text-xl rounded-2xl font-medium ml-3 mt-2" onclick="cardapio.metodos.navegarEtapa('true')">Continuar</button>
+                    <div class="flex flex-row flex-wrap justify-end text-lg sm:text-xl font-medium">
+                        <button id="cart-nav-voltar" class="bg-white hover:bg-primary hover:text-white px-4 sm:px-6 py-3 sm:py-4 shadow-xl rounded-2xl mt-0 sm:mt-2 hidden data-[show=true]:block" onclick="cardapio.metodos.navegarEtapa('false')">Voltar</button>
+                        <button id="cart-nav-avancar" class="bg-primary text-white hover:text-default w-52 px-2 sm:px-6 py-3 sm:py-4 shadow-xl rounded-2xl ml-3 mt-0 sm:mt-2" onclick="cardapio.metodos.navegarEtapa('true')">Continuar</button>
                     </div>
                 </div>
             </div>

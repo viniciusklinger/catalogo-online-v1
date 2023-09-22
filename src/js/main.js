@@ -5,19 +5,26 @@ $(document).ready(function () {
 })
 
 var cardapio = {};
+var toast = {};
 
 var MEU_CARRINHO = [];
 var MEU_ENDERECO = null;
 
 var VALOR_CARRINHO = 0;
-var VALOR_ENTREGA = 0;
-var TAXA_ENTREGA = 1.8;
+var VALOR_ENTREGA = {valor: 0, maxValue: false};
+var TAXA_ENTREGA = {
+    6: 1.8,
+    10: 1.7,
+    15: 1.4,
+    999: 1.3,
+};
 
-var CELULAR_EMPRESA = '5542998663675';
+var CELULAR_LOJA = '5542998663675';
+var ENDERECO_LOJA = 'Rua Siqueira Campos, 1806 - Uvaranas, Ponta Grossa - PR, 84031-030'
+var LOCAL_LOJA = { lat: -25.109664656607833, lng: -50.12425511392971 };
 
 var map;
 
-var LOCAL_LOJA = { lat: -25.109664656607833, lng: -50.12425511392971 };
 
 cardapio.eventos = {
 
@@ -25,6 +32,8 @@ cardapio.eventos = {
         cardapio.metodos.obterItensCardapio();
         cardapio.metodos.carregarBotaoLigar();
         cardapio.metodos.carregarBotaoReserva();
+
+        $('#endereco-label').attr('data-endereco', ENDERECO_LOJA)
     }
 
 }
@@ -39,7 +48,6 @@ function debounce(func, timeout = 300){
 
 cardapio.metodos = {
 
-    // obtem a lista de itens do cardápio
     obterItensCardapio: (categoria = 'burgers', vermais = false) => {
 
         var filtro = MENU[categoria];
@@ -83,7 +91,6 @@ cardapio.metodos = {
 
     },
 
-    // clique no botão de ver mais
     verMais: () => {
 
         var categoria = $(".cardapio-menu").find("[data-active=true]").attr('id').split('cardapio-btn-')[1];
@@ -138,7 +145,7 @@ cardapio.metodos = {
         } else {
             $('#btn-carrinho').addClass('hidden');
         };
-        cardapio.metodos.toast('Adicionado ao carrinho!', 'green')
+        toast.metodos.create('Adicionado ao carrinho!', 'green');
         cardapio.metodos.atualizarContagemCarrinho();
 
     },
@@ -168,6 +175,7 @@ cardapio.metodos = {
             /* block scrolling on body */
             $("#body-data").attr('data-modal', 'open');
             cardapio.metodos.carregarCarrinho();
+            if (!map) cardapio.metodos.carregarMapa();
         }
         else {
             $("#modal-carrinho").addClass('hidden');
@@ -275,8 +283,14 @@ cardapio.metodos = {
 
             if ((i + 1) == MEU_CARRINHO.length) {
                 $("#cart-subtotal").text(`R$ ${VALOR_CARRINHO.toFixed(2).replace('.', ',')}`);
-                $("#cart-entrega").text(`+ R$ ${VALOR_ENTREGA.toFixed(2).replace('.', ',')}`);
-                $("#cart-total").text(`R$ ${(VALOR_CARRINHO + VALOR_ENTREGA).toFixed(2).replace('.', ',')}`);
+                $("#cart-entrega").text(`+ R$ ${VALOR_ENTREGA.valor.toFixed(2).replace('.', ',')}`);
+                $("#cart-total").text(`R$ ${(VALOR_CARRINHO + VALOR_ENTREGA.valor).toFixed(2).replace('.', ',')}`);
+
+                if (VALOR_ENTREGA.maxValue) {
+                    $("#entrega-label").attr('data-max', 'true');
+                } else {
+                    $("#entrega-label").removeAttr('data-max'); 
+                }
             }
 
         })
@@ -290,10 +304,9 @@ cardapio.metodos = {
 
         if (newEtapa == 2) {
             if (MEU_CARRINHO.length == 0) {
-                cardapio.metodos.toast('Sua sacola está vazia.')
+                toast.metodos.create('Sua sacola está vazia.')
                 return;
             };
-            if (!map) cardapio.metodos.carregarMapa();
         } else if (newEtapa == 3) {
             if (!cardapio.metodos.validarEndereco()) return;
             cardapio.metodos.carregarResumo();
@@ -333,7 +346,7 @@ cardapio.metodos = {
                             $("#data-numero").focus();
                         }
                         else {
-                            cardapio.metodos.toast('CEP não encontrado. Preencha as informações manualmente ou tente novamente.');
+                            toast.metodos.create('CEP não encontrado. Preencha as informações manualmente ou tente novamente.', 'red', 5000);
                             $("#txtEndereco").focus();
                         }
                     });
@@ -346,7 +359,7 @@ cardapio.metodos = {
 
     },
 
-    calcularEntrega: async () => {
+    /* calcularEntrega: async () => {
         let cep = $("#data-cep").val().trim().replace(/\D/g, '');
         let rua = $("#data-rua").val().trim();
         let numero = $("#data-numero").val().trim();
@@ -379,12 +392,9 @@ cardapio.metodos = {
             url: "https://routes.googleapis.com/directions/v2:computeRoutes",
             data: body,
             success: function(res) {
-                console.log('res: ', res)
-                let parsed = $.parseJSON(res)
-                console.log('parsed: ', parsed);
             }
         });
-    },
+    }, */
 
     validarEndereco: () => {
 
@@ -397,33 +407,33 @@ cardapio.metodos = {
         let complemento = $("#data-complemento").val().trim();
 
         if (cep.length <= 0) {
-            cardapio.metodos.toast('Informe o CEP, por favor.');
+            toast.metodos.create('Informe o CEP, por favor.');
             $("#data-cep").focus();
             return false;
         }
         if (endereco.length <= 0) {
-            cardapio.metodos.toast('Informe a Rua, por favor.');
+            toast.metodos.create('Informe a Rua, por favor.');
             $("#data-rua").focus();
             return false;
         }
         if (bairro.length <= 0) {
-            cardapio.metodos.toast('Informe o Bairro, por favor.');
+            toast.metodos.create('Informe o Bairro, por favor.');
             $("#data-bairro").focus();
             return false;
         }
         /* if (cidade.length <= 0) {
-            cardapio.metodos.toast('Informe a Cidade, por favor.');
+            toast.metodos.create('Informe a Cidade, por favor.');
             $("#data-cidade").focus();
             return false;
         }
         if (uf == "-1") {
-            cardapio.metodos.toast('Informe a UF, por favor.');
+            toast.metodos.create('Informe a UF, por favor.');
             $("#data-uf").focus();
             return false;
         } */
 
         if (numero.length <= 0) {
-            cardapio.metodos.toast('Informe o Número, por favor.');
+            toast.metodos.create('Informe o Número, por favor.');
             $("#data-numero").focus();
             return false;
         }
@@ -472,8 +482,8 @@ cardapio.metodos = {
             texto += '\n*Endereço de entrega:*';
             texto += `\n${MEU_ENDERECO.endereco}, ${MEU_ENDERECO.numero}, ${MEU_ENDERECO.bairro}`;
             texto += `\n${MEU_ENDERECO.cidade}-${MEU_ENDERECO.uf} / ${MEU_ENDERECO.cep} ${MEU_ENDERECO.complemento}`;
-            texto += `\n\nEntrega: R$ ${VALOR_ENTREGA.toFixed(2).replace('.', ',')}`;
-            texto += `\n*Total: R$ ${(VALOR_CARRINHO + VALOR_ENTREGA).toFixed(2).replace('.', ',')}*`;
+            texto += `\n\nEntrega: R$ ${VALOR_ENTREGA.valor.toFixed(2).replace('.', ',')}`;
+            texto += `\n*Total: R$ ${(VALOR_CARRINHO + VALOR_ENTREGA.valor).toFixed(2).replace('.', ',')}*`;
 
             let itens = '';
             $.each(MEU_CARRINHO, (i, e) => {
@@ -483,7 +493,7 @@ cardapio.metodos = {
                 if ((i + 1) == MEU_CARRINHO.length) {
                     texto = texto.replace(/\${itens}/g, itens);
                     let encoded = encodeURI(texto);
-                    let URL = `https://wa.me/${CELULAR_EMPRESA}?text=${encoded}`;
+                    let URL = `https://wa.me/${CELULAR_LOJA}?text=${encoded}`;
                     window.open(URL, '_blank');
                 };
 
@@ -499,7 +509,7 @@ cardapio.metodos = {
         var texto = 'Olá! gostaria de fazer uma *reserva*';
 
         let encode = encodeURI(texto);
-        let URL = `https://wa.me/${CELULAR_EMPRESA}?text=${encode}`;
+        let URL = `https://wa.me/${CELULAR_LOJA}?text=${encode}`;
 
         $("#btnReserva").attr('href', URL);
 
@@ -508,7 +518,7 @@ cardapio.metodos = {
     // carrega o botão de ligar
     carregarBotaoLigar: () => {
 
-        $("#btnLigar").attr('href', `tel:${CELULAR_EMPRESA}`);
+        $("#btnLigar").attr('href', `tel:${CELULAR_LOJA}`);
 
     },
 
@@ -528,24 +538,6 @@ cardapio.metodos = {
 
     },
 
-    toast: (texto, cor = 'red', tempo = 2500) => {
-
-        let id = Math.floor(Date.now() * Math.random()).toString();
-
-        let msg = `<div data-color="${cor}" id="msg-${id}" class="data-[color=red]:bg-red-400 data-[color=green]:bg-green-400 text-white p-2 sm:px-4 sm:py-3 mt-1 sm:mt-2 rounded-lg shadow-xl">${texto}</div>`;
-
-        $("#toast-container").append(msg);
-
-        setTimeout(() => {
-            $("#msg-" + id).removeClass('fadeInDown');
-            $("#msg-" + id).addClass('fadeOutUp');
-            setTimeout(() => {
-                $("#msg-" + id).remove();
-            }, 800);
-        }, tempo)
-
-    },
-
     handleCardExpansion: (el) => {
 
         let viewport =  $(document).width();
@@ -559,6 +551,13 @@ cardapio.metodos = {
         };
     },
 
+    handleDeliveryMode: (mode) => {
+        $('#modal-carrinho').attr('data-modo', mode);
+        if (mode == 2) {
+            cardapio.metodos.updateDirections(LOCAL_LOJA);
+        }
+    },
+
     carregarMapa: async () => {
         const position = LOCAL_LOJA;
         const { Map, InfoWindow } = await google.maps.importLibrary("maps");
@@ -569,46 +568,15 @@ cardapio.metodos = {
             infoWindow.setPosition(pos);
             infoWindow.setContent(
               browserHasGeolocation
-                ? "Error: The Geolocation service failed."
-                : "Error: Your browser doesn't support geolocation.",
+                ? "Error: O serviço de Geolocalização falhou."
+                : "Error: Seu navegador não suporta Geolocalização.",
             );
             infoWindow.open(map);
-        }
-
-        function updateDirections() {
-            console.log('rodou');
-            const route = {
-                origin: LOCAL_LOJA,
-                destination: marker.getPosition(),
-                travelMode: 'DRIVING',
-                language: '	pt-BR',
-            }
-
-            directionsService.route(route, function(response, status) {
-                if (status !== 'OK') {
-                    window.alert('Directions request failed due to ' + status);
-                    return;
-                } else {
-                    /* directionsRenderer.setDirections(response); */ // Add route to the map
-                    var directionsData = response.routes[0].legs[0]; // Get data about the mapped route
-                    console.log('dir: ', directionsData);
-                    if (!directionsData) {
-                        window.alert('Directions request failed');
-                        return;
-                    } else {
-                        console.log(" Driving distance is " + directionsData.distance.text + " (" + directionsData.duration.text + ").")
-                        VALOR_ENTREGA = (directionsData.distance.value * 2) / 1000 * TAXA_ENTREGA
-                        cardapio.metodos.carregarValores();
-                        cardapio.metodos.atualizarEndereco(directionsData.end_address);
-                        /* document.getElementById('msg').innerHTML += " Driving distance is " + directionsData.distance.text + " (" + directionsData.duration.text + ")."; */
-                    }
-                }
-            });
         }
       
         map = new Map(document.getElementById("delivery-map"), {
           zoom: 13,
-          center: position,
+          center: LOCAL_LOJA,
           styles: [
             {
               "featureType": "poi.business",
@@ -622,43 +590,30 @@ cardapio.metodos = {
           ]
         });
 
+        
+        const infowindow = new InfoWindow({map});
+        const directionsService = new DirectionsService({});
         const marker = new Marker({
-            position: position,
+            position: LOCAL_LOJA,
             animation: google.maps.Animation.DROP,
             map,
             draggable: true,
         });
 
         marker.addListener("dragend", (event) => {
-        
             marker.setPosition(marker.getPosition())
-            updateDirections();
-            console.log('new pos: ', marker.getPosition())
-            /* infoWindow.setContent(
-              `Pin dropped at: ${position.lat()}, ${position.lng()}`,
-            );
-            infoWindow.open(draggableMarker.map, draggableMarker); */
+            cardapio.metodos.updateDirections(marker.getPosition());
         });
-
-        
-        const infowindow = new InfoWindow({map});
-
-        const directionsService = new DirectionsService({});
 
         google.maps.event.addListener(map, 'click', function (event) {
             marker.setPosition(event.latLng);
-            console.log(event.latLng.toJSON());
             window.setTimeout(() => {
               map.panTo(event.latLng);
             }, 400);
-            updateDirections();
+            cardapio.metodos.updateDirections(marker.getPosition());
         });
 
-        const locationButton = document.createElement("button");
-        locationButton.textContent = "Usar minha localização atual";
-        locationButton.setAttribute( 'class', 'p-2 bg-primary mt-2 text-defualt hover:text-white text-base rounded-md');
-
-        map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+        const locationButton = document.querySelector('#btn-use-location-service');
         locationButton.addEventListener("click", () => {
             // Try HTML5 geolocation.
             if (navigator.geolocation) {
@@ -670,24 +625,53 @@ cardapio.metodos = {
                   };
 
                   marker.setPosition(pos);
-                  infowindow.setContent("Clique/arraste sobre o local de entrega");
+                  infowindow.setContent("Clique no mapa ou arraste o PIN para corrigir.");
                   infowindow.open(map, marker);
                   map.panTo(pos);
                   window.setTimeout(() => {
-                    map.setZoom(17);;
+                    map.setCenter(pos),
+                    map.setZoom(17);
                   }, 400);
-                  updateDirections();
+                  cardapio.metodos.updateDirections(marker.getPosition());
                 },
                 () => {
-                  handleLocationError(true, infowindow, map.getCenter());
+                  handleLocationError(true, infowindow, marker.getPosition());
                 },
               );
             } else {
               // Browser doesn't support Geolocation
-              handleLocationError(false, infoWindow, map.getCenter());
+              handleLocationError(false, infoWindow, marker.getPosition());
             }
         });
         
+    },
+
+    updateDirections: async (dest) => {
+        const { DirectionsService } = await google.maps.importLibrary("routes");
+        const route = {
+            origin: LOCAL_LOJA,
+            destination: dest,
+            travelMode: 'DRIVING',
+            language: '	pt-BR',
+        }
+        const directionsService = new DirectionsService({});
+
+        directionsService.route(route, function(response, status) {
+            if (status != 'OK') {
+                let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
+                toast.metodos.create(msg, 'red', 7500);
+                console.error('Directions request failed due to ' + status);
+                return;
+            }
+            let directionsData = response.routes[0].legs[0];
+            if (!directionsData) {
+                console.error('Directions request failed. (res is empty)');
+                return;
+            } 
+            cardapio.metodos.calcularValorEntrega(directionsData);
+            cardapio.metodos.carregarValores();
+            cardapio.metodos.atualizarEndereco(directionsData.end_address);
+        });
     },
 
     atualizarEndereco(endereco) {
@@ -698,7 +682,7 @@ cardapio.metodos = {
         const ufMatch = endereco.match(/- ([A-Z]{2}),/) ?? null;
         const cepMatch = endereco.match(/(\d{5}-\d{3})/) ?? null;
 
-        console.log(`
+        /* console.log(`
             endereco: ${endereco}\n
             ruaMatch: ${ruaMatch[1].trim()}\n
             numeroMatch: ${numeroMatch[1].trim()}\n
@@ -706,7 +690,7 @@ cardapio.metodos = {
             cidadeMatch: ${cidadeMatch[3].trim()}\n
             ufMatch: ${ufMatch[1].trim()}\n
             cepMatch: ${cepMatch[1].trim()}\n
-        `);
+        `); */
 
         $("#data-cep").val(cepMatch[1].trim());/* 
         $("#data-rua").val(ruaMatch[1].trim());
@@ -715,8 +699,27 @@ cardapio.metodos = {
         $("data-uf").val(ufMatch[1].trim());
         $("#data-numero").val(numeroMatch[1].trim()); */
 
+        cardapio.metodos.buscarCep();
         return;
-    }
+    },
+
+    calcularValorEntrega(data) {
+        let distance = data.distance.value / 1000;
+        let duration = data.duration.value;
+        let taxa = 0
+
+        for (const [dist, valor] of Object.entries(TAXA_ENTREGA)) {
+            /* console.log('dist: ', dist, '\nvalor: ', valor);
+            console.log('res: ', distance < dist); */
+            if (distance < dist) {
+                taxa = valor;
+                break;
+            }
+        }
+        /* console.log(" Driving distance is " + directionsData.distance.text + " (" + directionsData.duration.text + ").") */
+        VALOR_ENTREGA.valor = (distance * 2) * taxa;
+        VALOR_ENTREGA.maxValue = (distance * 2) * taxa > 25 ? true : false;
+    },
 }
 
 cardapio.templates = {
@@ -784,3 +787,72 @@ cardapio.templates = {
         </div>
     `
 }
+
+toast.metodos = {
+    create: (texto, cor = 'red', tempo = 2500) => {
+
+        let id = Math.floor(Date.now() * Math.random()).toString();
+
+        let msg = toast.templates.default
+            .replace(/\${cor}/g, cor)
+            .replace(/\${id}/g, id)
+            .replace(/\${texto}/g, texto)
+
+        $("#toast-container").append(msg);
+
+        setTimeout(() => {
+            $("#msg-" + id).removeClass('fadeInDown');
+            $("#msg-" + id).addClass('fadeOutUp');
+            setTimeout(() => {
+                $("#msg-" + id).remove();
+            }, 800);
+        }, tempo)
+
+    },
+
+    close: (id) => {
+        $(`#${id}`).addClass('hidden');
+    }
+}
+
+toast.templates = {
+    default: `
+        <div data-color="\${cor}" id="msg-\${id}" class="relative data-[color=red]:bg-red-400 data-[color=green]:bg-green-400 data-[color=yellow]:bg-yellow-400 text-white p-2 sm:px-4 sm:py-3 mt-1 sm:mt-2 rounded-lg shadow-xl">
+            <p class="pointer-events-none select-none">\${texto}</p>
+            <button class="absolute top-0 right-1 text-xs p-1" onclick="toast.metodos.close('msg-\${id}')">X</button>
+        </div>
+    `
+}
+
+// Módulo DirectionsServiceWrapper
+const DirectionsServiceWrapper = (function () {
+    let directionsService; // Variável privada para armazenar a instância do DirectionsService
+  
+    function initialize() {
+      directionsService = new google.maps.DirectionsService(); // Inicializa a instância do DirectionsService
+    }
+  
+    function calculateRoute(options, callback) {
+      if (!directionsService) {
+        initialize();
+      }
+  
+      directionsService.route(options, function (result, status) {
+        if (status === 'OK') {
+          callback(result);
+        } else {
+          console.error('Erro ao calcular a rota:', status);
+          callback(null);
+        }
+      });
+    }
+  
+    // Outros métodos convenientes para trabalhar com o DirectionsService podem ser adicionados aqui
+  
+    // Exporte apenas os métodos que você deseja expor publicamente
+    return {
+      calculateRoute,
+      // Outros métodos aqui, se necessário
+    };
+  })();
+  
