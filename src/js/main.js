@@ -21,6 +21,7 @@ var TAXA_ENTREGA = {
 
 var CELULAR_LOJA = '5542998663675';
 var ENDERECO_LOJA = 'Rua Siqueira Campos, 1806 - Uvaranas, Ponta Grossa - PR, 84031-030'
+var LINK_MAPS_LOJA = 'https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6'
 var LOCAL_LOJA = { lat: -25.109664656607833, lng: -50.12425511392971 };
 
 var map;
@@ -343,11 +344,11 @@ cardapio.metodos = {
                             $("#data-bairro").val(dados.bairro);
                             $("#data-cidade").val(dados.localidade);
                             $("#data-uf").val(dados.uf);
-                            $("#data-numero").focus();
+                            /* $("#data-numero").focus(); */
                         }
                         else {
                             toast.metodos.create('CEP não encontrado. Preencha as informações manualmente ou tente novamente.', 'red', 5000);
-                            $("#txtEndereco").focus();
+                            /* $("#txtEndereco").focus(); */
                         }
                     });
 
@@ -665,7 +666,7 @@ cardapio.metodos = {
             }
             let directionsData = response.routes[0].legs[0];
             if (!directionsData) {
-                console.error('Directions request failed. (res is empty)');
+                console.error('Directions request failed.');
                 return;
             } 
             cardapio.metodos.calcularValorEntrega(directionsData);
@@ -769,7 +770,7 @@ cardapio.templates = {
     itemResumo: `
         <div class="flex flex-row justify-between items-center \${border} border-gray-300 py-2">
             <div class="flex">
-                <div class="shrink-0 p-1">
+                <div class="shrink-0">
                     <img class="h-12 w-12 rounded-xl" src="\${img}" />
                 </div>
                 <div class="flex flex-col ml-2 justify-center">
@@ -824,11 +825,117 @@ toast.templates = {
     `
 }
 
+/* const MapsServices = (async function () {
+    const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+    const { Marker } = await google.maps.importLibrary("marker");
+    const { DirectionsService } = await google.maps.importLibrary("routes");
+
+    let renderedMap;
+    let marker;
+    let directionsService;
+
+    function initMap() {
+        renderedMap = new Map(document.getElementById("delivery-map"), {
+            zoom: 13,
+            center: LOCAL_LOJA,
+            styles: [
+              {
+                "featureType": "poi.business",
+                "stylers": [
+                  {
+                    "visibility": "off"
+                  }
+                ]
+              },
+              
+            ]
+        });
+        addEvents();
+    };
+
+    function addEvents() {
+        marker = new Marker({
+            position: LOCAL_LOJA,
+            animation: google.maps.Animation.DROP,
+            renderedMap,
+            draggable: true,
+        });
+        google.maps.event.addListener(map, 'click', function (event) {
+            marker.setPosition(event.latLng);
+            window.setTimeout(() => {
+              map.panTo(event.latLng);
+            }, 400);
+            cardapio.metodos.updateDirections(marker.getPosition());
+        });
+        const locationButton = document.querySelector('#btn-use-location-service');
+        locationButton.addEventListener("click", () => {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  const pos = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                  };
+
+                  marker.setPosition(pos);
+                  infowindow.setContent("Clique no mapa ou arraste o PIN para corrigir.");
+                  infowindow.open(map, marker);
+                  map.panTo(pos);
+                  window.setTimeout(() => {
+                    map.setCenter(pos),
+                    map.setZoom(17);
+                  }, 400);
+                  cardapio.metodos.updateDirections(marker.getPosition());
+                },
+                () => {
+                  handleLocationError(true, infowindow, marker.getPosition());
+                },
+              );
+            } else {
+              // Browser doesn't support Geolocation
+              handleLocationError(false, infoWindow, marker.getPosition());
+            }
+        });
+    };
+
+    async function updateDirections(dest) {
+
+        const newRoute = {
+            origin: LOCAL_LOJA,
+            destination: dest,
+            travelMode: 'DRIVING',
+            language: '	pt-BR',
+        }
+        directionsService.route(newRoute, function(res, status) {
+            if (status != 'OK') {
+                let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
+                toast.metodos.create(msg, 'red', 7500);
+                console.error('Directions request failed due to ' + status);
+                return;
+            }
+            let directionsData = res.routes[0].legs[0];
+            if (!directionsData) {
+                console.error('Directions request failed.');
+                return;
+            } 
+            cardapio.metodos.calcularValorEntrega(directionsData);
+            cardapio.metodos.carregarValores();
+            cardapio.metodos.atualizarEndereco(directionsData.end_address);
+        });
+    }
+})(); */
+
 // Módulo DirectionsServiceWrapper
-const DirectionsServiceWrapper = (function () {
+/* const DirectionsServiceWrapper = (function () {
     let directionsService; // Variável privada para armazenar a instância do DirectionsService
+    const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+    const { Marker } = await google.maps.importLibrary("marker");
+    let DirectionsService;
   
-    function initialize() {
+    async function initialize() {
+    const { DirectionsService } = await google.maps.importLibrary("routes");
+    DirectionsService = 
       directionsService = new google.maps.DirectionsService(); // Inicializa a instância do DirectionsService
     }
   
@@ -854,5 +961,5 @@ const DirectionsServiceWrapper = (function () {
       calculateRoute,
       // Outros métodos aqui, se necessário
     };
-  })();
+  })(); */
   

@@ -62,10 +62,13 @@
                     </div>
 
                     <!-- delivery -->
-                    <div class="px-2 h-80 hidden group-data-[etapa='2']:flex mb-6 flex-col md:flex-row">
-                        <div class="w-full md:w-1/2 group-data-[modo='2']:w-full mb-4 md:mb-0 md:mr-4">
+                    <div class="px-2 h-80 group-data-[modo='2']:h-full hidden group-data-[etapa='2']:flex mb-6 flex-col md:flex-row">
+                        <div class="w-full md:w-1/2 group-data-[modo='2']:w-full mb-4 md:mb-0 md:mr-4 group-data-[modo='2']:mr-0">
                             <button id="btn-use-location-service" class="group-data-[modo='2']:hidden w-full p-2 text-default hover:text-white bg-primary rounded-lg mb-3">Usar minha localização atual</button>
-                            <p id="endereco-label" data-endereco="Endereço da loja" class="hidden group-data-[modo='2']:block after:content-[attr(data-endereco)] text-center font-medium text-lg mb-3"></p>
+                            <div class="hidden group-data-[modo='2']:flex mb-3 mx-auto justify-center items-center flex-wrap">
+                                <p id="endereco-label" data-endereco="Endereço da loja" class="hidden group-data-[modo='2']:block after:content-[attr(data-endereco)] text-center font-medium text-lg mb-1"></p>
+                                <a href="https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6" target="_blank" rel="noopener noreferrer" class="hidden group-data-[modo='2']:block bg-primary p-2 rounded-2xl active:text-white w-fit ml-2">Abrir no Maps</a>
+                            </div>
                             <div id="delivery-map" class="h-80 md:h-[calc(100%-83px)] rounded-lg shadow-lg bg-gray-200"></div>
                         </div>
                         <form id="delivery-view" class="hidden group-data-[etapa='2']:block group-data-[modo='2']:hidden mx-auto min-[830px]:text-lg group/loading w-full md:w-1/2 pb-4 md:pb-0">
@@ -113,7 +116,7 @@
                             <div class="h-12 w-12 bg-[#fff2cc] dark:bg-[#fff2cc] rounded-lg flex justify-center items-center">
                                 <img src="./imgs/icon/map.png" alt="map icon">
                             </div>
-                            <div class="ml-6 mb-4">
+                            <div class="ml-2 mb-4">
                                 <p class="font-bold text-sm md:text-base" id="resumo-endereco">Rua Primeira, 01, Centro</p>
                                 <p class="text-gray-700 text-sm md:text-base" id="resumo-endereco-2">Ponta Grossa-PR / 00000-001</p>
                             </div>
