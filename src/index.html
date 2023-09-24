@@ -18,7 +18,7 @@
 
         <!-- carrinho -->
         <button id="btn-carrinho" class="hidden fixed bottom-10 h-14 w-14 right-6 rounded-full bg-primary" onclick="cardapio.metodos.abrirCarrinho(true)">
-            <div id="cart-count" class="rounded-full h-6 w-6 absolute bg-[#fff2cc] top-0 -right-1 text-sm font-semibold flex justify-center items-center">
+            <div id="cart-counter" class="rounded-full h-6 w-6 absolute bg-[#fff2cc] top-0 -right-1 text-sm font-semibold flex justify-center items-center">
                 0
             </div>
             <img class="h-5 mx-auto" src="./imgs/icon/bag.png" alt="bag icon" onerror="">
@@ -173,23 +173,23 @@
                     <p class="font-semibold text-3xl md:text-4xl tracking-wide">Conheça o nosso cardápio</p>
                 </div>
                 <div id="menu-cardapio" class="font-medium text-md flex overflow-x-auto space-x-4 p-4 sm:justify-center cardapio-menu">
-                    <button id="cardapio-btn-burgers" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('burgers')">
+                    <button id="cardapio-btn-burgers" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="Cardapio.metodos.obterItensCardapio('burgers')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/burger.png" alt="burger icon" onerror="">
                         Burger
                     </button>
-                    <button id="cardapio-btn-pizzas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('pizzas')">
+                    <button id="cardapio-btn-pizzas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="Cardapio.metodos.obterItensCardapio('pizzas')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/pizza.png" alt="pizza icon" onerror="">
                         Pizzas
                     </button>
-                    <button id="cardapio-btn-steaks" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('steaks')">
+                    <button id="cardapio-btn-steaks" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="Cardapio.metodos.obterItensCardapio('steaks')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/steak.png" alt="icon" onerror="">
                         Steaks
                     </button>
-                    <button id="cardapio-btn-bebidas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('bebidas')">
+                    <button id="cardapio-btn-bebidas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="Cardapio.metodos.obterItensCardapio('bebidas')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/drink.png" alt="drink icon" onerror="">
                         Bebidas
                     </button>
-                    <button id="cardapio-btn-sobremesas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="cardapio.metodos.obterItensCardapio('sobremesas')">
+                    <button id="cardapio-btn-sobremesas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="Cardapio.metodos.obterItensCardapio('sobremesas')">
                         <img class="mr-2 h-4 md:h-5" src="./imgs/icon/cream.png" alt="dessert icon" onerror="">
                         Sobremesas
                     </button>
@@ -206,7 +206,7 @@
     </main>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="./js/dados.js"></script>
-    <script src="./js/main.js"></script>
+    <script src="./js/main2.js"></script>
     <script async defer>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
         ({key: "AIzaSyBXNR4fufFl1SbFuab52Ito48xYqRmzw2U", v: "beta"});</script>
   </body>

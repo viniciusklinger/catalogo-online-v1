@@ -2,6 +2,110 @@ $(document).ready(function () {
     cardapio.eventos.init();
     $("#data-cep").on("input", debounce(cardapio.metodos.buscarCep, 150));
     /* $("#data-numero").on("input", debounce(cardapio.metodos.calcularEntrega, 600)); */
+
+    const MapsServices = (async function () {
+        const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+        const { Marker } = await google.maps.importLibrary("marker");
+        const { DirectionsService } = await google.maps.importLibrary("routes");
+    
+        let renderedMap;
+        let marker;
+        let directionsService;
+    
+        function initMap() {
+            if (renderedMap) return;
+            renderedMap = new Map(document.getElementById("delivery-map"), {
+                zoom: 13,
+                center: LOCAL_LOJA,
+                styles: [
+                  {
+                    "featureType": "poi.business",
+                    "stylers": [
+                      {
+                        "visibility": "off"
+                      }
+                    ]
+                  },
+                  
+                ]
+            });
+            addEvents();
+        };
+    
+        function addEvents() {
+            marker = new Marker({
+                position: LOCAL_LOJA,
+                animation: google.maps.Animation.DROP,
+                renderedMap,
+                draggable: true,
+            });
+            google.maps.event.addListener(map, 'click', function (event) {
+                marker.setPosition(event.latLng);
+                window.setTimeout(() => {
+                  map.panTo(event.latLng);
+                }, 400);
+                cardapio.metodos.updateDirections(marker.getPosition());
+            });
+            const locationButton = document.querySelector('#btn-use-location-service');
+            locationButton.addEventListener("click", () => {
+                // Try HTML5 geolocation.
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                      const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                      };
+    
+                      marker.setPosition(pos);
+                      infowindow.setContent("Clique no mapa ou arraste o PIN para corrigir.");
+                      infowindow.open(map, marker);
+                      map.panTo(pos);
+                      window.setTimeout(() => {
+                        map.setCenter(pos),
+                        map.setZoom(17);
+                      }, 400);
+                      cardapio.metodos.updateDirections(marker.getPosition());
+                    },
+                    () => {
+                      handleLocationError(true, infowindow, marker.getPosition());
+                    },
+                  );
+                } else {
+                  // Browser doesn't support Geolocation
+                  handleLocationError(false, infoWindow, marker.getPosition());
+                }
+            });
+        };
+    
+        async function updateDirections(dest) {
+            if(!renderedMap) initMap();
+    
+            const newRoute = {
+                origin: LOCAL_LOJA,
+                destination: dest,
+                travelMode: 'DRIVING',
+                language: '	pt-BR',
+            }
+            directionsService.route(newRoute, function(res, status) {
+                if (status != 'OK') {
+                    let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
+                    toast.metodos.create(msg, 'red', 7500);
+                    console.error('Directions request failed due to ' + status);
+                    return;
+                }
+                let directionsData = res.routes[0].legs[0];
+                if (!directionsData) {
+                    console.error('Directions request failed.');
+                    return;
+                } 
+                cardapio.metodos.calcularValorEntrega(directionsData);
+                cardapio.metodos.carregarValores();
+                cardapio.metodos.atualizarEndereco(directionsData.end_address);
+            });
+        }
+    })();
+
 })
 
 var cardapio = {};
@@ -143,8 +247,6 @@ cardapio.metodos = {
 
         if (MEU_CARRINHO.length > 0) {
             $('#btn-carrinho').removeClass('hidden');
-        } else {
-            $('#btn-carrinho').addClass('hidden');
         };
         toast.metodos.create('Adicionado ao carrinho!', 'green');
         cardapio.metodos.atualizarContagemCarrinho();
@@ -176,6 +278,7 @@ cardapio.metodos = {
             /* block scrolling on body */
             $("#body-data").attr('data-modal', 'open');
             cardapio.metodos.carregarCarrinho();
+            MapsServices.initMap();
             if (!map) cardapio.metodos.carregarMapa();
         }
         else {
@@ -216,14 +319,7 @@ cardapio.metodos = {
             })
 
             cardapio.metodos.carregarValores();
-        }
-        else {
-            $("#items-pedido").html('');
-            $('#default-view').removeClass('hidden');
-            $('#btn-carrinho').addClass('hidden');
-            
-            cardapio.metodos.carregarValores();
-        }
+        };
 
     },
 
@@ -251,6 +347,15 @@ cardapio.metodos = {
             return;
         }
         MEU_CARRINHO = newValues
+        if (MEU_CARRINHO.length < 1) {
+            document.querySelector('#btn-carrinho').classList.add('hidden');
+            /* document.querySelector('#items-pedido') */
+            $("#items-pedido").html('');
+            $('#default-view').removeClass('hidden');
+            $('#btn-carrinho').addClass('hidden');
+            
+            cardapio.metodos.carregarValores();
+        };
         cardapio.metodos.carregarCarrinho();
         cardapio.metodos.atualizarContagemCarrinho();
         
@@ -647,7 +752,7 @@ cardapio.metodos = {
         
     },
 
-    updateDirections: async (dest) => {
+    /* updateDirections: async (dest) => {
         const { DirectionsService } = await google.maps.importLibrary("routes");
         const route = {
             origin: LOCAL_LOJA,
@@ -673,7 +778,7 @@ cardapio.metodos = {
             cardapio.metodos.carregarValores();
             cardapio.metodos.atualizarEndereco(directionsData.end_address);
         });
-    },
+    }, */
 
     atualizarEndereco(endereco) {
         const ruaMatch = endereco.match(/([\w\s.-]+),/) ?? null;
@@ -824,107 +929,6 @@ toast.templates = {
         </div>
     `
 }
-
-/* const MapsServices = (async function () {
-    const { Map, InfoWindow } = await google.maps.importLibrary("maps");
-    const { Marker } = await google.maps.importLibrary("marker");
-    const { DirectionsService } = await google.maps.importLibrary("routes");
-
-    let renderedMap;
-    let marker;
-    let directionsService;
-
-    function initMap() {
-        renderedMap = new Map(document.getElementById("delivery-map"), {
-            zoom: 13,
-            center: LOCAL_LOJA,
-            styles: [
-              {
-                "featureType": "poi.business",
-                "stylers": [
-                  {
-                    "visibility": "off"
-                  }
-                ]
-              },
-              
-            ]
-        });
-        addEvents();
-    };
-
-    function addEvents() {
-        marker = new Marker({
-            position: LOCAL_LOJA,
-            animation: google.maps.Animation.DROP,
-            renderedMap,
-            draggable: true,
-        });
-        google.maps.event.addListener(map, 'click', function (event) {
-            marker.setPosition(event.latLng);
-            window.setTimeout(() => {
-              map.panTo(event.latLng);
-            }, 400);
-            cardapio.metodos.updateDirections(marker.getPosition());
-        });
-        const locationButton = document.querySelector('#btn-use-location-service');
-        locationButton.addEventListener("click", () => {
-            // Try HTML5 geolocation.
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(
-                (position) => {
-                  const pos = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                  };
-
-                  marker.setPosition(pos);
-                  infowindow.setContent("Clique no mapa ou arraste o PIN para corrigir.");
-                  infowindow.open(map, marker);
-                  map.panTo(pos);
-                  window.setTimeout(() => {
-                    map.setCenter(pos),
-                    map.setZoom(17);
-                  }, 400);
-                  cardapio.metodos.updateDirections(marker.getPosition());
-                },
-                () => {
-                  handleLocationError(true, infowindow, marker.getPosition());
-                },
-              );
-            } else {
-              // Browser doesn't support Geolocation
-              handleLocationError(false, infoWindow, marker.getPosition());
-            }
-        });
-    };
-
-    async function updateDirections(dest) {
-
-        const newRoute = {
-            origin: LOCAL_LOJA,
-            destination: dest,
-            travelMode: 'DRIVING',
-            language: '	pt-BR',
-        }
-        directionsService.route(newRoute, function(res, status) {
-            if (status != 'OK') {
-                let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
-                toast.metodos.create(msg, 'red', 7500);
-                console.error('Directions request failed due to ' + status);
-                return;
-            }
-            let directionsData = res.routes[0].legs[0];
-            if (!directionsData) {
-                console.error('Directions request failed.');
-                return;
-            } 
-            cardapio.metodos.calcularValorEntrega(directionsData);
-            cardapio.metodos.carregarValores();
-            cardapio.metodos.atualizarEndereco(directionsData.end_address);
-        });
-    }
-})(); */
 
 // Módulo DirectionsServiceWrapper
 /* const DirectionsServiceWrapper = (function () {
