@@ -17,7 +17,7 @@
         <div class="fixed text-sm max-w-[300px] h-5 z-50 right-5 top-5" id="toast-container"></div>
 
         <!-- carrinho -->
-        <button id="btn-carrinho" class="hidden fixed bottom-10 h-14 w-14 right-6 rounded-full bg-primary" onclick="cardapio.metodos.abrirCarrinho(true)">
+        <button id="btn-carrinho" class="hidden fixed bottom-10 h-14 w-14 right-6 rounded-full bg-primary" onclick="Cardapio.metodos.abrirCarrinho(true)">
             <div id="cart-counter" class="rounded-full h-6 w-6 absolute bg-[#fff2cc] top-0 -right-1 text-sm font-semibold flex justify-center items-center">
                 0
             </div>
@@ -35,13 +35,13 @@
                             <div class="relative h-[35px] w-[35px] rounded-full bg-white flex justify-center items-center shadow-xl group-data-[etapa='2']:bg-primary group-data-[etapa='3']:bg-primary after:w-6 after:h-[2px] after:bg-gray-300 after:absolute after:left-full after:group-data-[etapa='2']:bg-primary after:group-data-[etapa='3']:bg-primary">2</div>
                             <div class="relative h-[35px] w-[35px] rounded-full bg-white flex justify-center items-center shadow-xl group-data-[etapa='3']:bg-primary">3</div>
                         </div>
-                        <button class="bg-white hover:bg-primary hover:text-white px-4 py-2 shadow-xl text-lg rounded-2xl font-medium" onclick="cardapio.metodos.abrirCarrinho(false)">Fechar</button>
+                        <button class="bg-white hover:bg-primary hover:text-white px-4 py-2 shadow-xl text-lg rounded-2xl font-medium" onclick="Cardapio.metodos.abrirCarrinho(false)">Fechar</button>
                     </div>
                     <div class="flex mt-4 mb-2">
                         <p id="etapa-label" class="font-semibold text-xl group-data-[etapa='2']:hidden">Seu pedido:</p>
                         <div class="hidden group-data-[etapa='2']:flex">
-                            <button class="border-b-2 border-gray-400 group-data-[modo='1']:border-primary group-data-[modo='1']:font-semibold" onclick="cardapio.metodos.handleDeliveryMode(1)">Entrega</button>
-                            <button class="ml-2 border-b-2 border-gray-400 group-data-[modo='2']:border-primary group-data-[modo='2']:font-semibold" onclick="cardapio.metodos.handleDeliveryMode(2)">Retirada</button>
+                            <button class="border-b-2 border-gray-400 group-data-[modo='1']:border-primary group-data-[modo='1']:font-semibold" onclick="Cardapio.metodos.handleDeliveryMode(1)">Entrega</button>
+                            <button class="ml-2 border-b-2 border-gray-400 group-data-[modo='2']:border-primary group-data-[modo='2']:font-semibold" onclick="Cardapio.metodos.handleDeliveryMode(2)">Retirada</button>
                         </div>
                     </div>
                     <!-- <p id="etapa-label" class="font-semibold mt-4 mb-2 text-xl">Seu pedido:</p> -->
@@ -142,8 +142,8 @@
                         <span id="cart-total" class="text-lg sm:text-2xl text-primary">R$ 0,00</span>
                     </p>
                     <div class="flex flex-row flex-wrap justify-end text-lg sm:text-xl font-medium">
-                        <button id="cart-nav-voltar" class="bg-white hover:bg-primary hover:text-white px-4 sm:px-6 py-3 sm:py-4 shadow-xl rounded-2xl mt-0 sm:mt-2 hidden data-[show=true]:block" onclick="cardapio.metodos.navegarEtapa('false')">Voltar</button>
-                        <button id="cart-nav-avancar" class="bg-primary text-white hover:text-default w-52 px-2 sm:px-6 py-3 sm:py-4 shadow-xl rounded-2xl ml-3 mt-0 sm:mt-2" onclick="cardapio.metodos.navegarEtapa('true')">Continuar</button>
+                        <button id="cart-nav-voltar" class="bg-white hover:bg-primary hover:text-white px-4 sm:px-6 py-3 sm:py-4 shadow-xl rounded-2xl mt-0 sm:mt-2 hidden data-[show=true]:block" onclick="Cardapio.metodos.navegarEtapa('false')">Voltar</button>
+                        <button id="cart-nav-avancar" class="bg-primary text-white hover:text-default w-52 px-2 sm:px-6 py-3 sm:py-4 shadow-xl rounded-2xl ml-3 mt-0 sm:mt-2" onclick="Cardapio.metodos.navegarEtapa('true')">Continuar</button>
                     </div>
                 </div>
             </div>
@@ -198,7 +198,7 @@
                 <!-- cardapio items container -->
                 <div id="itens-cardapio" class="grid grid-cols-1 sm:grid-cols-2 sm:max-w-[600px] lg:max-w-[900px] xl:max-w-[1200px] lg:grid-cols-3 xl:grid-cols-4 sm:gap-x-2 sm:gap-y-4 justify-center px-4 sm:p-0 my-10 mx-auto"></div>
                 <div class="flex justify-center w-full mb-8">
-                    <button id="btn-ver-mais" class="bg-white active:bg-primary active:text-white p-2 px-3 shadow-lg text-lg rounded-xl" onclick="cardapio.metodos.verMais()">Ver mais</button>
+                    <button id="btn-ver-mais" class="bg-white active:bg-primary active:text-white p-2 px-3 shadow-lg text-lg rounded-xl" onclick="Cardapio.metodos.verMais()">Ver mais</button>
                 </div>
             </div>
 
