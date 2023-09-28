@@ -1,12 +1,9 @@
 $(document).ready(function () {
     Cardapio.init();
 })
-let teste = window.localStorage.getItem('meuCarrinho')
-console.log('cached: ', teste)
 
 var cardapio = {};
 var toast = {};
-
 
 var MEU_CARRINHO = JSON.parse(window.localStorage.getItem('meuCarrinho')) ?? [];
 var MEU_ENDERECO = null;
@@ -224,12 +221,12 @@ const Cardapio = (function () {
 
                 // botão ver mais foi clicado (+4 itens)
                 if (vermais && i >= count && i < count + step) {
-                    $("#itens-cardapio").append(temp)
+                    document.querySelector('#itens-cardapio').insertAdjacentHTML('beforeend', temp)
                 }
 
                 // paginação inicial (mostra 8 itens)
                 if (!vermais && i < (step === 6 ? 6 : 8)) {
-                    $("#itens-cardapio").append(temp)
+                    document.querySelector('#itens-cardapio').insertAdjacentHTML('beforeend', temp)
                 }
             })
 
@@ -251,7 +248,6 @@ const Cardapio = (function () {
 
         adicionarAoCarrinho: (id) => {
             let cat = document.querySelector('#menu-cardapio > [data-active="true"]').getAttribute("id").split('cardapio-btn-')[1];
-            console.log('carrinho: ', MEU_CARRINHO)
             let existe = MEU_CARRINHO.filter( el => el.id == id);
             
             let item = MENU[cat].filter(el => el.id == id)[0] ?? null;
@@ -659,14 +655,11 @@ const Cardapio = (function () {
             let taxa = 0
 
             for (const [dist, valor] of Object.entries(TAXA_ENTREGA)) {
-                /* console.log('dist: ', dist, '\nvalor: ', valor);
-                console.log('res: ', distance < dist); */
                 if (distance < dist) {
                     taxa = valor;
                     break;
                 }
             }
-            /* console.log(" Driving distance is " + directionsData.distance.text + " (" + directionsData.duration.text + ").") */
             ENTREGA.valor = (distance * 2) * taxa;
             ENTREGA.maxValue = (distance * 2) * taxa > 25 ? true : false;
             ENTREGA.duration = duration
