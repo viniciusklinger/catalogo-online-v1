@@ -65,9 +65,10 @@
                     <div class="px-2 h-80 group-data-[modo='2']:h-full hidden group-data-[etapa='2']:flex mb-6 flex-col md:flex-row">
                         <div class="w-full md:w-1/2 group-data-[modo='2']:w-full mb-4 md:mb-0 md:mr-4 group-data-[modo='2']:mr-0">
                             <button id="btn-use-location-service" class="group-data-[modo='2']:hidden w-full p-2 text-default hover:text-white bg-primary rounded-lg mb-3">Usar minha localização atual</button>
-                            <div class="hidden group-data-[modo='2']:flex mb-3 mx-auto justify-center items-center flex-wrap">
-                                <p id="endereco-label" data-endereco="Endereço da loja" class="hidden group-data-[modo='2']:block after:content-[attr(data-endereco)] text-center font-medium text-lg mb-1"></p>
-                                <a href="https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6" target="_blank" rel="noopener noreferrer" class="hidden group-data-[modo='2']:block bg-primary p-2 rounded-2xl active:text-white w-fit ml-2">Abrir no Maps</a>
+                            <div class="hidden group-data-[modo='2']:flex mb-3 mx-auto justify-center items-center flex-wrap flex-col">
+                                <p>Você irá retirar o pedido em:</p>
+                                <p id="endereco-label" data-endereco="Endereço da loja" class="hidden group-data-[modo='2']:block after:content-[attr(data-endereco)] text-center font-medium sm:text-lg mb-1"></p>
+                                <!-- <a href="https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6" target="_blank" rel="noopener noreferrer" class="hidden group-data-[modo='2']:block bg-primary p-2 rounded-2xl active:text-white w-fit ml-2">Abrir no Maps</a> -->
                             </div>
                             <div id="delivery-map" class="h-80 md:h-[calc(100%-83px)] rounded-lg shadow-lg bg-gray-200"></div>
                         </div>
@@ -111,7 +112,7 @@
                     <div id="summary-view" class="hidden group-data-[etapa='3']:flex flex-col h-full overflow-y-auto px-3">
                         <p class="text-xl font-semibold mb-4">Itens do pedido:</p>
                         <div id="resumo-items-pedido" class="mb-6"></div>
-                        <p class="text-xl font-semibold mb-4">Local de Entrega:</p>
+                        <p id="modo-entrega-label" data-label="Local de Entrega" class="text-xl font-semibold mb-4 before:content-[attr(data-label)]">:</p>
                         <div class="flex flex-row">
                             <div class="h-12 w-12 bg-[#fff2cc] dark:bg-[#fff2cc] rounded-lg flex justify-center items-center">
                                 <img src="./imgs/icon/map.png" alt="map icon">
@@ -119,6 +120,7 @@
                             <div class="ml-2 mb-4">
                                 <p class="font-bold text-sm md:text-base" id="resumo-endereco">Rua Primeira, 01, Centro</p>
                                 <p class="text-gray-700 text-sm md:text-base" id="resumo-endereco-2">Ponta Grossa-PR / 00000-001</p>
+                                <a href="" target="_blank" id="link-loja-maps" rel="noopener noreferrer" class="hidden group-data-[modo='2']:block font-semibold text-primary animate-pulse underline">Abrir no Maps</a>
                             </div>
                         </div>
                     </div>
@@ -206,7 +208,7 @@
     </main>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="./js/dados.js"></script>
-    <script src="./js/main2.js"></script>
+    <script src="./js/main.js"></script>
     <script async defer>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
         ({key: "AIzaSyBXNR4fufFl1SbFuab52Ito48xYqRmzw2U", v: "beta"});</script>
   </body>
