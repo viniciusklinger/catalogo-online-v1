@@ -1,46 +1,103 @@
-$(document).ready(function () {
+window.onload = function () {
     Cardapio.init();
-})
-
-var cardapio = {};
-var toast = {};
-
-var MEU_CARRINHO = JSON.parse(window.localStorage.getItem('meuCarrinho')) ?? [];
-var MEU_ENDERECO = null;
-
-var VALOR_CARRINHO = 0;
-var ENTREGA = {valor: 0, maxValue: false, duration: 0};
-var TAXA_ENTREGA = {
-    6: 1.8,
-    10: 1.7,
-    15: 1.4,
-    999: 1.3,
 };
 
-var CELULAR_LOJA = '5542998663675';
-var ENDERECO_LOJA = 'Rua Siqueira Campos, 1806 - Uvaranas'
-var ENDERECO2_LOJA = 'Ponta Grossa - PR, 84031-030'
-var LINK_MAPS_LOJA = 'https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6'
-var LOCAL_LOJA = { lat: -25.109664656607833, lng: -50.12425511392971 };
+const CustomData = {
+    number: '5542998663675',
+    zapNumber: '5542998663675',
+    zapHelpText: 'Olá! Sobre o cardápio online, gostaria de saber se...',
+    storeLatLng: { lat: -25.109664656607833, lng: -50.12425511392971 },
+    mapsMagLink: 'https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6',
+    address: ['Rua Siqueira Campos, 1806, Uvaranas', 'Ponta Grossa - PR, 84031-030', ''],
+    deliveryFees: {
+        6: 1.8,
+        10: 1.7,
+        15: 1.4,
+        999: 1.3,
+    },
+}
 
-var map;
+const LocalStorage = (function (){
+    const storage = window.localStorage;
+
+    /**
+     * Sets a new key/value pair in the storage ('value' will be stringified).
+     * 
+     * @param {string} name - The key for the item to be stored: 'meuCarrinho' or 'deliveryData'.
+     * @param {any} value - The value to be stored (will be stringified).
+     */
+    function set(name, value) {
+        try {
+            let stringified = JSON.stringify(value)
+            storage.setItem(name, stringified);
+        } catch (er) {
+            console.error('Erro ao definir item no localStorage: ', er);
+        }
+    };
+
+    /**
+     * Updates the current key/value pair in the storage by merging with a new value ('value' will be spread).
+     * 
+     * @param {string} name - The key for the item to be updated: 'meuCarrinho' or 'deliveryData'.
+     * @param {object} value - An object containing values to merge with the existing data.
+     */
+    function update(name, value) {
+        try {
+            let oldValue = getParsed(name);
+            let newValue = {...oldValue, ...value };
+            set(name, newValue);
+        } catch (er) {
+            console.error('Erro ao definir item no localStorage:', er);
+        }
+    };
+    
+    /**
+     * Returns the parsed value associated with the given key.
+     * 
+     * @param {string} key - The key to retrieve: 'meuCarrinho' or 'deliveryData'.
+     * @returns {any} The parsed value, or null if not found.
+     */
+    function getParsed(key) {
+        let data = storage.getItem(key);
+        if (!data) return null;
+        return JSON.parse(data);
+    };
+
+    /**
+     * Remove all values of localStorage.
+     */
+    function clear() {
+        storage.clear();
+    };
+
+    return {
+        set,
+        getParsed,
+        update,
+    }
+})();
+
 
 const MapsServices = (function () {
     let renderedMap;
     let marker;
-    let directionsService;
     let infoWindow;
+    let directionsService;
+    let geoCoder;
 
     async function init() {
         if (renderedMap) return;
 
         const { Map, InfoWindow } = await google.maps.importLibrary("maps");
         const { Marker } = await google.maps.importLibrary("marker");
-        const { DirectionsService } = await google.maps.importLibrary("routes");
+
+        const lastSessionData = LocalStorage.getParsed('deliveryData')
+        let startingPosition = (lastSessionData?.LatLng && lastSessionData?.retirar == false) ? lastSessionData?.LatLng : CustomData.storeLatLng
+        
 
         renderedMap = new Map(document.getElementById("delivery-map"), {
-            zoom: 13,
-            center: LOCAL_LOJA,
+            zoom: (lastSessionData?.LatLng && lastSessionData.retirar == false) ? 15 : 13,
+            center: startingPosition,
             styles: [
               {
                 "featureType": "poi.business",
@@ -54,15 +111,25 @@ const MapsServices = (function () {
             ]
         });
         marker = new Marker({
-            position: LOCAL_LOJA,
+            position: startingPosition,
             animation: google.maps.Animation.DROP,
             map: renderedMap,
             draggable: true,
             clickable: false,
         });
-        directionsService = new DirectionsService();
         infoWindow = new InfoWindow();
+        if (lastSessionData?.retirar == false) toggleInfoWindow(true);
         attachEvents();
+    };
+
+    async function initGeocoder() {
+        const { Geocoder } = await google.maps.importLibrary("geocoding")
+        geoCoder = new Geocoder();
+    };
+    
+    async function initDirectionsService() {
+        const { DirectionsService } = await google.maps.importLibrary("routes");
+        directionsService = new DirectionsService();
     };
 
     function attachEvents() {
@@ -70,7 +137,7 @@ const MapsServices = (function () {
             let modo = document.querySelector('#modal-carrinho').getAttribute('data-modo')
             if (modo == 2) return;
             marker.setPosition(event.latLng);
-            Helpers.debounce(calculateDirections(event.latLng), 800)
+            Helpers.debounce(calculateDirections(event.latLng, false, true), 800)
             window.setTimeout(() => {
               renderedMap.panTo(event.latLng);
             }, 400);
@@ -90,7 +157,7 @@ const MapsServices = (function () {
                     lat: position.coords.latitude,
                     lng: position.coords.longitude,
                   };
-                  calculateDirections(pos, true)
+                  calculateDirections(pos, true, true)
                 },
                 () => {
                   handleLocationError(true);
@@ -102,16 +169,64 @@ const MapsServices = (function () {
         }), 800);
     };
 
+    async function getGeocode(address) {
+        if (!geoCoder) await initGeocoder();
+        return await geoCoder.geocode({address});
+    };
+
+    /**
+     * Calculates the distance, duration, and route information between the current location
+     * and a specified destination using the Google Directions API.
+     *
+     * @param {object} LatLng - Destination coordinates in the format { lat: float, lng: float }.
+     * @param {boolean} outZoom - Controls whether to zoom out the map, default is false.
+     * @param {boolean} resetNumber - Controls whether to reset the postal code number, default is false.
+     * @throws {string} Throws an error message in case of API request failure.
+     */
+    async function calculateDirections(LatLng, outZoom = false, resetNumber = false) {
+        if (!directionsService) await initDirectionsService();
+        setMarkerPosition(LatLng, true, outZoom);
+
+        const route = {
+            origin: CustomData.storeLatLng,
+            destination: LatLng,
+            travelMode: 'DRIVING',
+            language: '	pt-BR',
+        };
+        directionsService.route(route, function(res, status) {
+            if (status != 'OK') {
+                let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
+                Toast.create(msg, 'red', 7500);
+                throw msg
+            };
+
+            let directionsData = res.routes[0].legs[0];
+            if (!directionsData) {
+                throw 'Directions request failed.';
+            }
+            const cep = directionsData.end_address.match(/(\d{5}-\d{3})/)[1] ?? null;
+
+            Cardapio.metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
+            Cardapio.metodos.AtualizarValoresTotais();
+            Cardapio.metodos.atualizarEndereco({cep, numero: resetNumber ? '' : null});
+            LocalStorage.update('deliveryData', {LatLng});
+        });
+    };
+
+    function handleLocationError(browserHasGeolocation) {
+        let msg = browserHasGeolocation ? "O serviço de Geolocalização falhou." : "Seu navegador não suporta Geolocalização.";
+        Toast.create(msg)
+    };
+
     function setMarkerPosition(LatLng, content = true, outZoom = false) {
         if(!renderedMap) init();
         if (outZoom) renderedMap.setZoom(13);
         marker.setPosition(LatLng);
         if (content) {
-            infoWindow.setContent("Clique no mapa ou arraste o PIN para corrigir.");
-            infoWindow.open(renderedMap, marker);
+            toggleInfoWindow(true);
         } else {
             setMarkerProps('drag', false);
-            infoWindow.close();
+            toggleInfoWindow(false);
         };
         window.setTimeout(() => {
             renderedMap.panTo(LatLng);
@@ -129,6 +244,15 @@ const MapsServices = (function () {
         };
     };
 
+    function toggleInfoWindow(open) {
+        if (open) {
+            infoWindow.setContent("Clique no mapa ou arraste o PIN para posicioná-lo.");
+            infoWindow.open(renderedMap, marker);
+        } else {
+            infoWindow.close();
+        }
+    }
+
     function setMapProps(name, value) {
         switch (name) {
             case 'zoom':
@@ -139,62 +263,77 @@ const MapsServices = (function () {
         };
     };
 
-    function calculateDirections(LatLng, outZoom = false) {
-        setMarkerPosition(LatLng, true, outZoom);
-
-        const route = {
-            origin: LOCAL_LOJA,
-            destination: LatLng,
-            travelMode: 'DRIVING',
-            language: '	pt-BR',
-        };
-
-        directionsService.route(route, function(res, status) {
-            if (status != 'OK') {
-                let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
-                Toast.create(msg, 'red', 7500);
-                throw msg
-            };
-
-            let directionsData = res.routes[0].legs[0];
-            if (!directionsData) {
-                throw 'Directions request failed.';
-            }
-
-            Cardapio.metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
-            Cardapio.metodos.AtualizarValoresTotais();
-            Cardapio.metodos.atualizarEndereco(directionsData.end_address);
-        });
-    };
-
-    function handleLocationError(browserHasGeolocation) {
-        let msg = browserHasGeolocation ? "O serviço de Geolocalização falhou." : "Seu navegador não suporta Geolocalização.";
-        Toast.create(msg)
-    }
-
     return {
         init,
+        calculateDirections,
         setMarkerPosition,
         setMarkerProps,
         setMapProps,
+        getGeocode,
+        toggleInfoWindow,
     };
 
 })();
 
 const Cardapio = (function () {
+    let meuCarrinho = LocalStorage.getParsed('meuCarrinho') ?? [];
+    let deliveryData = LocalStorage.getParsed('deliveryData') ?? {valor: 0, maxValue: false, duration: 0, retirar: false};
+
+    /* const DeliveryData = (function() {
+        const defaultInfo = {
+            valor: 0,
+            duration: 0,
+            maxValue: false,
+            retirar: false,
+        };
+        let deliveryAddress = LocalStorage.getParsed('deliveryAddress') ?? null;
+        const deliveryInfo = LocalStorage.getParsed('deliveryInfo') ?? defaultInfo;
+        
+        function getInfo(){
+            return deliveryInfo;
+        };
+
+        function getAddress(){
+            return deliveryAddress;
+        };
+
+        function setAddress({cep, endereco, bairro, numero, cidade = '', uf = '', complemento = ''}){
+            deliveryAddress = {cep, endereco, bairro, numero, cidade, uf, complemento};
+            LocalStorage.set('deliveryAddress', deliveryAddress);
+        };
+
+        function updateInfo({valor, duration, maxValue, retirar}){
+            if(JSON.stringify(data) == '{}') return;
+            deliveryInfo.valor = valor;
+            deliveryInfo.duration = duration;
+            deliveryInfo.maxValue = maxValue;
+            deliveryInfo.retirar = retirar;
+            LocalStorage.set('deliveryInfo', deliveryInfo);
+        };
+
+    })(); */
 
     function init() {
         metodos.obterItensCardapio();
-        metodos.carregarBotaoLigar();
-        metodos.carregarBotaoReserva();
+        /* metodos.carregarBotaoLigar();
+        metodos.carregarBotaoReserva(); */
 
-        document.querySelector('#endereco-label').setAttribute('data-endereco', ENDERECO_LOJA);
-        document.querySelector('#link-loja-maps').href = LINK_MAPS_LOJA;
-        if (MEU_CARRINHO.length > 0) {
+        document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep, 150)));
+        document.querySelector('#data-numero').addEventListener('input', (Helpers.debounce(metodos.handleGeocode, 350)));
+        document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
+        document.querySelector('#endereco-label').setAttribute('data-endereco', CustomData.address.join(', '));
+        document.querySelector('#link-loja-maps').href = CustomData.mapsMagLink;
+        document.querySelector('#btn-zap').href = `https://wa.me/${CustomData.zapNumber}?text=${encodeURI(CustomData.zapHelpText)}`
+
+        if (deliveryData.retirar == true) document.querySelector('#modal-carrinho').setAttribute('data-modo', 2);
+        if (meuCarrinho.length > 0) {
             document.querySelector('#btn-carrinho').classList.remove('hidden');
             metodos.atualizarContadorCarrinho();
         };
-        document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(Cardapio.metodos.buscarCep, 150)));
+        if (deliveryData?.address) {
+            metodos.atualizarEndereco({...deliveryData.address});
+            metodos.AtualizarValoresTotais();
+        };
     };
 
     const metodos = {
@@ -248,7 +387,7 @@ const Cardapio = (function () {
 
         adicionarAoCarrinho: (id) => {
             let cat = document.querySelector('#menu-cardapio > [data-active="true"]').getAttribute("id").split('cardapio-btn-')[1];
-            let existe = MEU_CARRINHO.filter( el => el.id == id);
+            let existe = meuCarrinho.filter( el => el.id == id);
             
             let item = MENU[cat].filter(el => el.id == id)[0] ?? null;
             if (!item) {
@@ -263,12 +402,11 @@ const Cardapio = (function () {
                 temp.img = item.img;
                 temp.price = item.price;
                 temp.qtd = 1;
-                MEU_CARRINHO.push(temp);
+                meuCarrinho.push(temp);
             } else {
                 existe[0].qtd += 1;
             }
-
-            window.localStorage.setItem('meuCarrinho', JSON.stringify(MEU_CARRINHO));
+            LocalStorage.set('meuCarrinho', meuCarrinho);
 
             Toast.create('Adicionado ao carrinho!', 'green');
             document.querySelector('#btn-carrinho').classList.remove('hidden');
@@ -276,7 +414,7 @@ const Cardapio = (function () {
         },
 
         atualizarContadorCarrinho: () => {
-            const total = MEU_CARRINHO.length > 0 ? MEU_CARRINHO.reduce((acc, e) => {return acc + e.qtd}, 0) : 0;
+            const total = meuCarrinho.length > 0 ? meuCarrinho.reduce((acc, e) => {return acc + e.qtd}, 0) : 0;
             document.querySelector('#cart-counter').textContent = total;
         },
 
@@ -301,15 +439,15 @@ const Cardapio = (function () {
             Cardapio.metodos.trocarEtapa(etapa);
 
             document.querySelector('#items-pedido').innerHTML = '';
-            if (MEU_CARRINHO.length > 0) {
+            if (meuCarrinho.length > 0) {
                 document.querySelector('#default-view').classList.add('hidden');
-                MEU_CARRINHO.forEach((item, i) => {
+                meuCarrinho.forEach((item, i) => {
                     let temp = templates.itemCarrinho.replace(/\${img}/g, item.img)
                     .replace(/\${nome}/g, item.name)
                     .replace(/\${preco}/g, item.price.toFixed(2).replace('.', ','))
                     .replace(/\${id}/g, item.id)
                     .replace(/\${qntd}/g, item.qtd)
-                    .replace(/\${border}/g, i+1 == MEU_CARRINHO.length ? '' : 'border-b')
+                    .replace(/\${border}/g, i+1 == meuCarrinho.length ? '' : 'border-b')
 
                     document.querySelector('#items-pedido').insertAdjacentHTML('beforeend', temp);
                 });
@@ -330,7 +468,7 @@ const Cardapio = (function () {
             const currentValue = parseFloat(selectedItemElement.textContent);
             const newValue = Math.max(somar ? currentValue + 1 : currentValue - 1, 0)
 
-            const selectedItem = MEU_CARRINHO.filter(el => el.id == id)[0];
+            const selectedItem = meuCarrinho.filter(el => el.id == id)[0];
             if (!selectedItem) {
                 console.error('ID não encontrado no carrinho.');
                 return;
@@ -338,24 +476,23 @@ const Cardapio = (function () {
             selectedItem.qtd = newValue
             selectedItemElement.textContent = newValue
 
-            
-            window.localStorage.setItem('meuCarrinho', JSON.stringify(MEU_CARRINHO));
+            LocalStorage.set('meuCarrinho', meuCarrinho);
 
             metodos.AtualizarValoresTotais();
             metodos.atualizarContadorCarrinho();
         },
 
         removerItemCarrinho: (id) => {
-            let updatedCart = MEU_CARRINHO.filter(el => el.id != id);
-            if (MEU_CARRINHO.length == updatedCart.length) {
+            let updatedCart = meuCarrinho.filter(el => el.id != id);
+            if (meuCarrinho.length == updatedCart.length) {
                 console.error('ID não encontrado no carrinho.');
                 return;
             }
-            MEU_CARRINHO = updatedCart
+            meuCarrinho = updatedCart
             document.querySelector(`#container-sacola-${id}`).remove();
             Cardapio.metodos.AtualizarValoresTotais();
             Cardapio.metodos.atualizarContadorCarrinho();
-            window.localStorage.setItem('meuCarrinho', JSON.stringify(MEU_CARRINHO));
+            LocalStorage.set('meuCarrinho', meuCarrinho);
             if (updatedCart.length == 0) {
                 document.querySelector('#default-view').classList.remove('hidden');
                 document.querySelector('#btn-carrinho').classList.add('hidden');
@@ -364,13 +501,12 @@ const Cardapio = (function () {
         },
 
         AtualizarValoresTotais: () => {
+            let valorCarrinho = meuCarrinho.length > 0 ? meuCarrinho.reduce((acc, e) => {return acc + (e.qtd * e.price)}, 0) : 0;
+            document.querySelector('#cart-subtotal').textContent = `R$ ${valorCarrinho.toFixed(2).replace('.', ',')}`;
+            document.querySelector('#cart-total').textContent = `R$ ${(valorCarrinho + (deliveryData.retirar == false ? deliveryData.valor : 0)).toFixed(2).replace('.', ',')}`;
+            document.querySelector('#cart-entrega').textContent = `+ R$ ${deliveryData.retirar == false ? deliveryData.valor.toFixed(2).replace('.', ',') : parseInt(0).toFixed(2).replace('.', ',')}`;
 
-            VALOR_CARRINHO = MEU_CARRINHO.length > 0 ? MEU_CARRINHO.reduce((acc, e) => {return acc + (e.qtd * e.price)}, 0) : 0;
-            document.querySelector('#cart-subtotal').textContent = `R$ ${VALOR_CARRINHO.toFixed(2).replace('.', ',')}`;
-            document.querySelector('#cart-entrega').textContent = `+ R$ ${ENTREGA.valor.toFixed(2).replace('.', ',')}`;
-            document.querySelector('#cart-total').textContent = `R$ ${(VALOR_CARRINHO + ENTREGA.valor).toFixed(2).replace('.', ',')}`;
-
-            if (ENTREGA.maxValue) {
+            if (deliveryData.maxValue && deliveryData.retirar == false) {
                 document.querySelector('#entrega-label').setAttribute('data-max', 'true');
             } else {
                 document.querySelector('#entrega-label').removeAttribute('data-max'); 
@@ -382,7 +518,7 @@ const Cardapio = (function () {
             let newEtapa = Math.max(current + (direcao == 'true' ? 1 : -1), 1);
 
             if (newEtapa == 2) {
-                if (MEU_CARRINHO.length == 0) {
+                if (meuCarrinho.length == 0) {
                     Toast.create('Sua sacola está vazia.')
                     return;
                 };
@@ -418,23 +554,18 @@ const Cardapio = (function () {
             if (cep != "") {
                 let validacep = /^[0-9]{8}$/;
                 if (validacep.test(cep)) {
+                    document.querySelector('#delivery-view').setAttribute('data-loading', 'true');
                     try {
-                        document.querySelector('#delivery-view').setAttribute('data-loading', 'true');
+                        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                        const data = await res.json();
+                        document.querySelector('#data-endereco').value = data.logradouro;
+                        document.querySelector('#data-bairro').value = data.bairro;
+                        document.querySelector('#data-cidade').value = data.localidade;
+                        document.querySelector('#data-uf').value = data.uf;
 
-                        await $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
-                            if (!("erro" in dados)) {
-                                document.querySelector('#data-rua').value = dados.logradouro;
-                                document.querySelector('#data-bairro').value = dados.bairro;
-                                document.querySelector('#data-cidade').value = dados.localidade;
-                                document.querySelector('#data-uf').value = dados.uf;
-                                /* document.querySelector('#data-numero").focus(); */
-                            }
-                            else {
-                                Toast.create('CEP não encontrado. Preencha as informações manualmente ou tente novamente.', 'red', 5000);
-                                /* document.querySelector('#data-rua").focus(); */
-                            }
-                        });
-
+                    } catch (e) {
+                        console.error(e);
+                        Toast.create('CEP não encontrado. Preencha as informações manualmente ou tente novamente.', 'red', 5000);
                     } finally {
                         document.querySelector('#delivery-view').removeAttribute('data-loading');
                     };
@@ -445,7 +576,7 @@ const Cardapio = (function () {
 
         validarEndereco: () => {
             let cep = document.querySelector('#data-cep').value.trim();
-            let endereco = document.querySelector('#data-rua').value.trim();
+            let endereco = document.querySelector('#data-endereco').value.trim();
             let bairro = document.querySelector('#data-bairro').value.trim();
             let cidade = document.querySelector('#data-cidade').value.trim();
             let uf = document.querySelector('#data-uf').value.trim();
@@ -459,7 +590,7 @@ const Cardapio = (function () {
             }
             if (endereco.length <= 0) {
                 Toast.create('Informe a Rua, por favor.');
-                document.querySelector('#data-rua').focus();
+                document.querySelector('#data-endereco').focus();
                 return false;
             }
             if (bairro.length <= 0) {
@@ -484,7 +615,7 @@ const Cardapio = (function () {
                 return false;
             }
 
-            MEU_ENDERECO = {
+            deliveryData.address = {
                 cep: cep,
                 endereco: endereco,
                 bairro: bairro,
@@ -492,70 +623,80 @@ const Cardapio = (function () {
                 uf: uf,
                 numero: numero,
                 complemento: complemento
-            }
+            };
+            LocalStorage.update('deliveryData', deliveryData);
             return true
         },
 
         carregarResumo: () => {
             document.querySelector('#resumo-items-pedido').innerHTML = '';
 
-            MEU_CARRINHO.forEach((e, i) => {
+            meuCarrinho.forEach((e, i) => {
                 let temp = templates.itemResumo.replace(/\${img}/g, e.img)
                     .replace(/\${nome}/g, e.name)
                     .replace(/\${preco}/g, (e.price * e.qtd).toFixed(2).replace('.', ','))
                     .replace(/\${qntd}/g, e.qtd)
-                    .replace(/\${border}/g, i+1 == MEU_CARRINHO.length ? '' : 'border-b')
+                    .replace(/\${border}/g, i+1 == meuCarrinho.length ? '' : 'border-b')
                 document.querySelector('#resumo-items-pedido').insertAdjacentHTML('beforeend', temp);
             })
 
             let modo = document.querySelector('#modal-carrinho').getAttribute('data-modo')
             if (modo == 1) {
-                document.querySelector('#resumo-endereco').innerHTML = (`${MEU_ENDERECO.endereco}, ${MEU_ENDERECO.numero}, ${MEU_ENDERECO.bairro}`);
-                document.querySelector('#resumo-endereco-2').innerHTML = (`${MEU_ENDERECO.cidade}-${MEU_ENDERECO.uf} / ${MEU_ENDERECO.cep} - ${MEU_ENDERECO.complemento}`);
+                const {endereco, numero, bairro, cidade, uf, cep, complemento} = deliveryData.address;
+                document.querySelector('#resumo-endereco').innerHTML = (`${endereco}, ${numero}, ${bairro}`);
+                document.querySelector('#resumo-endereco-2').innerHTML = (`${cidade}-${uf} / ${cep} - ${complemento}`);
             } else {
-                document.querySelector('#resumo-endereco').innerHTML = ENDERECO_LOJA;
-                document.querySelector('#resumo-endereco-2').innerHTML = ENDERECO2_LOJA;
+                document.querySelector('#resumo-endereco').innerHTML = CustomData.address[0];
+                document.querySelector('#resumo-endereco-2').innerHTML = CustomData.address[1];
             };
         },
 
         finalizarPedido: () => {
-            if (MEU_CARRINHO.length > 0) {
+            if (meuCarrinho.length > 0) {
                 let modo = document.querySelector('#modal-carrinho').getAttribute('data-modo');
+                let valorCarrinho = meuCarrinho.length > 0 ? meuCarrinho.reduce((acc, e) => {return acc + (e.qtd * e.price)}, 0) : 0;
 
                 let texto = 'Olá! gostaria de fazer um pedido:';
                 texto += `\n\n\${itens}`;
                 if (modo == 1) {
-                    if (!MEU_ENDERECO) return;
+                    if (!deliveryData?.address) return;
+                    const {endereco, numero, bairro, cidade, uf, cep, complemento} = deliveryData.address;
                     texto += '\n*Endereço de entrega:*';
-                    texto += `\n${MEU_ENDERECO.endereco}, ${MEU_ENDERECO.numero}, ${MEU_ENDERECO.bairro}`;
-                    texto += `\n${MEU_ENDERECO.cidade}-${MEU_ENDERECO.uf} / ${MEU_ENDERECO.cep} ${MEU_ENDERECO.complemento}`;
-                    texto += `\n\nEntrega: R$ ${ENTREGA.valor.toFixed(2).replace('.', ',')}`;
+                    texto += `\n${endereco}, ${numero}, ${bairro}`;
+                    texto += `\n${cidade}-${uf} / ${cep} ${complemento}`;
+                    texto += `\n\nEntrega: R$ ${deliveryData.valor.toFixed(2).replace('.', ',')}`;
                 } else {
                     texto += '\n*Endereço para retirada:*';
-                    texto += `\n${LINK_MAPS_LOJA}`;
-                    texto += `\n${ENDERECO_LOJA} - ${ENDERECO2_LOJA}\n`;
+                    texto += `\n${CustomData.mapsMagLink}`;
+                    texto += `\n${CustomData.address.join(', ')}\n`;
                 };
-                texto += `\n*Total: R$ ${(VALOR_CARRINHO + ENTREGA.valor).toFixed(2).replace('.', ',')}*`;
+                texto += `\n*Total: R$ ${(valorCarrinho + deliveryData.valor).toFixed(2).replace('.', ',')}*`;
 
                 let itens = '';
-                MEU_CARRINHO.forEach((el, i) => {
+                meuCarrinho.forEach((el, i) => {
                     itens += `*${el.qtd}x* ${el.name} ....... R$ ${(el.price * el.qtd).toFixed(2).replace('.', ',')}\n`;
                 });
+                meuCarrinho = [];
+                metodos.atualizarContadorCarrinho();
+                document.querySelector('#btn-carrinho').classList.add('hidden');
+                metodos.abrirCarrinho(false)
+                metodos.AtualizarValoresTotais();
+                LocalStorage.set('meuCarrinho', null);
 
                 texto = texto.replace(/\${itens}/g, itens);
                 let encoded = encodeURI(texto);
-                let URL = `https://wa.me/${CELULAR_LOJA}?text=${encoded}`;
+                let URL = `https://wa.me/${CustomData.zapNumber}?text=${encoded}`;
                 window.open(URL, '_blank');
             };
         },
-
+/* 
         // carrega o link do botão reserva
         carregarBotaoReserva: () => {
 
             var texto = 'Olá! gostaria de fazer uma *reserva*';
 
             let encode = encodeURI(texto);
-            let URL = `https://wa.me/${CELULAR_LOJA}?text=${encode}`;
+            let URL = `https://wa.me/${CustomData.zapNumber}?text=${encode}`;
 
             $("#btnReserva").attr('href', URL);
 
@@ -564,7 +705,7 @@ const Cardapio = (function () {
         // carrega o botão de ligar
         carregarBotaoLigar: () => {
 
-            $("#btnLigar").attr('href', `tel:${CELULAR_LOJA}`);
+            $("#btnLigar").attr('href', `tel:${CustomData.zapNumber}`);
 
         },
 
@@ -582,7 +723,7 @@ const Cardapio = (function () {
             $("#depoimento-" + depoimento).removeClass('hidden');
             $("#btnDepoimento-" + depoimento).addClass('active');
 
-        },
+        }, */
 
         handleCardExpansion: (el) => {
 
@@ -599,44 +740,43 @@ const Cardapio = (function () {
             document.querySelector('#modal-carrinho').setAttribute('data-modo', mode);
             document.querySelector('#modo-entrega-label').setAttribute('data-label', mode == 1 ? 'Local de Entrega' : 'Local de Retirada');
             if (mode == 2) {
-                MapsServices.setMarkerPosition(LOCAL_LOJA, false, true);
-                Cardapio.metodos.calcularValorEntrega(null);
+                MapsServices.setMarkerPosition(CustomData.storeLatLng, false, true);
                 Cardapio.metodos.AtualizarValoresTotais();
+                deliveryData.retirar = true;
+                LocalStorage.update('deliveryData', {retirar: true});
             } else {
+                deliveryData.retirar = false;
+                LocalStorage.update('deliveryData', {retirar: false});
                 MapsServices.setMarkerProps('drag', true);
                 MapsServices.setMapProps('zoom', 13);
+                if (deliveryData?.LatLng) MapsServices.setMarkerPosition(deliveryData.LatLng, true, false);
+                MapsServices.toggleInfoWindow(true);
             }
         },
 
-        atualizarEndereco(endereco) {
-            if (!endereco) return;
-
-            const ruaMatch = endereco.match(/([\w\s.-]+),/) ?? null;
-            const numeroMatch = endereco.match(/(\d+) -/) ?? null;
-            const bairroMatch = endereco.match(/- ([\w\s.-]+),/) ?? null;
-            const cidadeMatch = endereco.match(/([^,]+),\s+(\d+)\s+-\s+([^,]+)/) ?? null;
-            const ufMatch = endereco.match(/- ([A-Z]{2}),/) ?? null;
-            const cepMatch = endereco.match(/(\d{5}-\d{3})/) ?? null;
-
-            /* console.log(`
-                endereco: ${endereco}\n
-                ruaMatch: ${ruaMatch[1].trim()}\n
-                numeroMatch: ${numeroMatch[1].trim()}\n
-                bairroMatch: ${bairroMatch[1].trim()}\n
-                cidadeMatch: ${cidadeMatch[3].trim()}\n
-                ufMatch: ${ufMatch[1].trim()}\n
-                cepMatch: ${cepMatch[1].trim()}\n
-            `); */
-
-            document.querySelector('#data-cep').value = cepMatch[1].trim() ?? '';/* 
-            document.querySelector('#data-rua').value = ruaMatch[1].trim();
-            document.querySelector('#data-bairro').value = bairroMatch[1].trim();
-            document.querySelector('#data-cidade').value = cidadeMatch[3].trim();
-            document.querySelector('data-uf').value = ufMatch[1].trim();
-            document.querySelector('#data-numero').value = numeroMatch[1].trim(); */
-
-            Cardapio.metodos.buscarCep();
+        atualizarEndereco({cep = null, endereco = null, bairro = null, cidade = null, uf = null, numero = null, complemento = null}) {
+            const campos = ['cep', 'endereco', 'bairro', 'cidade', 'uf', 'numero', 'complemento']
+            campos.forEach((el, i) => {
+                let value = arguments[0][el];
+                console.log('value: ', value,'\nel: ', el);
+               if (value != null) document.querySelector(`#data-${el}`).value = value;
+            })
+            if (cep) Cardapio.metodos.buscarCep();
+            /* document.querySelector('#data-cep').value = cep; 
+            document.querySelector('#data-endereco').value = rua;
+            document.querySelector('#data-bairro').value = bairro;
+            document.querySelector('#data-cidade').value = cidade;
+            document.querySelector('#data-uf').value = uf;
+            document.querySelector('#data-numero').value = numero;
+            document.querySelector('#data-complemento').value = complemento; */
             return;
+        },
+
+        async handleGeocode() {
+            if (!metodos.validarEndereco()) return;
+            const {endereco, numero, bairro, cidade, uf, cep} = deliveryData.address;
+            const data = await MapsServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
+            MapsServices.calculateDirections(data.results[0].geometry.location, false, false);
         },
 
         /**
@@ -646,7 +786,8 @@ const Cardapio = (function () {
          */
         calcularValorEntrega(data) {
             if (!data || !data?.distance || !data?.duration) {
-                ENTREGA = {valor: 0, maxValue: false, duration: 0};
+                deliveryData = {...deliveryData, valor: 0, maxValue: false, duration: 0};
+                LocalStorage.update('deliveryData', deliveryData);
                 return;
             };
 
@@ -654,15 +795,16 @@ const Cardapio = (function () {
             let duration = data.duration;
             let taxa = 0
 
-            for (const [dist, valor] of Object.entries(TAXA_ENTREGA)) {
+            for (const [dist, valor] of Object.entries(CustomData.deliveryFees)) {
                 if (distance < dist) {
                     taxa = valor;
                     break;
                 }
             }
-            ENTREGA.valor = (distance * 2) * taxa;
-            ENTREGA.maxValue = (distance * 2) * taxa > 25 ? true : false;
-            ENTREGA.duration = duration
+            deliveryData.valor = (distance * 2) * taxa;
+            deliveryData.maxValue = (distance * 2) * taxa > 25 ? true : false;
+            deliveryData.duration = duration
+            LocalStorage.update('deliveryData', deliveryData);
         },
     };
 
@@ -734,6 +876,33 @@ const Cardapio = (function () {
     return {
         init,
         metodos,
+    };
+})();
+
+const Analytics = (function (){
+    const measurement_id = `G-H5VZ5EZ4MD`;
+    const api_secret = `zgaRqlkBReK4DYmK69gLsQ`;
+
+    async function testEvent() {
+        let res = await fetch(`https://www.google-analytics.com/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}`, {
+            method: "POST",
+            body: JSON.stringify({
+              client_id: 'cardapio-app',
+              user_id: 'nome-da-loja',
+              events: [{
+                name: 'maps_service',
+                params: {
+                    'name': 'map_load',
+                    'value': 'teste',
+                },
+              }]
+            })
+        });
+        Toast.create(res.status, 'green');
+    };
+
+    return {
+        testEvent,
     };
 })();
 

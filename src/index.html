@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-H5VZ5EZ4MD"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-H5VZ5EZ4MD');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Catálogo online - Seja bem vindo!</title>
@@ -12,17 +21,22 @@
 </head>
 <body id="body-data" class="font-pop bg-[#fffdf7] scroll-smooth text-default data-[modal=open]:overflow-hidden">
     <header class="h-9 w-full"></header>
-    <main>
+    <main class="max-w-6xl mx-auto">
         <!-- toast -->
         <div class="fixed text-sm max-w-[300px] h-5 z-50 right-5 top-5" id="toast-container"></div>
 
         <!-- carrinho -->
-        <button id="btn-carrinho" class="hidden fixed bottom-10 h-14 w-14 right-6 rounded-full bg-primary" onclick="Cardapio.metodos.abrirCarrinho(true)">
-            <div id="cart-counter" class="rounded-full h-6 w-6 absolute bg-[#fff2cc] top-0 -right-1 text-sm font-semibold flex justify-center items-center">
-                0
-            </div>
-            <img class="h-5 mx-auto" src="./imgs/icon/bag.png" alt="bag icon" onerror="">
-        </button>
+        <div class="flex fixed bottom-10 right-6 space-x-3">
+            <a id="btn-zap" href="" target="_blank" rel="noopener noreferrer">
+                <img class="h-14" src="./imgs/icon/zap.png" alt="whats app icon">
+            </a>
+            <button id="btn-carrinho" class="hidden h-14 w-14 rounded-full bg-primary" onclick="Cardapio.metodos.abrirCarrinho(true)">
+                <div id="cart-counter" class="rounded-full h-6 w-6 absolute bg-[#fff2cc] top-0 -right-1 text-sm font-semibold flex justify-center items-center">
+                    0
+                </div>
+                <img class="h-5 mx-auto" src="./imgs/icon/bag.png" alt="bag icon" onerror="">
+            </button>
+        </div>
 
         <!-- modal carrinho -->
         <div id="modal-carrinho" data-etapa="1" data-modo="1" class="hidden group fixed top-0 left-0 w-full h-full p-3 xs:p-6 sm:p-8 bg-white">
@@ -80,8 +94,8 @@
                                 </div>
                                 
                                 <div class="flex flex-col">
-                                    <label for="data-rua">Rua:</label>
-                                    <input type="text" id="data-rua"placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
+                                    <label for="data-endereco">Rua:</label>
+                                    <input type="text" id="data-endereco"placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
                                 </div>
                                 
                                 <div class="flex flex-col">
@@ -91,7 +105,7 @@
                                 
                                 <div class="flex flex-col">
                                     <label for="data-numero">Número:</label>
-                                    <input type="text" id="data-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl"> <!-- max-w-[208px] -->
+                                    <input type="text" id="data-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl">
                                 </div>
                                 
                                 <div class="flex flex-col col-span-2">
@@ -169,7 +183,7 @@
             <!-- bg -->
             <div class="h-full w-full"></div>
 
-            <div class="max-w-6xl mx-auto">
+            <div>
                 <div class="flex flex-col text-center mx-6 mb-8">
                     <h2 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Cardápio</h2>
                     <p class="font-semibold text-3xl md:text-4xl tracking-wide">Conheça o nosso cardápio</p>
@@ -205,11 +219,13 @@
             </div>
 
         </section>
+        <div class="flex mb-4">
+            <button class="px-3 py-2 mx-auto bg-primary hover:text-white rounded-xl" onclick="Analytics.testEvent()">Send GA Custom Event</button>
+        </div>
     </main>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="./js/dados.js"></script>
     <script src="./js/main.js"></script>
-    <script async defer>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
+    <script async>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
         ({key: "AIzaSyBXNR4fufFl1SbFuab52Ito48xYqRmzw2U", v: "beta"});</script>
   </body>
 </body>
