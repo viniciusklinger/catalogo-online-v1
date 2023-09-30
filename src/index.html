@@ -103,9 +103,17 @@
                                     <input type="text" id="data-bairro" placeholder="Centro" class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
                                 </div>
                                 
-                                <div class="flex flex-col">
+                                <div class="flex flex-col relative">
                                     <label for="data-numero">Número:</label>
                                     <input type="text" id="data-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl">
+                                    <div class="absolute h-[52px] w-[52px] bottom-0 right-0 flex justify-center items-center">
+                                        <button class="h-10 w-10 bg-primary p-1 rounded-xl z-10 fill-white hover:fill-default shadow-md" title="Mostrar no mapa" type='button' onclick="Cardapio.metodos.handleGeocode()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M8.48571 20.3748L14.8857 27.5243C15.347 28.1586 16.3271 28.1586 16.8461 27.5243L23.3037 20.3748C27.2244 15.9351 26.4172 9.13153 21.5163 5.72973C18.1145 3.42342 13.6749 3.42342 10.2731 5.72973C5.37219 9.07387 4.56499 15.9351 8.48571 20.3748ZM21.1704 13.7442C21.1704 16.7056 18.7697 19.1063 15.8082 19.1063C12.8468 19.1063 10.4461 16.7056 10.4461 13.7442C10.4461 10.7827 12.8468 8.38199 15.8082 8.38199C18.7697 8.38199 21.1704 10.7827 21.1704 13.7442Z"/>
+                                            </svg>
+                                        </button>
+                                        <div class="absolute bg-default animate-ping h-6 w-6 rounded-lg"></div>
+                                    </div>
                                 </div>
                                 
                                 <div class="flex flex-col col-span-2">

@@ -42,6 +42,7 @@ const LocalStorage = (function (){
      * @param {object} value - An object containing values to merge with the existing data.
      */
     function update(name, value) {
+        console.log('updating: ', name);
         try {
             let oldValue = getParsed(name);
             let newValue = {...oldValue, ...value };
@@ -137,14 +138,14 @@ const MapsServices = (function () {
             let modo = document.querySelector('#modal-carrinho').getAttribute('data-modo')
             if (modo == 2) return;
             marker.setPosition(event.latLng);
-            Helpers.debounce(calculateDirections(event.latLng, false, true), 800)
+            Helpers.debounce(calculateDirections(event.latLng, false, true), 1000)
             window.setTimeout(() => {
               renderedMap.panTo(event.latLng);
             }, 400);
         });
 
         marker.addListener("dragend", (event) => {
-            Helpers.debounce(calculateDirections(marker.getPosition()), 800);
+            Helpers.debounce(calculateDirections(marker.getPosition()), 1000);
         });
 
         const locationButton = document.querySelector('#btn-use-location-service');
@@ -166,7 +167,7 @@ const MapsServices = (function () {
             } else {
               handleLocationError(false);
             }
-        }), 800);
+        }), 1000);
     };
 
     async function getGeocode(address) {
@@ -193,6 +194,7 @@ const MapsServices = (function () {
             travelMode: 'DRIVING',
             language: '	pt-BR',
         };
+        console.log('Fetching directions API...');
         directionsService.route(route, function(res, status) {
             if (status != 'OK') {
                 let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
@@ -318,8 +320,7 @@ const Cardapio = (function () {
         /* metodos.carregarBotaoLigar();
         metodos.carregarBotaoReserva(); */
 
-        document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep, 150)));
-        document.querySelector('#data-numero').addEventListener('input', (Helpers.debounce(metodos.handleGeocode, 350)));
+        document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep)));
         document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
         document.querySelector('#endereco-label').setAttribute('data-endereco', CustomData.address.join(', '));
         document.querySelector('#link-loja-maps').href = CustomData.mapsMagLink;
@@ -504,7 +505,7 @@ const Cardapio = (function () {
             let valorCarrinho = meuCarrinho.length > 0 ? meuCarrinho.reduce((acc, e) => {return acc + (e.qtd * e.price)}, 0) : 0;
             document.querySelector('#cart-subtotal').textContent = `R$ ${valorCarrinho.toFixed(2).replace('.', ',')}`;
             document.querySelector('#cart-total').textContent = `R$ ${(valorCarrinho + (deliveryData.retirar == false ? deliveryData.valor : 0)).toFixed(2).replace('.', ',')}`;
-            document.querySelector('#cart-entrega').textContent = `+ R$ ${deliveryData.retirar == false ? deliveryData.valor.toFixed(2).replace('.', ',') : parseInt(0).toFixed(2).replace('.', ',')}`;
+            document.querySelector('#cart-entrega').textContent = `+ R$ ${deliveryData.retirar == false ? deliveryData.valor.toFixed(2).replace('.', ',') : (0).toFixed(2).replace('.', ',')}`;
 
             if (deliveryData.maxValue && deliveryData.retirar == false) {
                 document.querySelector('#entrega-label').setAttribute('data-max', 'true');
@@ -670,7 +671,7 @@ const Cardapio = (function () {
                     texto += `\n${CustomData.mapsMagLink}`;
                     texto += `\n${CustomData.address.join(', ')}\n`;
                 };
-                texto += `\n*Total: R$ ${(valorCarrinho + deliveryData.valor).toFixed(2).replace('.', ',')}*`;
+                texto += `\n*Total: R$ ${(valorCarrinho + (deliveryData.retirar == false ? deliveryData.valor : 0)).toFixed(2).replace('.', ',')}*`;
 
                 let itens = '';
                 meuCarrinho.forEach((el, i) => {
@@ -741,12 +742,13 @@ const Cardapio = (function () {
             document.querySelector('#modo-entrega-label').setAttribute('data-label', mode == 1 ? 'Local de Entrega' : 'Local de Retirada');
             if (mode == 2) {
                 MapsServices.setMarkerPosition(CustomData.storeLatLng, false, true);
-                Cardapio.metodos.AtualizarValoresTotais();
                 deliveryData.retirar = true;
                 LocalStorage.update('deliveryData', {retirar: true});
+                Cardapio.metodos.AtualizarValoresTotais();
             } else {
                 deliveryData.retirar = false;
                 LocalStorage.update('deliveryData', {retirar: false});
+                Cardapio.metodos.AtualizarValoresTotais();
                 MapsServices.setMarkerProps('drag', true);
                 MapsServices.setMapProps('zoom', 13);
                 if (deliveryData?.LatLng) MapsServices.setMarkerPosition(deliveryData.LatLng, true, false);
@@ -758,21 +760,14 @@ const Cardapio = (function () {
             const campos = ['cep', 'endereco', 'bairro', 'cidade', 'uf', 'numero', 'complemento']
             campos.forEach((el, i) => {
                 let value = arguments[0][el];
-                console.log('value: ', value,'\nel: ', el);
                if (value != null) document.querySelector(`#data-${el}`).value = value;
             })
             if (cep) Cardapio.metodos.buscarCep();
-            /* document.querySelector('#data-cep').value = cep; 
-            document.querySelector('#data-endereco').value = rua;
-            document.querySelector('#data-bairro').value = bairro;
-            document.querySelector('#data-cidade').value = cidade;
-            document.querySelector('#data-uf').value = uf;
-            document.querySelector('#data-numero').value = numero;
-            document.querySelector('#data-complemento').value = complemento; */
             return;
         },
 
         async handleGeocode() {
+            console.log('rodou')
             if (!metodos.validarEndereco()) return;
             const {endereco, numero, bairro, cidade, uf, cep} = deliveryData.address;
             const data = await MapsServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
@@ -948,7 +943,7 @@ const Helpers = {
      * @param {any} func - A função a ser executada.
      * @param {number} timeout - Default = 300ms.
      */
-    debounce: (func, timeout = 300) => {
+    debounce: (func, timeout = 350) => {
         let timer;
         return (...args) => {
             clearTimeout(timer);
