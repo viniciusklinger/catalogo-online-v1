@@ -17,6 +17,9 @@ module.exports = {
         pop: ['Poppins', 'sans-serif'],
       },
     },
+    letterSpacing: {
+      'widest': '5px',
+    }
   },
   plugins: [
     require('@tailwindcss/line-clamp'),

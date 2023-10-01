@@ -26,7 +26,7 @@
         <div class="fixed text-sm max-w-[300px] h-5 z-50 right-5 top-5" id="toast-container"></div>
 
         <!-- carrinho -->
-        <div class="flex fixed bottom-10 right-6 space-x-3">
+        <div class="flex fixed bottom-10 right-6 space-x-3 select-none">
             <a id="btn-zap" href="" target="_blank" rel="noopener noreferrer">
                 <img class="h-14" src="./imgs/icon/zap.png" alt="whats app icon">
             </a>
@@ -76,15 +76,27 @@
                     </div>
 
                     <!-- delivery -->
-                    <div class="px-2 h-80 group-data-[modo='2']:h-full hidden group-data-[etapa='2']:flex mb-6 flex-col md:flex-row">
-                        <div class="w-full md:w-1/2 group-data-[modo='2']:w-full mb-4 md:mb-0 md:mr-4 group-data-[modo='2']:mr-0">
+                    <div class="px-2 h-80 group-data-[modo='2']:h-full hidden group-data-[etapa='2']:flex mb-6 flex-col md:flex-row-reverse">
+                        <div class="w-full md:w-1/2 group-data-[modo='2']:w-full mb-4 md:mb-0 md:ml-4 group-data-[modo='2']:ml-0">
                             <button id="btn-use-location-service" class="group-data-[modo='2']:hidden w-full p-2 text-default hover:text-white bg-primary rounded-lg mb-3">Usar minha localização atual</button>
                             <div class="hidden group-data-[modo='2']:flex mb-3 mx-auto justify-center items-center flex-wrap flex-col">
                                 <p>Você irá retirar o pedido em:</p>
                                 <p id="endereco-label" data-endereco="Endereço da loja" class="hidden group-data-[modo='2']:block after:content-[attr(data-endereco)] text-center font-medium sm:text-lg mb-1"></p>
-                                <!-- <a href="https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6" target="_blank" rel="noopener noreferrer" class="hidden group-data-[modo='2']:block bg-primary p-2 rounded-2xl active:text-white w-fit ml-2">Abrir no Maps</a> -->
                             </div>
-                            <div id="delivery-map" class="h-80 md:h-[calc(100%-83px)] rounded-lg shadow-lg bg-gray-200"></div>
+                            <div id="delivery-map" class="h-80 md:h-[calc(100%-83px)] bg-gray-200 rounded-lg shadow-lg flex flex-col text-left px-4">
+                            </div>
+                            <div class="hidden bg-[#FFF2CC] flex-col text-left px-4 rounded-2xl">
+                                <h2 class="font-semibold tracking-widest text-primary">MAPA</h2>
+                                <p class="font-semibold text-lg">Problemas com entregas?</p>
+                                <ul class="list-disc list-inside my-4 text-left w-11/12 text-sm">
+                                    <li>Local sem endereço?</li>
+                                    <li>Entregadores reclamam ao encontrá-lo?</li>
+                                    <li>Curtindo uma praia?</li>
+                                    <li>No meio de um aglomerado de pessoas?</li>
+                                </ul>
+                                <p class="my-2">Ative o mapa e crie uma marcação para auxiliar o entregador!</p>
+                                <button class="p-2 bg-primary rounded-2xl w-fit font-medium hover:text-white mx-auto">Ativar Mapa</button>
+                            </div>
                         </div>
                         <form id="delivery-view" class="hidden group-data-[etapa='2']:block group-data-[modo='2']:hidden mx-auto min-[830px]:text-lg group/loading w-full md:w-1/2 pb-4 md:pb-0">
                             <div class="flex flex-col sm:grid sm:grid-cols-2 gap-x-3 gap-y-6">
@@ -94,7 +106,7 @@
                                 </div>
                                 
                                 <div class="flex flex-col">
-                                    <label for="data-endereco">Rua:</label>
+                                    <label for="data-endereco">Endereço:</label>
                                     <input type="text" id="data-endereco"placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
                                 </div>
                                 

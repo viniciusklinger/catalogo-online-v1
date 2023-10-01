@@ -175,6 +175,23 @@ const MapsServices = (function () {
         return await geoCoder.geocode({address});
     };
 
+     /**
+     * Display modal that helps user activate geolocation services
+     *
+     */
+    function triggerGeolocationMsg() {
+        const geoloc = navigator.geolocation
+        function succes(){
+            console.log('succes')
+            geoloc.clearWatch(watchId);
+        };
+        function err(){
+            console.log('err')
+            geoloc.clearWatch(watchId);
+        };
+        const watchId = geoloc.watchPosition(succes, err, {enableHighAccuracy: false, maximumAge: 0});
+    };
+
     /**
      * Calculates the distance, duration, and route information between the current location
      * and a specified destination using the Google Directions API.
@@ -273,6 +290,7 @@ const MapsServices = (function () {
         setMapProps,
         getGeocode,
         toggleInfoWindow,
+        triggerGeolocationMsg,
     };
 
 })();
@@ -426,7 +444,7 @@ const Cardapio = (function () {
                 document.querySelector('#modal-carrinho').classList.remove('hidden');
                 /* block scrolling on body */
                 document.querySelector('#body-data').setAttribute('data-modal', 'open');
-                MapsServices.init();
+                /* MapsServices.init(); */
             }
             else {
                 document.querySelector('#modal-carrinho').classList.add('hidden');
@@ -523,6 +541,7 @@ const Cardapio = (function () {
                     Toast.create('Sua sacola está vazia.')
                     return;
                 };
+                MapsServices.triggerGeolocationMsg();
             } else if (newEtapa == 3) {
                 let modo = document.querySelector('#modal-carrinho').getAttribute('data-modo')
                 if (modo == 1) {
@@ -767,7 +786,6 @@ const Cardapio = (function () {
         },
 
         async handleGeocode() {
-            console.log('rodou')
             if (!metodos.validarEndereco()) return;
             const {endereco, numero, bairro, cidade, uf, cep} = deliveryData.address;
             const data = await MapsServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
