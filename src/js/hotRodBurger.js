@@ -19,19 +19,19 @@ const Depoimentos = [
         name: 'Diego Pereira',
         value: 4.5,
         text: 'Muito bom, recomendo demais! Comida muito bem feita pelo chefe, atendimento dentro dos parâmetros e boa comunicação com o cliente.',
-        path: 'diego.webp',
+        path: './imgs/diego.webp',
     },
     {
         name: 'Ana Beatriz',
         value: 5,
-        text: 'Um jantar perfeito do começo ao fim. Comida, experiência, serviço... foi tão maravilhoso que fomos dois dias seguidos - fato inédito para mim em uma viagem.',
-        path: 'ana.webp',
+        text: 'Um jantar perfeito do começo ao fim... foi tão maravilhoso que fomos dois dias seguidos - fato inédito para mim em uma viagem!',
+        path: './imgs/ana.webp',
     },
     {
         name: 'João Guilherme',
         value: 4.5,
         text: 'A comida estava excelente e o serviço gentil nos surpreendeu! Dica: reserve umas 3 horas para ter uma experiência incrível.',
-        path: 'joao.webp',
+        path: './imgs/joao.webp',
     }
 ];
 

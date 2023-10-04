@@ -756,27 +756,26 @@ const Cardapio = (function () {
         },*/
 
 
-        abrirDepoimento: (id) => {
-            const selected = Math.min(id - 1, 0);
+        CarregarDepoimento: (ind) => {
             const imgEl = document.querySelector('#dep-img');
             const nameEl = document.querySelector('#dep-name');
             const starsEl = document.querySelector('#dep-stars');
             const textEl = document.querySelector('#dep-text');
 
-            imgEl.src = Depoimentos[1]
+            const star = `<div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>`;
+            const hstar = `<div class="bg-[url('/src/imgs/icon/h-star.png')] h-4 w-4 bg-cover"></div>`
 
-            
-            $("#depoimento-1").addClass('hidden');
-            $("#depoimento-2").addClass('hidden');
-            $("#depoimento-3").addClass('hidden');
+            const selected = Depoimentos[ind];
+            console.log(selected)
 
-            $("#btnDepoimento-1").removeClass('active');
-            $("#btnDepoimento-2").removeClass('active');
-            $("#btnDepoimento-3").removeClass('active');
+            imgEl.src = selected.path;
+            nameEl.textContent = selected.name;
+            textEl.textContent = selected.text;
 
-            $("#depoimento-" + depoimento).removeClass('hidden');
-            $("#btnDepoimento-" + depoimento).addClass('active');
-
+            starsEl.innerHTML = '';
+            starsEl.insertAdjacentHTML('beforeend', star.repeat(Math.floor(selected.value)));
+            starsEl.insertAdjacentHTML('beforeend', selected.value % 1 != 0 ? hstar : '');
+            starsEl.insertAdjacentHTML('beforeend', `<span>${selected.value}</span>`);
         }, 
 
         handleCardExpansion: (el) => {
