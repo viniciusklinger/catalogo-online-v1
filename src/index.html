@@ -20,12 +20,27 @@
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
 </head>
 <body id="body-data" class="font-pop bg-[#fffdf7] scroll-smooth text-default data-[modal=open]:overflow-hidden">
-    <header class="h-9 w-full"></header>
-    <main class="max-w-6xl mx-auto">
+    <header class="h-20 mt-6 w-full flex items-center justify-between max-w-7xl mx-auto px-6">
+        <img src="./imgs/logo.png" alt="cardappio logo" class="pl-4">
+        <nav>
+            <ul class="flex flex-row space-x-10 font-semibold text-lg">
+                <a href="#servicos" class="hover:text-primary hover:underline">
+                    <li>Serviços</li>
+                </a>
+                <a href="#cardapio" class="hover:text-primary hover:underline">
+                    <li>Cardápio</li>
+                </a>
+                <a href="#depoimentos" class="hover:text-primary hover:underline">
+                    <li>Depoimentos</li>
+                </a>
+            </ul>
+        </nav>
+    </header>
+    <main class="mx-auto">
         <!-- toast -->
         <div class="fixed text-sm max-w-[300px] h-5 z-50 right-5 top-5" id="toast-container"></div>
 
-        <!-- carrinho -->
+        <!-- btn carrinho -->
         <div class="flex fixed bottom-10 right-6 space-x-3 select-none">
             <a id="btn-zap" href="" target="_blank" rel="noopener noreferrer">
                 <img class="h-14" src="./imgs/icon/zap.png" alt="whats app icon">
@@ -39,8 +54,8 @@
         </div>
 
         <!-- modal carrinho -->
-        <div id="modal-carrinho" data-etapa="1" data-modo="1" class="hidden group fixed top-0 left-0 w-full h-full p-3 xs:p-6 sm:p-8 bg-white">
-            <div class="max-w-6xl mx-auto flex flex-col justify-between h-full">
+        <div id="modal-carrinho" data-etapa="1" data-modo="1" data-mapa="false" class="hidden group fixed top-0 left-0 w-full h-full p-3 xs:p-6 sm:p-8 bg-white z-40">
+            <div class="max-w-7xl mx-auto flex flex-col justify-between h-full">
                 <!-- header -->
                 <div>
                     <div class="flex justify-between items-center">
@@ -76,70 +91,77 @@
                     </div>
 
                     <!-- delivery -->
-                    <div class="px-2 h-80 group-data-[modo='2']:h-full hidden group-data-[etapa='2']:flex mb-6 flex-col md:flex-row-reverse">
+                    <div class="px-2 group-data-[modo='2']:h-full hidden group-data-[etapa='2']:flex mb-6 flex-col md:flex-row-reverse">
                         <div class="w-full md:w-1/2 group-data-[modo='2']:w-full mb-4 md:mb-0 md:ml-4 group-data-[modo='2']:ml-0">
-                            <button id="btn-use-location-service" class="group-data-[modo='2']:hidden w-full p-2 text-default hover:text-white bg-primary rounded-lg mb-3">Usar minha localização atual</button>
                             <div class="hidden group-data-[modo='2']:flex mb-3 mx-auto justify-center items-center flex-wrap flex-col">
                                 <p>Você irá retirar o pedido em:</p>
                                 <p id="endereco-label" data-endereco="Endereço da loja" class="hidden group-data-[modo='2']:block after:content-[attr(data-endereco)] text-center font-medium sm:text-lg mb-1"></p>
                             </div>
-                            <div id="delivery-map" class="h-80 md:h-[calc(100%-83px)] bg-gray-200 rounded-lg shadow-lg flex flex-col text-left px-4">
+                            <div id="delivery-map" class="hidden group-data-[mapa=true]:flex group-data-[modo='2']:hidden h-80 md:h-full bg-gray-200 rounded-2xl shadow-lg px-4"></div>
+                            <div class="hidden group-data-[modo='2']:flex h-5/6 w-full">
+                                <iframe id="maps-embed" class="w-full h-full rounded-2xl shadow-lg" src="" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                             </div>
-                            <div class="hidden bg-[#FFF2CC] flex-col text-left px-4 rounded-2xl">
+                            <div class="bg-[#FFF2CC] flex flex-col text-left p-4 rounded-2xl h-full shadow-lg group-data-[mapa=true]:hidden group-data-[modo='2']:hidden justify-center">
                                 <h2 class="font-semibold tracking-widest text-primary">MAPA</h2>
-                                <p class="font-semibold text-lg">Problemas com entregas?</p>
+                                <p class="font-semibold text-lg">Local sem endereço?</p>
                                 <ul class="list-disc list-inside my-4 text-left w-11/12 text-sm">
-                                    <li>Local sem endereço?</li>
-                                    <li>Entregadores reclamam ao encontrá-lo?</li>
-                                    <li>Curtindo uma praia?</li>
+                                    <li>Bairro recém construído?</li>
+                                    <li>Endereço difícil de encontrar?</li>
+                                    <li>Curtindo a orla da praia com os amigos?</li>
                                     <li>No meio de um aglomerado de pessoas?</li>
                                 </ul>
-                                <p class="my-2">Ative o mapa e crie uma marcação para auxiliar o entregador!</p>
-                                <button class="p-2 bg-primary rounded-2xl w-fit font-medium hover:text-white mx-auto">Ativar Mapa</button>
+                                <p class="my-2">Ative o mapa e crie uma marcação para auxiliar o entregador! (use somente quando necessário)</p>
+                                <button class="p-2 bg-primary rounded-xl w-fit font-medium hover:text-default text-white mx-auto mt-2" onclick="Cardapio.metodos.initMap()">Ativar Mapa</button>
                             </div>
                         </div>
-                        <form id="delivery-view" class="hidden group-data-[etapa='2']:block group-data-[modo='2']:hidden mx-auto min-[830px]:text-lg group/loading w-full md:w-1/2 pb-4 md:pb-0">
-                            <div class="flex flex-col sm:grid sm:grid-cols-2 gap-x-3 gap-y-6">
-                                <div class="flex flex-col">
-                                    <label for="data-cep">CEP:</label>
-                                    <input type="text" pattern="[0-9]{5}-[0-9]{3}" id="data-cep" placeholder="00000-000" class="bg-white p-3 shadow-md rounded-2xl">
-                                </div>
-                                
-                                <div class="flex flex-col">
-                                    <label for="data-endereco">Endereço:</label>
-                                    <input type="text" id="data-endereco"placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
-                                </div>
-                                
-                                <div class="flex flex-col">
-                                    <label for="data-bairro">Bairro:</label>
-                                    <input type="text" id="data-bairro" placeholder="Centro" class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
-                                </div>
-                                
-                                <div class="flex flex-col relative">
-                                    <label for="data-numero">Número:</label>
-                                    <input type="text" id="data-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl">
-                                    <div class="absolute h-[52px] w-[52px] bottom-0 right-0 flex justify-center items-center">
-                                        <button class="h-10 w-10 bg-primary p-1 rounded-xl z-10 fill-white hover:fill-default shadow-md" title="Mostrar no mapa" type='button' onclick="Cardapio.metodos.handleGeocode()">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-                                                <path fill-rule="evenodd" clip-rule="evenodd" d="M8.48571 20.3748L14.8857 27.5243C15.347 28.1586 16.3271 28.1586 16.8461 27.5243L23.3037 20.3748C27.2244 15.9351 26.4172 9.13153 21.5163 5.72973C18.1145 3.42342 13.6749 3.42342 10.2731 5.72973C5.37219 9.07387 4.56499 15.9351 8.48571 20.3748ZM21.1704 13.7442C21.1704 16.7056 18.7697 19.1063 15.8082 19.1063C12.8468 19.1063 10.4461 16.7056 10.4461 13.7442C10.4461 10.7827 12.8468 8.38199 15.8082 8.38199C18.7697 8.38199 21.1704 10.7827 21.1704 13.7442Z"/>
-                                            </svg>
-                                        </button>
-                                        <div class="absolute bg-default animate-ping h-6 w-6 rounded-lg"></div>
+                        <div class="w-full md:w-1/2 group-data-[modo='2']:hidden">
+                            <button id="btn-use-location-service" class="group-data-[modo='2']:hidden w-full p-2 text-default hover:text-white bg-primary rounded-lg mb-3">Usar minha localização atual</button>
+                            <form id="delivery-view" class="hidden group-data-[etapa='2']:block group-data-[modo='2']:hidden mx-auto min-[830px]:text-lg group/loading w-full pb-4 md:pb-0">
+                                <div class="flex flex-col sm:grid sm:grid-cols-2 gap-x-3 gap-y-6">
+                                    <div class="flex flex-col">
+                                        <label for="data-cep">CEP:</label>
+                                        <input type="text" pattern="[0-9]{5}-[0-9]{3}" id="data-cep" placeholder="00000-000" class="bg-white p-3 shadow-md rounded-2xl">
                                     </div>
+                                    
+                                    <div class="flex flex-col">
+                                        <label for="data-endereco">Endereço:</label>
+                                        <input type="text" id="data-endereco"placeholder="Rua Primeira..." class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
+                                    </div>
+                                    
+                                    <div class="flex flex-col">
+                                        <label for="data-bairro">Bairro:</label>
+                                        <input type="text" id="data-bairro" placeholder="Centro" class="bg-white p-3 shadow-md rounded-2xl group-data-[loading='true']/loading:bg-gray-200">
+                                    </div>
+                                    
+                                    <div class="flex flex-col relative">
+                                        <label for="data-numero">Número:</label>
+                                        <input type="text" id="data-numero" placeholder="0001" required aria-required="true" class="bg-white p-3 shadow-md rounded-2xl">
+                                        <div class="absolute hidden group-data-[mapa=true]:flex h-[52px] w-[52px] bottom-0 right-0 justify-center items-center">
+                                            <button class="h-10 w-10 bg-primary p-1 rounded-xl z-10 fill-white hover:fill-default shadow-md" title="Mostrar no mapa" type='button' onclick="Cardapio.metodos.handleGeocode()">
+                                                <!-- <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M8.48571 20.3748L14.8857 27.5243C15.347 28.1586 16.3271 28.1586 16.8461 27.5243L23.3037 20.3748C27.2244 15.9351 26.4172 9.13153 21.5163 5.72973C18.1145 3.42342 13.6749 3.42342 10.2731 5.72973C5.37219 9.07387 4.56499 15.9351 8.48571 20.3748ZM21.1704 13.7442C21.1704 16.7056 18.7697 19.1063 15.8082 19.1063C12.8468 19.1063 10.4461 16.7056 10.4461 13.7442C10.4461 10.7827 12.8468 8.38199 15.8082 8.38199C18.7697 8.38199 21.1704 10.7827 21.1704 13.7442Z"/>
+                                                </svg> -->
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                                    <path d="M19.5967 22.2791C17.1438 22.2791 14.8298 21.3353 13.0942 19.6086C11.3587 17.882 10.4099 15.5799 10.4099 13.1396C10.4099 10.6993 11.3587 8.39712 13.0942 6.6705C14.8298 4.94388 17.1438 4 19.5967 4C22.0496 4 24.3636 4.94388 26.0992 6.6705C29.686 10.2388 29.686 16.0403 26.0992 19.6086C24.3636 21.3353 22.0496 22.2791 19.5967 22.2791ZM19.5967 6.6705C17.8612 6.6705 16.2182 7.33813 14.9917 8.55827C12.4463 11.0906 12.4463 15.1885 14.9917 17.7209C16.2182 18.941 17.8612 19.6086 19.5967 19.6086C21.3322 19.6086 22.9752 18.941 24.2017 17.7209C25.4281 16.5007 26.0992 14.8662 26.0992 13.1396C26.0992 11.413 25.4281 9.77842 24.2017 8.55827C22.9752 7.33813 21.3322 6.6705 19.5967 6.6705ZM4 26.1468L10.8959 19.2863C11.243 19.7698 11.6364 20.2302 12.0529 20.6446C12.4694 21.059 12.9322 21.4504 13.4182 21.7957L6.52231 28.6561L4 26.1468Z"/>
+                                                </svg>
+                                            </button>
+                                            <div class="absolute bg-default animate-ping h-6 w-6 rounded-lg"></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex flex-col col-span-2">
+                                        <label for="data-complemento">Complemento:</label>
+                                        <input type="text" id="data-complemento" class="bg-white p-3 shadow-md rounded-2xl">
+                                    </div>
+                                    
+                                    <!-- <label for="form-cidade">Cidade:</label> -->
+                                    <input type="hidden" id="data-cidade" name="form-cidade" placeholder="Ponta Grossa" class="bg-white p-3 shadow-md rounded-2xl mb-4">
+                                    
+                                    <!-- <label for="form-uf">UF:</label> -->
+                                    <input type="hidden" id="data-uf" name="form-uf" placeholder="Paraná" class="bg-white p-3 shadow-md rounded-2xl mb-4">
                                 </div>
-                                
-                                <div class="flex flex-col col-span-2">
-                                    <label for="data-complemento">Complemento:</label>
-                                    <input type="text" id="data-complemento" class="bg-white p-3 shadow-md rounded-2xl">
-                                </div>
-                                
-                                <!-- <label for="form-cidade">Cidade:</label> -->
-                                <input type="hidden" id="data-cidade" name="form-cidade" placeholder="Ponta Grossa" class="bg-white p-3 shadow-md rounded-2xl mb-4">
-                                
-                                <!-- <label for="form-uf">UF:</label> -->
-                                <input type="hidden" id="data-uf" name="form-uf" placeholder="Paraná" class="bg-white p-3 shadow-md rounded-2xl mb-4">
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                         
                     <!-- summary -->
@@ -184,28 +206,93 @@
                 </div>
             </div>
         </div>
-        <!-- <section id="main">
-            <div class="flex flex-col lg:flex-row">
-                <div class="">
-                    <h1 class="font-medium">
+
+        <section id="main">
+            <div class="flex flex-col lg:flex-row my-40 justify-between px-6 max-w-6xl mx-auto">
+                <div class="max-w-lg text-xl">
+                    <p class="font-semibold text-6xl mb-10">
                         Escolha sua comida
-                        <span class="text-primaria">favorita</span>
-                    </h1>
-                    <p></p>
-                    <button></button>
-                    <button></button>
+                        <span class="text-primary">favorita.</span>
+                    </p>
+                    <p class="mb-10 text-gray-500">Aproveite nosso cardápio! Escolha o que desejar e receba em sua casa de forma rápida e segura.</p>
+                    <div class="flex items-center w-full mb-16">
+                        <a href="#cardapio" class="bg-primary font-medium text-white hover:text-default px-6 py-4 shadow-xl rounded-2xl mr-4">Ver cardápio</a>
+                        <a href="tel:(42) 99866-3675" id="btn-tel-contato" class="bg-white font-medium text-default hover:text-white hover:bg-primary px-6 py-4 shadow-xl rounded-2xl group relative text-right pl-14">
+                            <div class="absolute left-0 top-0 h-full w-16 flex items-center justify-center">
+                                <div class="h-10 w-10 bg-primary p-1 rounded-xl fill-default group-hover:fill-white">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                                        <path d="M27.892 23.1305L27.7726 22.7705C27.4896 21.9294 26.5623 21.0522 25.7104 20.8211L22.5573 19.9596C21.7022 19.7269 20.4825 20.0398 19.8569 20.6654L18.7157 21.8068C14.5685 20.686 11.3164 17.4332 10.1973 13.286L11.3385 12.1446C11.9641 11.5189 12.2769 10.3005 12.0442 9.44531L11.1844 6.29009C10.9518 5.43643 10.0732 4.50891 9.23383 4.22905L8.8739 4.10801C8.03296 3.82815 6.83366 4.11118 6.2081 4.73685L4.50109 6.44574C4.19613 6.74914 4.00122 7.61694 4.00122 7.62011C3.94152 13.0407 6.06661 18.2632 9.90023 22.0976C13.7244 25.9225 18.9264 28.0449 24.3303 27.9993C24.3585 27.9993 25.2513 27.8075 25.5563 27.504L27.2633 25.7967C27.8889 25.1711 28.1718 23.9716 27.892 23.1305Z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <span>(42) 99866-3675</span>
+                        </a>
+                    </div>
+                    <div class="mb-10">
+                        <div class="flex space-x-6">
+                            <a href="" title="Whatsapp" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <path d="M24 11.6909C24 18.1477 18.7256 23.3819 12.2181 23.3819C10.1523 23.3819 8.21147 22.8539 6.52293 21.9272L0 24L2.12667 17.7275C1.05387 15.9659 0.436 13.8997 0.436 11.6909C0.436 5.23413 5.71093 0 12.2181 0C18.7261 0 24 5.23413 24 11.6909ZM12.2181 1.86187C6.75573 1.86187 2.31253 6.2712 2.31253 11.6909C2.31253 13.8416 3.0136 15.8333 4.19947 17.4536L2.96187 21.104L6.76853 19.8941C8.33253 20.9211 10.2061 21.52 12.2184 21.52C17.68 21.52 22.124 17.1112 22.124 11.6915C22.124 6.27173 17.6803 1.86187 12.2181 1.86187ZM18.1677 14.3835C18.0949 14.2643 17.9027 14.1923 17.6141 14.0491C17.3251 13.9059 15.9048 13.2123 15.6408 13.1171C15.376 13.0216 15.1829 12.9736 14.9907 13.2603C14.7984 13.5472 14.2448 14.1923 14.076 14.3835C13.9075 14.5752 13.7392 14.5992 13.4501 14.4557C13.1616 14.3125 12.2312 14.0096 11.128 13.0336C10.2696 12.2741 9.68987 11.3365 9.52133 11.0493C9.35307 10.7627 9.50373 10.6077 9.648 10.4651C9.77813 10.3365 9.93707 10.1304 10.0813 9.9632C10.2261 9.79573 10.2741 9.67653 10.3699 9.48507C10.4667 9.29387 10.4184 9.12667 10.3459 8.98293C10.2739 8.83973 9.69573 7.4296 9.4552 6.85573C9.21467 6.2824 8.9744 6.37787 8.8056 6.37787C8.63733 6.37787 8.44453 6.35387 8.252 6.35387C8.05947 6.35387 7.7464 6.4256 7.4816 6.71227C7.21707 6.9992 6.4712 7.69253 6.4712 9.1024C6.4712 10.5125 7.5056 11.8749 7.6504 12.0659C7.79467 12.2568 9.64773 15.2445 12.5837 16.392C15.52 17.5389 15.52 17.1563 16.0496 17.1083C16.5787 17.0605 17.7579 16.4152 17.9995 15.7464C18.2395 15.0765 18.2395 14.5029 18.1677 14.3835Z"/>
+                                </svg>
+                            </a>
+                            <a href="" title="Instagram" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <g clip-path="url(#clip0_124_389)">
+                                    <path d="M23.2453 11.6311C23.2453 13.2624 23.2125 14.8983 23.2547 16.5296C23.325 19.4171 21.5109 21.6483 19.2 22.6421C18.2719 23.0405 17.2969 23.2514 16.2891 23.2514C13.1344 23.2561 9.975 23.2983 6.82031 23.2374C4.44375 23.1905 2.48906 22.1967 1.0875 20.2374C0.351562 19.2061 0 18.0342 0 16.7639C0 13.403 0 10.0467 0 6.68581C0 3.94362 1.33594 2.02643 3.70781 0.77956C4.73906 0.240497 5.85938 0.01081 7.02656 0.00612246C10.0875 0.00612246 13.1531 -0.0126276 16.2141 0.0154974C18.5906 0.0342474 20.5734 0.943623 22.0359 2.85612C22.8516 3.92487 23.2453 5.153 23.2453 6.503C23.2453 8.20925 23.2453 9.92019 23.2453 11.6311ZM1.72969 11.6311C1.72969 13.3514 1.72969 15.0671 1.72969 16.7874C1.72969 17.5561 1.90781 18.278 2.30625 18.9296C3.35156 20.6405 4.93125 21.4749 6.89063 21.5077C10.0359 21.5546 13.1859 21.5264 16.3359 21.5171C17.1094 21.5171 17.8594 21.3577 18.5578 21.0249C20.4609 20.1155 21.525 18.6671 21.5156 16.4921C21.4969 13.1639 21.5109 9.83581 21.5109 6.50768C21.5109 5.5655 21.2438 4.703 20.6859 3.94362C19.6078 2.48581 18.1172 1.76862 16.3359 1.74987C13.1953 1.71237 10.0547 1.73581 6.91406 1.7405C6.24375 1.7405 5.59688 1.87644 4.96875 2.11081C3.24375 2.753 1.64063 4.37956 1.71563 6.77487C1.77188 8.39675 1.72969 10.0139 1.72969 11.6311Z"/>
+                                    <path d="M11.6484 16.5999C8.625 16.5999 6.1875 14.1905 6.18281 11.1905C6.17813 8.23737 8.63438 5.81862 11.6391 5.81862C14.6531 5.81393 17.1 8.228 17.1047 11.2046C17.1047 14.1764 14.6625 16.5952 11.6484 16.5999ZM11.6484 14.8655C13.7063 14.8655 15.375 13.2202 15.3703 11.1952C15.3656 9.18893 13.6969 7.54831 11.6484 7.54831C9.59063 7.54831 7.9125 9.18425 7.9125 11.2046C7.91719 13.2296 9.59063 14.8702 11.6484 14.8655Z"/>
+                                    <path d="M17.7375 4.178C18.3703 4.178 18.8859 4.71706 18.8859 5.378C18.8813 6.03893 18.3609 6.57331 17.7281 6.56862C17.1047 6.56394 16.5938 6.02956 16.5938 5.38268C16.5891 4.72175 17.1047 4.178 17.7375 4.178Z"/>
+                                    </g>
+                                    <defs>
+                                    <clipPath id="clip0_124_389">
+                                    <rect width="24" height="24" fill="white"/>
+                                    </clipPath>
+                                    </defs>
+                                </svg>
+                            </a>
+                            <a href="" title="Facebook" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                    <path d="M17.25 8.74227H13.0313V5.83599C13.0313 5.03378 13.6612 4.38278 14.4377 4.38278H15.8439V0.75H13.0313C10.7012 0.75 8.81264 2.70145 8.81264 5.10934V8.74227H6V12.375H8.81264V24H13.0313V12.375H15.8439L17.25 8.74227Z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-                <div class=""></div>
+                <div class="relative">
+                    <div class="bg-[url('/src/imgs/burguer-bg.png')] bg-origin-border bg-right-top bg-no-repeat bg-contain absolute -right-20 -top-20 -z-10 w-[500px] h-[380px] xl:w-[600px] xl:h-[456px]"></div>
+                    <img class="w-[500px] xl:w-[600px]" src="./imgs/burguer.png" alt="burguer img">
+                </div>
             </div>
-        </section> -->
+        </section>
 
-        <section id="cardapio-container">
-            <!-- bg -->
-            <div class="h-full w-full"></div>
+        <section id="servicos" class="relative">
+            <div class="bg-[url('/src/imgs/bg-2.png')] absolute bg-left-top bg-auto top-0 left-0 h-full w-full -z-10"></div>
+            <div class="flex flex-col text-center mb-40 px-6 max-w-7xl mx-auto">
+                <h1 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Serviços</h1>
+                <p class="font-semibold text-3xl md:text-4xl tracking-wide mb-28">Como são nossos serviços?</p>
+                <div class="grid grid-cols-3 my-6">
+                    <div class="flex flex-col items-center max-w-sm h-72">
+                        <img class="h-[136px] w-[250px] mb-6" src="./imgs/pedido.png" alt="icone pedido">
+                        <h3 class="font-semibold text-2xl mb-6">Fácil de pedir</h3>
+                        <p class="w-60 text-gray-500">Você só precisa de alguns passos para pedir sua comida.</p>
+                    </div>
+                    <div class="flex flex-col items-center max-w-sm h-72">
+                        <img class="h-[136px] w-[250px] mb-6" src="./imgs/delivery.png" alt="icone pedido">
+                        <h3 class="font-semibold text-2xl mb-6">Entrega rápida</h3>
+                        <p class="w-60 text-gray-500">Nossa entrega é sempre pontual, rápida e segura.</p>
+                    </div>
+                    <div class="flex flex-col items-center max-w-sm h-72">
+                        <img class="h-[136px] w-[250px] mb-6" src="./imgs/qualidade.png" alt="icone pedido">
+                        <h3 class="font-semibold text-2xl mb-6">Melhor qualidade</h3>
+                        <p class="w-60 text-gray-500">Ingredientes selecionados a dedo e capricho na preparação.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-            <div>
+        <section id="cardapio">
+            <div class="mb-40 px-6 max-w-7xl mx-auto">
                 <div class="flex flex-col text-center mx-6 mb-8">
-                    <h2 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Cardápio</h2>
+                    <h1 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Cardápio</h1>
                     <p class="font-semibold text-3xl md:text-4xl tracking-wide">Conheça o nosso cardápio</p>
                 </div>
                 <div id="menu-cardapio" class="font-medium text-md flex overflow-x-auto space-x-4 p-4 sm:justify-center cardapio-menu">
@@ -239,11 +326,101 @@
             </div>
 
         </section>
-        <div class="flex mb-4">
-            <button class="px-3 py-2 mx-auto bg-primary hover:text-white rounded-xl" onclick="Analytics.testEvent()">Send GA Custom Event</button>
-        </div>
+
+        <section id="depoimentos" class="relative">
+            <div class="bg-[url('/src/imgs/bg-1.png')] absolute bg-left-top bg-auto top-0 left-0 h-full w-full -z-10"></div>
+            <div class="max-w-7xl mx-auto text-center px-6 mb-40">
+                <div class="flex flex-row justify-around">
+                    <!-- img -->
+                    <div class="relative">
+                        <div class="absolute -top-10 left-0 right-0 mx-auto bg-primary opacity-25 h-[340px] w-[360px] -z-10 rounded-[120px]"></div>
+                        <div class="">
+                            <img src="./imgs/pizzas.png" alt="pizza icon" class="h-[400px]">
+                        </div>
+                    </div>
+
+                    <!-- depoimento -->
+                    <div class="flex flex-row w-1/2">
+                        <div class="px-6 text-left">
+                            <h1 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Depoimentos</h1>
+                            <p class="font-semibold text-3xl md:text-4xl tracking-wide mb-16">O que dizem sobre nós?</p>
+
+                            <div class="flex flex-row mb-6">
+                                <!-- <div id="dep-img" class="h-16 w-16 rounded-full mr-4 bg-[url('/src/imgs/diego.webp')] bg-cover bg-center"></div> -->
+                                <img id="dep-img" src="./imgs/diego.webp" alt="foto do usuario" class="h-16 w-16 rounded-full mr-4">
+                                <div>
+                                    <p id="dep-name" class="text-2xl font-semibold">Diego Pereira</p>
+                                    <div id="dep-stars" class="flex flex-row space-x-1 items-center">
+                                        <div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>
+                                        <div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>
+                                        <div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>
+                                        <div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>
+                                        <div class="bg-[url('/src/imgs/icon/h-star.png')] h-4 w-4 bg-cover"></div>
+                                        <span>4.5</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-row relative">
+                                <div class="absolute left-0 top-0 bg-[url('/src/imgs/icon/quote.png')] h-[32px] w-[32px] bg-auto"></div>
+                                <div class="absolute right-0 bottom-0 bg-[url('/src/imgs/icon/quote.png')] h-[32px] w-[32px] bg-auto rotate-180"></div>
+                                <p id="dep-text" class="px-16 max-w-lg">Muito bom, recomendo demais! Comida muito bem feita pelo chefe, atendimento dentro dos parâmetros e boa comunicação com o cliente.</p>
+                            </div>
+                            <div class="mt-10">
+                                <div class="flex space-x-6">
+                                    <button class="h-12 w-12 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary" onclick="Cardapio.metodos">1</button>
+                                    <button class="h-12 w-12 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">2</button>
+                                    <button class="h-12 w-12 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">3</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="bg-[#FFF2CC]">
+            <div class="flex flex-row items-center justify-between h-28 max-w-7xl mx-auto">
+                <a href="#">
+                    <img src="./imgs/logo.png" alt="cardappio logo" class="pl-4">
+                </a>
+                <p> <span class="font-semibold">Cardappio</span> © Todos os direitos reservados</p>
+                <div class="flex">
+                    <div class="flex space-x-6 h-fit">
+                        <a href="" title="Whatsapp" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path d="M24 11.6909C24 18.1477 18.7256 23.3819 12.2181 23.3819C10.1523 23.3819 8.21147 22.8539 6.52293 21.9272L0 24L2.12667 17.7275C1.05387 15.9659 0.436 13.8997 0.436 11.6909C0.436 5.23413 5.71093 0 12.2181 0C18.7261 0 24 5.23413 24 11.6909ZM12.2181 1.86187C6.75573 1.86187 2.31253 6.2712 2.31253 11.6909C2.31253 13.8416 3.0136 15.8333 4.19947 17.4536L2.96187 21.104L6.76853 19.8941C8.33253 20.9211 10.2061 21.52 12.2184 21.52C17.68 21.52 22.124 17.1112 22.124 11.6915C22.124 6.27173 17.6803 1.86187 12.2181 1.86187ZM18.1677 14.3835C18.0949 14.2643 17.9027 14.1923 17.6141 14.0491C17.3251 13.9059 15.9048 13.2123 15.6408 13.1171C15.376 13.0216 15.1829 12.9736 14.9907 13.2603C14.7984 13.5472 14.2448 14.1923 14.076 14.3835C13.9075 14.5752 13.7392 14.5992 13.4501 14.4557C13.1616 14.3125 12.2312 14.0096 11.128 13.0336C10.2696 12.2741 9.68987 11.3365 9.52133 11.0493C9.35307 10.7627 9.50373 10.6077 9.648 10.4651C9.77813 10.3365 9.93707 10.1304 10.0813 9.9632C10.2261 9.79573 10.2741 9.67653 10.3699 9.48507C10.4667 9.29387 10.4184 9.12667 10.3459 8.98293C10.2739 8.83973 9.69573 7.4296 9.4552 6.85573C9.21467 6.2824 8.9744 6.37787 8.8056 6.37787C8.63733 6.37787 8.44453 6.35387 8.252 6.35387C8.05947 6.35387 7.7464 6.4256 7.4816 6.71227C7.21707 6.9992 6.4712 7.69253 6.4712 9.1024C6.4712 10.5125 7.5056 11.8749 7.6504 12.0659C7.79467 12.2568 9.64773 15.2445 12.5837 16.392C15.52 17.5389 15.52 17.1563 16.0496 17.1083C16.5787 17.0605 17.7579 16.4152 17.9995 15.7464C18.2395 15.0765 18.2395 14.5029 18.1677 14.3835Z"/>
+                            </svg>
+                        </a>
+                        <a href="" title="Instagram" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <g clip-path="url(#clip0_124_389)">
+                                <path d="M23.2453 11.6311C23.2453 13.2624 23.2125 14.8983 23.2547 16.5296C23.325 19.4171 21.5109 21.6483 19.2 22.6421C18.2719 23.0405 17.2969 23.2514 16.2891 23.2514C13.1344 23.2561 9.975 23.2983 6.82031 23.2374C4.44375 23.1905 2.48906 22.1967 1.0875 20.2374C0.351562 19.2061 0 18.0342 0 16.7639C0 13.403 0 10.0467 0 6.68581C0 3.94362 1.33594 2.02643 3.70781 0.77956C4.73906 0.240497 5.85938 0.01081 7.02656 0.00612246C10.0875 0.00612246 13.1531 -0.0126276 16.2141 0.0154974C18.5906 0.0342474 20.5734 0.943623 22.0359 2.85612C22.8516 3.92487 23.2453 5.153 23.2453 6.503C23.2453 8.20925 23.2453 9.92019 23.2453 11.6311ZM1.72969 11.6311C1.72969 13.3514 1.72969 15.0671 1.72969 16.7874C1.72969 17.5561 1.90781 18.278 2.30625 18.9296C3.35156 20.6405 4.93125 21.4749 6.89063 21.5077C10.0359 21.5546 13.1859 21.5264 16.3359 21.5171C17.1094 21.5171 17.8594 21.3577 18.5578 21.0249C20.4609 20.1155 21.525 18.6671 21.5156 16.4921C21.4969 13.1639 21.5109 9.83581 21.5109 6.50768C21.5109 5.5655 21.2438 4.703 20.6859 3.94362C19.6078 2.48581 18.1172 1.76862 16.3359 1.74987C13.1953 1.71237 10.0547 1.73581 6.91406 1.7405C6.24375 1.7405 5.59688 1.87644 4.96875 2.11081C3.24375 2.753 1.64063 4.37956 1.71563 6.77487C1.77188 8.39675 1.72969 10.0139 1.72969 11.6311Z"/>
+                                <path d="M11.6484 16.5999C8.625 16.5999 6.1875 14.1905 6.18281 11.1905C6.17813 8.23737 8.63438 5.81862 11.6391 5.81862C14.6531 5.81393 17.1 8.228 17.1047 11.2046C17.1047 14.1764 14.6625 16.5952 11.6484 16.5999ZM11.6484 14.8655C13.7063 14.8655 15.375 13.2202 15.3703 11.1952C15.3656 9.18893 13.6969 7.54831 11.6484 7.54831C9.59063 7.54831 7.9125 9.18425 7.9125 11.2046C7.91719 13.2296 9.59063 14.8702 11.6484 14.8655Z"/>
+                                <path d="M17.7375 4.178C18.3703 4.178 18.8859 4.71706 18.8859 5.378C18.8813 6.03893 18.3609 6.57331 17.7281 6.56862C17.1047 6.56394 16.5938 6.02956 16.5938 5.38268C16.5891 4.72175 17.1047 4.178 17.7375 4.178Z"/>
+                                </g>
+                                <defs>
+                                <clipPath id="clip0_124_389">
+                                <rect width="24" height="24" fill="white"/>
+                                </clipPath>
+                                </defs>
+                            </svg>
+                        </a>
+                        <a href="" title="Facebook" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                <path d="M17.25 8.74227H13.0313V5.83599C13.0313 5.03378 13.6612 4.38278 14.4377 4.38278H15.8439V0.75H13.0313C10.7012 0.75 8.81264 2.70145 8.81264 5.10934V8.74227H6V12.375H8.81264V24H13.0313V12.375H15.8439L17.25 8.74227Z"/>
+                            </svg>
+                        </a>
+                        <button onclick="Analytics.testEvent()" title="Reportar Problema" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                            <img src="./imgs/icon/bug.png" alt="bug icon" class="h-6 w-6">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
     </main>
-    <script src="./js/dados.js"></script>
+    <script src="./js/hotRodBurger.js"></script>
     <script src="./js/main.js"></script>
     <script async>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})
         ({key: "AIzaSyBXNR4fufFl1SbFuab52Ito48xYqRmzw2U", v: "beta"});</script>

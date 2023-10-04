@@ -2,21 +2,6 @@ window.onload = function () {
     Cardapio.init();
 };
 
-const CustomData = {
-    number: '5542998663675',
-    zapNumber: '5542998663675',
-    zapHelpText: 'Olá! Sobre o cardápio online, gostaria de saber se...',
-    storeLatLng: { lat: -25.109664656607833, lng: -50.12425511392971 },
-    mapsMagLink: 'https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6',
-    address: ['Rua Siqueira Campos, 1806, Uvaranas', 'Ponta Grossa - PR, 84031-030', ''],
-    deliveryFees: {
-        6: 1.8,
-        10: 1.7,
-        15: 1.4,
-        999: 1.3,
-    },
-}
-
 const LocalStorage = (function (){
     const storage = window.localStorage;
 
@@ -204,6 +189,9 @@ const MapsServices = (function () {
     async function calculateDirections(LatLng, outZoom = false, resetNumber = false) {
         if (!directionsService) await initDirectionsService();
         setMarkerPosition(LatLng, true, outZoom);
+        
+        const resTeste = OpenRouteServices.getDirections(LatLng);
+        console.log('openRouteDir: ', await resTeste);
 
         const route = {
             origin: CustomData.storeLatLng,
@@ -295,9 +283,43 @@ const MapsServices = (function () {
 
 })();
 
+const OpenRouteServices = (function () {
+    async function getGeocode(endereco) {
+        const link = `https://api.openrouteservice.org/geocode/search?api_key=5b3ce3597851110001cf624821f64896b9914c479bd90fb27e88e1a7&text=${endereco}&boundary.country=BRA&size=1&focus.point.lat=${CustomData.storeLatLng.lat}&focus.point.lon=${CustomData.storeLatLng.lng}&boundary.circle.lat=${CustomData.storeLatLng.lat}&boundary.circle.lon=${CustomData.storeLatLng.lng}&boundary.circle.radius=${CustomData.storeLatLng.radius}`
+        try {
+            const res = await fetch(link)
+            const data = await res.json();
+            console.log('getGeocode res: ', data)
+        } catch (e) {
+            console.error(e);
+            Toast.create('O serviço de geolocalização falhou.', 'red', 5000);
+        }
+    };
+    
+    async function getDirections(data) {
+        const latlng = data.toJSON();
+        const start = `${CustomData.storeLatLng.lat},${CustomData.storeLatLng.lng}`;
+        const end = `${latlng.lat},${latlng.lng}`
+        const link = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf624821f64896b9914c479bd90fb27e88e1a7&start=${start}&end=${end}`;
+        try {
+            const res = await fetch(link)
+            const data = await res.json();
+            console.log('getDirections res: ', data)
+        } catch (e) {
+            console.error(e);
+            Toast.create('O serviço de cálculo de frete falhou.', 'red', 5000);
+        }
+    };
+
+    return {
+        getGeocode,
+        getDirections,
+    };
+})();
+
 const Cardapio = (function () {
     let meuCarrinho = LocalStorage.getParsed('meuCarrinho') ?? [];
-    let deliveryData = LocalStorage.getParsed('deliveryData') ?? {valor: 0, maxValue: false, duration: 0, retirar: false};
+    let deliveryData = LocalStorage.getParsed('deliveryData') ?? {valor: 0, maxValue: false, duration: 0, retirar: false, mapa: false};
 
     /* const DeliveryData = (function() {
         const defaultInfo = {
@@ -342,6 +364,7 @@ const Cardapio = (function () {
         document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
         document.querySelector('#endereco-label').setAttribute('data-endereco', CustomData.address.join(', '));
         document.querySelector('#link-loja-maps').href = CustomData.mapsMagLink;
+        document.querySelector('#maps-embed').src = CustomData.mapsEmbed;
         document.querySelector('#btn-zap').href = `https://wa.me/${CustomData.zapNumber}?text=${encodeURI(CustomData.zapHelpText)}`
 
         if (deliveryData.retirar == true) document.querySelector('#modal-carrinho').setAttribute('data-modo', 2);
@@ -353,12 +376,15 @@ const Cardapio = (function () {
             metodos.atualizarEndereco({...deliveryData.address});
             metodos.AtualizarValoresTotais();
         };
+        if (deliveryData.mapa) {
+            document.querySelector('#modal-carrinho').setAttribute('data-mapa', 'true');
+        }
     };
 
     const metodos = {
         obterItensCardapio: (categoria = 'burgers', vermais = false) => {
 
-            var filtro = MENU[categoria];
+            var filtro = MenuLoja[categoria];
             let step =  Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) < 1279 ? 6 : 8;
             let count = 0;
 
@@ -408,7 +434,7 @@ const Cardapio = (function () {
             let cat = document.querySelector('#menu-cardapio > [data-active="true"]').getAttribute("id").split('cardapio-btn-')[1];
             let existe = meuCarrinho.filter( el => el.id == id);
             
-            let item = MENU[cat].filter(el => el.id == id)[0] ?? null;
+            let item = MenuLoja[cat].filter(el => el.id == id)[0] ?? null;
             if (!item) {
                 console.error('Erro ao adicionar item à sacola. Item não encontrado');
                 return;
@@ -444,7 +470,6 @@ const Cardapio = (function () {
                 document.querySelector('#modal-carrinho').classList.remove('hidden');
                 /* block scrolling on body */
                 document.querySelector('#body-data').setAttribute('data-modal', 'open');
-                /* MapsServices.init(); */
             }
             else {
                 document.querySelector('#modal-carrinho').classList.add('hidden');
@@ -541,6 +566,7 @@ const Cardapio = (function () {
                     Toast.create('Sua sacola está vazia.')
                     return;
                 };
+                if(deliveryData.mapa) MapsServices.init();
                 MapsServices.triggerGeolocationMsg();
             } else if (newEtapa == 3) {
                 let modo = document.querySelector('#modal-carrinho').getAttribute('data-modo')
@@ -727,11 +753,19 @@ const Cardapio = (function () {
 
             $("#btnLigar").attr('href', `tel:${CustomData.zapNumber}`);
 
-        },
+        },*/
 
-        // abre o depoimento
-        abrirDepoimento: (depoimento) => {
 
+        abrirDepoimento: (id) => {
+            const selected = Math.min(id - 1, 0);
+            const imgEl = document.querySelector('#dep-img');
+            const nameEl = document.querySelector('#dep-name');
+            const starsEl = document.querySelector('#dep-stars');
+            const textEl = document.querySelector('#dep-text');
+
+            imgEl.src = Depoimentos[1]
+
+            
             $("#depoimento-1").addClass('hidden');
             $("#depoimento-2").addClass('hidden');
             $("#depoimento-3").addClass('hidden');
@@ -743,7 +777,7 @@ const Cardapio = (function () {
             $("#depoimento-" + depoimento).removeClass('hidden');
             $("#btnDepoimento-" + depoimento).addClass('active');
 
-        }, */
+        }, 
 
         handleCardExpansion: (el) => {
 
@@ -762,7 +796,7 @@ const Cardapio = (function () {
             if (mode == 2) {
                 MapsServices.setMarkerPosition(CustomData.storeLatLng, false, true);
                 deliveryData.retirar = true;
-                LocalStorage.update('deliveryData', {retirar: true});
+                LocalStorage.update('deliveryData', {retirar: true, mapa: false});
                 Cardapio.metodos.AtualizarValoresTotais();
             } else {
                 deliveryData.retirar = false;
@@ -788,7 +822,8 @@ const Cardapio = (function () {
         async handleGeocode() {
             if (!metodos.validarEndereco()) return;
             const {endereco, numero, bairro, cidade, uf, cep} = deliveryData.address;
-            const data = await MapsServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
+            const data = await OpenRouteServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
+            /* const data = await MapsServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`); */
             MapsServices.calculateDirections(data.results[0].geometry.location, false, false);
         },
 
@@ -818,6 +853,14 @@ const Cardapio = (function () {
             deliveryData.maxValue = (distance * 2) * taxa > 25 ? true : false;
             deliveryData.duration = duration
             LocalStorage.update('deliveryData', deliveryData);
+        },
+
+        initMap() {
+            let modalCarrinho = document.querySelector('#modal-carrinho')
+            modalCarrinho.setAttribute('data-mapa', 'true');
+            LocalStorage.update('deliveryData', {mapa: true});
+            MapsServices.init();
+
         },
     };
 
@@ -884,6 +927,10 @@ const Cardapio = (function () {
                 </p>
             </div>
         `,
+
+        depoimento: `
+        
+        `,
     };
 
     return {
@@ -911,7 +958,7 @@ const Analytics = (function (){
               }]
             })
         });
-        Toast.create(res.status, 'green');
+        Toast.create(res.status , 'green');
     };
 
     return {
