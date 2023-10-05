@@ -12,17 +12,26 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo online - Seja bem vindo!</title>
+    <title>Cardappio - Seja bem vindo!</title>
     <link href="./css/output.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <!-- favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="theme-color" content="#ffffff">
+    <!-- end favicon -->
 </head>
-<body id="body-data" class="font-pop bg-[#fffdf7] scroll-smooth text-default data-[modal=open]:overflow-hidden">
-    <header class="h-20 mt-6 w-full flex items-center justify-between max-w-7xl mx-auto px-6">
+<body id="body-data" class="font-pop bg-[#fffdf7] text-default data-[modal=open]:overflow-hidden">
+    <header class="h-20 mt-6 w-full flex items-center justify-center sm:justify-between max-w-7xl mx-auto px-6">
         <img src="./imgs/logo.png" alt="cardappio logo" class="pl-4">
-        <nav>
+        <nav class="hidden sm:block">
             <ul class="flex flex-row space-x-10 font-semibold text-lg">
                 <a href="#servicos" class="hover:text-primary hover:underline">
                     <li>Serviços</li>
@@ -36,23 +45,23 @@
             </ul>
         </nav>
     </header>
-    <main class="mx-auto">
-        <!-- toast -->
-        <div class="fixed text-sm max-w-[300px] h-5 z-50 right-5 top-5" id="toast-container"></div>
+    <!-- toast -->
+    <div class="fixed text-sm max-w-[300px] h-5 z-50 right-5 top-5" id="toast-container"></div>
 
-        <!-- btn carrinho -->
-        <div class="flex fixed bottom-10 right-6 space-x-3 select-none">
-            <a id="btn-zap" href="" target="_blank" rel="noopener noreferrer">
-                <img class="h-14" src="./imgs/icon/zap.png" alt="whats app icon">
-            </a>
-            <button id="btn-carrinho" class="hidden h-14 w-14 rounded-full bg-primary" onclick="Cardapio.metodos.abrirCarrinho(true)">
-                <div id="cart-counter" class="rounded-full h-6 w-6 absolute bg-[#fff2cc] top-0 -right-1 text-sm font-semibold flex justify-center items-center">
-                    0
-                </div>
-                <img class="h-5 mx-auto" src="./imgs/icon/bag.png" alt="bag icon" onerror="">
-            </button>
-        </div>
+    <!-- btns -->
+    <div class="flex fixed bottom-10 right-6 space-x-3 select-none z-30">
+        <a id="btn-zap" href="" target="_blank" rel="noopener noreferrer">
+            <img class="h-14" src="./imgs/icon/zap.png" alt="whats app icon">
+        </a>
+        <button id="btn-carrinho" class="hidden h-14 w-14 rounded-full bg-primary" onclick="Cardapio.metodos.abrirCarrinho(true)">
+            <div id="cart-counter" class="rounded-full h-6 w-6 absolute bg-[#fff2cc] top-0 -right-1 text-sm font-semibold flex justify-center items-center">
+                0
+            </div>
+            <img class="h-5 mx-auto" src="./imgs/icon/bag.png" alt="bag icon" onerror="">
+        </button>
+    </div>
 
+    <main class="mx-auto overflow-x-hidden">
         <!-- modal carrinho -->
         <div id="modal-carrinho" data-etapa="1" data-modo="1" data-mapa="false" class="hidden group fixed top-0 left-0 w-full h-full p-3 xs:p-6 sm:p-8 bg-white z-40">
             <div class="max-w-7xl mx-auto flex flex-col justify-between h-full">
@@ -208,16 +217,17 @@
         </div>
 
         <section id="main">
-            <div class="flex flex-col lg:flex-row my-40 justify-between px-6 max-w-6xl mx-auto">
-                <div class="max-w-lg text-xl">
-                    <p class="font-semibold text-6xl mb-10">
+            <div class="flex flex-col md:flex-row my-20 md:my-40 justify-around px-4 lg:px-6 max-w-6xl relative mx-auto">
+                <div class="max-w-[25rem]">
+                    <p class="font-semibold text-4xl xxs:text-[46px] leading-10 mb-10"> <!-- sm:text-6xl xxs:text-[46px] -->
                         Escolha sua comida
                         <span class="text-primary">favorita.</span>
                     </p>
-                    <p class="mb-10 text-gray-500">Aproveite nosso cardápio! Escolha o que desejar e receba em sua casa de forma rápida e segura.</p>
-                    <div class="flex items-center w-full mb-16">
-                        <a href="#cardapio" class="bg-primary font-medium text-white hover:text-default px-6 py-4 shadow-xl rounded-2xl mr-4">Ver cardápio</a>
-                        <a href="tel:(42) 99866-3675" id="btn-tel-contato" class="bg-white font-medium text-default hover:text-white hover:bg-primary px-6 py-4 shadow-xl rounded-2xl group relative text-right pl-14">
+                    <p class="mb-10 text-gray-500 text-lg xxs:text-xl">Aproveite nosso cardápio! Escolha o que desejar e receba em sua casa de forma rápida e segura.</p>
+
+                    <div class="flex flex-col sm:flex-row w-full mb-4 sm:mb-16">
+                        <a href="#cardapio" class="bg-primary font-medium text-white md:hover:text-default px-6 py-4 shadow-xl rounded-2xl mr-4 w-fit mb-4 sm:mb-0">Ver cardápio</a>
+                        <a href="tel:(42) 99866-3675" id="btn-tel-contato" class="bg-white font-medium text-default hover:text-white hover:bg-primary px-6 py-4 shadow-xl rounded-2xl group relative text-right pl-14 w-fit">
                             <div class="absolute left-0 top-0 h-full w-16 flex items-center justify-center">
                                 <div class="h-10 w-10 bg-primary p-1 rounded-xl fill-default group-hover:fill-white">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
@@ -225,17 +235,17 @@
                                     </svg>
                                 </div>
                             </div>
-                            <span>(42) 99866-3675</span>
+                            <span id="btn-tel-label">(42) 99866-3675</span>
                         </a>
                     </div>
-                    <div class="mb-10">
+                    <div class="mb-4 md:mb-10">
                         <div class="flex space-x-6">
-                            <a href="" title="Whatsapp" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                            <a id="goto-zap-btn" href="" title="Whatsapp" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                     <path d="M24 11.6909C24 18.1477 18.7256 23.3819 12.2181 23.3819C10.1523 23.3819 8.21147 22.8539 6.52293 21.9272L0 24L2.12667 17.7275C1.05387 15.9659 0.436 13.8997 0.436 11.6909C0.436 5.23413 5.71093 0 12.2181 0C18.7261 0 24 5.23413 24 11.6909ZM12.2181 1.86187C6.75573 1.86187 2.31253 6.2712 2.31253 11.6909C2.31253 13.8416 3.0136 15.8333 4.19947 17.4536L2.96187 21.104L6.76853 19.8941C8.33253 20.9211 10.2061 21.52 12.2184 21.52C17.68 21.52 22.124 17.1112 22.124 11.6915C22.124 6.27173 17.6803 1.86187 12.2181 1.86187ZM18.1677 14.3835C18.0949 14.2643 17.9027 14.1923 17.6141 14.0491C17.3251 13.9059 15.9048 13.2123 15.6408 13.1171C15.376 13.0216 15.1829 12.9736 14.9907 13.2603C14.7984 13.5472 14.2448 14.1923 14.076 14.3835C13.9075 14.5752 13.7392 14.5992 13.4501 14.4557C13.1616 14.3125 12.2312 14.0096 11.128 13.0336C10.2696 12.2741 9.68987 11.3365 9.52133 11.0493C9.35307 10.7627 9.50373 10.6077 9.648 10.4651C9.77813 10.3365 9.93707 10.1304 10.0813 9.9632C10.2261 9.79573 10.2741 9.67653 10.3699 9.48507C10.4667 9.29387 10.4184 9.12667 10.3459 8.98293C10.2739 8.83973 9.69573 7.4296 9.4552 6.85573C9.21467 6.2824 8.9744 6.37787 8.8056 6.37787C8.63733 6.37787 8.44453 6.35387 8.252 6.35387C8.05947 6.35387 7.7464 6.4256 7.4816 6.71227C7.21707 6.9992 6.4712 7.69253 6.4712 9.1024C6.4712 10.5125 7.5056 11.8749 7.6504 12.0659C7.79467 12.2568 9.64773 15.2445 12.5837 16.392C15.52 17.5389 15.52 17.1563 16.0496 17.1083C16.5787 17.0605 17.7579 16.4152 17.9995 15.7464C18.2395 15.0765 18.2395 14.5029 18.1677 14.3835Z"/>
                                 </svg>
                             </a>
-                            <a href="" title="Instagram" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                            <a id="goto-insta-btn" href="" title="Instagram" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                     <g clip-path="url(#clip0_124_389)">
                                     <path d="M23.2453 11.6311C23.2453 13.2624 23.2125 14.8983 23.2547 16.5296C23.325 19.4171 21.5109 21.6483 19.2 22.6421C18.2719 23.0405 17.2969 23.2514 16.2891 23.2514C13.1344 23.2561 9.975 23.2983 6.82031 23.2374C4.44375 23.1905 2.48906 22.1967 1.0875 20.2374C0.351562 19.2061 0 18.0342 0 16.7639C0 13.403 0 10.0467 0 6.68581C0 3.94362 1.33594 2.02643 3.70781 0.77956C4.73906 0.240497 5.85938 0.01081 7.02656 0.00612246C10.0875 0.00612246 13.1531 -0.0126276 16.2141 0.0154974C18.5906 0.0342474 20.5734 0.943623 22.0359 2.85612C22.8516 3.92487 23.2453 5.153 23.2453 6.503C23.2453 8.20925 23.2453 9.92019 23.2453 11.6311ZM1.72969 11.6311C1.72969 13.3514 1.72969 15.0671 1.72969 16.7874C1.72969 17.5561 1.90781 18.278 2.30625 18.9296C3.35156 20.6405 4.93125 21.4749 6.89063 21.5077C10.0359 21.5546 13.1859 21.5264 16.3359 21.5171C17.1094 21.5171 17.8594 21.3577 18.5578 21.0249C20.4609 20.1155 21.525 18.6671 21.5156 16.4921C21.4969 13.1639 21.5109 9.83581 21.5109 6.50768C21.5109 5.5655 21.2438 4.703 20.6859 3.94362C19.6078 2.48581 18.1172 1.76862 16.3359 1.74987C13.1953 1.71237 10.0547 1.73581 6.91406 1.7405C6.24375 1.7405 5.59688 1.87644 4.96875 2.11081C3.24375 2.753 1.64063 4.37956 1.71563 6.77487C1.77188 8.39675 1.72969 10.0139 1.72969 11.6311Z"/>
@@ -249,7 +259,7 @@
                                     </defs>
                                 </svg>
                             </a>
-                            <a href="" title="Facebook" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
+                            <a id="goto-face-btn" href="" title="Facebook" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
                                     <path d="M17.25 8.74227H13.0313V5.83599C13.0313 5.03378 13.6612 4.38278 14.4377 4.38278H15.8439V0.75H13.0313C10.7012 0.75 8.81264 2.70145 8.81264 5.10934V8.74227H6V12.375H8.81264V24H13.0313V12.375H15.8439L17.25 8.74227Z"/>
                                 </svg>
@@ -257,19 +267,25 @@
                         </div>
                     </div>
                 </div>
-                <div class="relative">
-                    <div class="bg-[url('/src/imgs/burguer-bg.png')] bg-origin-border bg-right-top bg-no-repeat bg-contain absolute -right-20 -top-20 -z-10 w-[500px] h-[380px] xl:w-[600px] xl:h-[456px]"></div>
-                    <img class="w-[500px] xl:w-[600px]" src="./imgs/burguer.png" alt="burguer img">
+
+                <div class="hidden sm:block opacity-10 md:opacity-100 absolute md:relative right-10 md:right-0 my-auto -z-10">
+                    <div class="bg-[url('/src/imgs/burguer-bg.png')] md:bg-right-top bg-no-repeat bg-contain absolute -right-10 -top-10 -z-10 w-[350px] h-[266px] lg:w-[600px] lg:h-[456px]"></div>
+                    <!-- -right-20 -top-20 -z-10 w-[500px] h-[380px] xl:w-[600px] xl:h-[456px] ->>>>>>>>> -right-10 -top-10 -->
+                    <img class="w-[350px] md:w-[500px] lg:w-[600px]" src="./imgs/burguer.png" alt="burguer img"><!-- w-[500px] xl:w-[600px] -->
+                    <div class="text-gray-500 absolute -bottom-10 right-0 text-sm bg-white rounded-2xl p-4 shadow-lg max-w-[300px]">
+                        <p>"Entrega rápida, lanches saborosos e um ótimo atendimento!"</p>
+                        <p class="text-primary text-xs font-semibold absolute bottom-0 right-0 pr-3 pb-1">Vinicius Klinger</p>
+                    </div>
                 </div>
             </div>
         </section>
 
         <section id="servicos" class="relative">
             <div class="bg-[url('/src/imgs/bg-2.png')] absolute bg-left-top bg-auto top-0 left-0 h-full w-full -z-10"></div>
-            <div class="flex flex-col text-center mb-40 px-6 max-w-7xl mx-auto">
+            <div class="flex flex-col text-center mb-20 md:mb-40 px-6 max-w-7xl">
                 <h1 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Serviços</h1>
-                <p class="font-semibold text-3xl md:text-4xl tracking-wide mb-28">Como são nossos serviços?</p>
-                <div class="grid grid-cols-3 my-6">
+                <p class="font-semibold text-3xl md:text-4xl tracking-wide mb-16 md:mb-28">Como são nossos serviços?</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 my-6 mx-auto">
                     <div class="flex flex-col items-center max-w-sm h-72">
                         <img class="h-[136px] w-[250px] mb-6" src="./imgs/pedido.png" alt="icone pedido">
                         <h3 class="font-semibold text-2xl mb-6">Fácil de pedir</h3>
@@ -290,8 +306,8 @@
         </section>
 
         <section id="cardapio">
-            <div class="mb-40 px-6 max-w-7xl mx-auto">
-                <div class="flex flex-col text-center mx-6 mb-8">
+            <div class="mb-20 md:mb-40 px-6 max-w-7xl mx-auto">
+                <div class="flex flex-col text-center mx-6 mb-16">
                     <h1 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Cardápio</h1>
                     <p class="font-semibold text-3xl md:text-4xl tracking-wide">Conheça o nosso cardápio</p>
                 </div>
@@ -328,19 +344,22 @@
         </section>
 
         <section id="depoimentos" class="relative">
+            <!-- bg -->
             <div class="bg-[url('/src/imgs/bg-1.png')] absolute bg-left-top bg-auto top-0 left-0 h-full w-full -z-10"></div>
-            <div class="max-w-7xl mx-auto text-center px-6 mb-40">
-                <div class="flex flex-row justify-around">
-                    <!-- img -->
-                    <div class="relative">
-                        <div class="absolute -top-10 left-0 right-0 mx-auto bg-primary opacity-25 h-[340px] w-[360px] -z-10 rounded-[120px]"></div>
+
+            <!-- content -->
+            <div class="max-w-7xl mx-auto text-center px-6 mb-20 md:mb-40">
+                <div class="flex flex-col md:flex-row justify-around">
+                    <!-- imgbg -->
+                    <div class="relative hidden md:block">
+                        <div class="hidden absolute -top-10 left-0 right-0 mx-auto bg-primary opacity-25 h-[340px] w-[360px] -z-10 rounded-[120px]"></div>
                         <div class="">
                             <img src="./imgs/pizzas.png" alt="pizza icon" class="h-[400px]">
                         </div>
                     </div>
 
                     <!-- depoimento -->
-                    <div class="flex flex-row w-1/2">
+                    <div class="flex flex-row md:w-1/2">
                         <div class="px-6 text-left">
                             <h1 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Depoimentos</h1>
                             <p class="font-semibold text-3xl md:text-4xl tracking-wide mb-16">O que dizem sobre nós?</p>
@@ -363,7 +382,7 @@
                             <div class="flex flex-row relative">
                                 <div class="absolute left-0 top-0 bg-[url('/src/imgs/icon/quote.png')] h-[32px] w-[32px] bg-auto"></div>
                                 <div class="absolute right-0 bottom-0 bg-[url('/src/imgs/icon/quote.png')] h-[32px] w-[32px] bg-auto rotate-180"></div>
-                                <p id="dep-text" class="px-16 max-w-lg">Muito bom, recomendo demais! Comida muito bem feita pelo chefe, atendimento dentro dos parâmetros e boa comunicação com o cliente.</p>
+                                <p id="dep-text" class="px-16 max-w-lg h-32">Muito bom, recomendo demais! Comida muito bem feita pelo chefe, atendimento dentro dos parâmetros e boa comunicação com o cliente.</p>
                             </div>
                             <div class="mt-10">
                                 <div class="flex space-x-6">
@@ -380,11 +399,11 @@
         </section>
 
         <footer class="bg-[#FFF2CC]">
-            <div class="flex flex-row items-center justify-between h-28 max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row items-center justify-between md:h-28 max-w-7xl mx-auto py-6 md:py-0">
                 <a href="#">
                     <img src="./imgs/logo.png" alt="cardappio logo" class="pl-4">
                 </a>
-                <p> <span class="font-semibold">Cardappio</span> © Todos os direitos reservados</p>
+                <p class="p-4 md:p-0 text-center"> <span class="font-semibold">Cardappio</span> © Todos os direitos reservados</p>
                 <div class="flex">
                     <div class="flex space-x-6 h-fit">
                         <a href="" title="Whatsapp" target="_blank" rel="noopener noreferrer" class="p-3 rounded-xl shadow-lg bg-white fill-default hover:fill-white hover:bg-primary">
@@ -420,6 +439,7 @@
         </footer>
 
     </main>
+
     <script src="./js/hotRodBurger.js"></script>
     <script src="./js/main.js"></script>
     <script async>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})

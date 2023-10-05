@@ -321,51 +321,20 @@ const Cardapio = (function () {
     let meuCarrinho = LocalStorage.getParsed('meuCarrinho') ?? [];
     let deliveryData = LocalStorage.getParsed('deliveryData') ?? {valor: 0, maxValue: false, duration: 0, retirar: false, mapa: false};
 
-    /* const DeliveryData = (function() {
-        const defaultInfo = {
-            valor: 0,
-            duration: 0,
-            maxValue: false,
-            retirar: false,
-        };
-        let deliveryAddress = LocalStorage.getParsed('deliveryAddress') ?? null;
-        const deliveryInfo = LocalStorage.getParsed('deliveryInfo') ?? defaultInfo;
-        
-        function getInfo(){
-            return deliveryInfo;
-        };
-
-        function getAddress(){
-            return deliveryAddress;
-        };
-
-        function setAddress({cep, endereco, bairro, numero, cidade = '', uf = '', complemento = ''}){
-            deliveryAddress = {cep, endereco, bairro, numero, cidade, uf, complemento};
-            LocalStorage.set('deliveryAddress', deliveryAddress);
-        };
-
-        function updateInfo({valor, duration, maxValue, retirar}){
-            if(JSON.stringify(data) == '{}') return;
-            deliveryInfo.valor = valor;
-            deliveryInfo.duration = duration;
-            deliveryInfo.maxValue = maxValue;
-            deliveryInfo.retirar = retirar;
-            LocalStorage.set('deliveryInfo', deliveryInfo);
-        };
-
-    })(); */
-
     function init() {
         metodos.obterItensCardapio();
-        /* metodos.carregarBotaoLigar();
-        metodos.carregarBotaoReserva(); */
 
         document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep)));
         document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
         document.querySelector('#endereco-label').setAttribute('data-endereco', CustomData.address.join(', '));
         document.querySelector('#link-loja-maps').href = CustomData.mapsMagLink;
         document.querySelector('#maps-embed').src = CustomData.mapsEmbed;
-        document.querySelector('#btn-zap').href = `https://wa.me/${CustomData.zapNumber}?text=${encodeURI(CustomData.zapHelpText)}`
+        document.querySelector('#btn-zap').href = `https://wa.me/${CustomData.zapNumber}?text=${encodeURI(CustomData.zapHelpText)}`;
+        document.querySelector('#btn-tel-contato').href = `tel:${CustomData.phoneNumber}`;
+        document.querySelector('#btn-tel-label').textContent = CustomData.formatedPhoneNumber;
+        document.querySelector('#goto-zap-btn').href = `https://wa.me/${CustomData.zapNumber}?text=${encodeURI(CustomData.zapHelpText)}`;
+        document.querySelector('#goto-insta-btn').href = `${CustomData.instaLink}`;
+        document.querySelector('#goto-face-btn').href = `${CustomData.faceLink}`;
 
         if (deliveryData.retirar == true) document.querySelector('#modal-carrinho').setAttribute('data-modo', 2);
         if (meuCarrinho.length > 0) {
@@ -735,26 +704,6 @@ const Cardapio = (function () {
                 window.open(URL, '_blank');
             };
         },
-/* 
-        // carrega o link do botão reserva
-        carregarBotaoReserva: () => {
-
-            var texto = 'Olá! gostaria de fazer uma *reserva*';
-
-            let encode = encodeURI(texto);
-            let URL = `https://wa.me/${CustomData.zapNumber}?text=${encode}`;
-
-            $("#btnReserva").attr('href', URL);
-
-        },
-
-        // carrega o botão de ligar
-        carregarBotaoLigar: () => {
-
-            $("#btnLigar").attr('href', `tel:${CustomData.zapNumber}`);
-
-        },*/
-
 
         CarregarDepoimento: (ind) => {
             const imgEl = document.querySelector('#dep-img');
@@ -766,7 +715,6 @@ const Cardapio = (function () {
             const hstar = `<div class="bg-[url('/src/imgs/icon/h-star.png')] h-4 w-4 bg-cover"></div>`
 
             const selected = Depoimentos[ind];
-            console.log(selected)
 
             imgEl.src = selected.path;
             nameEl.textContent = selected.name;
@@ -867,7 +815,7 @@ const Cardapio = (function () {
         item: `
             <div id="\${id}" class="bg-white w-10/12 max-w-sm sm:w-[255px] p-2 shadow-md rounded-2xl max-h-[110px] sm:max-h-[360px] xs:max-h-32 sm:h-[360px] group data-[expand=true]:max-h-[290px] xs:data-[expand=true]:max-h-96 sm:hover:h-[360px] flex flex-row sm:block transition-all mb-3 overflow-hidden mx-auto" onclick="Cardapio.metodos.handleCardExpansion(this)">
                 <div class="h-20 w-20 xs:h-24 xs:w-24 sm:h-56 sm:w-56 bg-gray-200 rounded-xl m-2 shrink-0 group-data-[expand=true]:hidden sm:group-hover:hidden">
-                    <img src="\${img}" alt="" class="rounded-xl">
+                    <img src="\${img}" alt="imagem do lanche" class="rounded-xl">
                 </div>
                 <div class="self-start p-2 flex flex-col w-full group-data-[expand=true]:xs:text-center group-data-[expand=true]:items-center sm:group-hover:text-center sm:group-hover:items-center">
                     <h3 class="font-semibold text-xl line-clamp-1 sm:text-center group-data-[expand=true]:text-center sm:group-hover:text-center" title="\${nome}">\${nome}</h3>
@@ -884,7 +832,7 @@ const Cardapio = (function () {
             <div id="container-sacola-\${id}" class="flex flex-row justify-between p-2 \${border} border-gray-300 w-full items-center">
                 <div class="flex">
                     <div class="h-12 w-12 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-xl shrink-0 flex">
-                        <img src="\${img}" alt="" class="rounded-xl">
+                        <img src="\${img}" alt="imagem do lanche" class="rounded-xl">
                     </div>
                     <div class="px-2 flex flex-col justify-center font-bold">
                         <p class="text-sm sm:text-lg lg:text-xl">\${nome}</p>
@@ -900,7 +848,7 @@ const Cardapio = (function () {
                         <button id="item-btn-inc"class="px-2" onclick="Cardapio.metodos.alterarQuantidadeCarrinho('\${id}', true)">+</button>
                     </div>
                     <button class="ml-1 sm:ml-2" onclick="Cardapio.metodos.removerItemCarrinho('\${id}')">
-                        <img class="h-6 w-6" src="./imgs/icon/trash.png" />
+                        <img class="h-6 w-6" src="./imgs/icon/trash.png" alt="icone lixeira"/>
                     </button>
                 </div>
             </div>
@@ -910,7 +858,7 @@ const Cardapio = (function () {
             <div class="flex flex-row justify-between items-center \${border} border-gray-300 py-2">
                 <div class="flex">
                     <div class="shrink-0">
-                        <img class="h-12 w-12 rounded-xl" src="\${img}" />
+                        <img class="h-12 w-12 rounded-xl" src="\${img}" alt="imagem do lanche"/>
                     </div>
                     <div class="flex flex-col ml-2 justify-center">
                         <p class="text-default text-sm md:text-base">
@@ -995,7 +943,7 @@ const Toast = {
         default: `
             <div data-color="\${cor}" id="msg-\${id}" class="relative data-[color=red]:bg-red-400 data-[color=green]:bg-green-400 data-[color=yellow]:bg-yellow-400 text-white p-2 sm:px-4 sm:py-3 mt-1 sm:mt-2 rounded-lg shadow-xl">
                 <p class="pointer-events-none select-none">\${texto}</p>
-                <button class="absolute top-0 right-1 text-xs p-1" onclick="Toast.close('msg-\${id}')">X</button>
+                <button class="absolute top-0 right-1 text-[8px] md:text-xs p-1" onclick="Toast.close('msg-\${id}')">X</button>
             </div>
         `,
     }

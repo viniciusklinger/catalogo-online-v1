@@ -1,7 +1,10 @@
 const CustomData = {
-    number: '5542998663675',
+    phoneNumber: '5542998663675',
+    formatedPhoneNumber: '(42) 99866-3675',
     zapNumber: '5542998663675',
     zapHelpText: 'Olá! Sobre o cardápio online, gostaria de saber se...',
+    instaLink: 'https://www.instagram.com/klinger147',
+    faceLink: 'https://www.facebook.com/viniciuskg',
     storeLatLng: { lat: -25.109664656607833, lng: -50.12425511392971, radius: 120 },
     mapsMagLink: 'https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6',
     mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14452.459292524647!2d-50.1647936!3d-25.0979742!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94e81b6fb9b32d23%3A0x9c8c7fb1e16dda09!2sHot%20Rod%20Burguer!5e0!3m2!1spt-BR!2sbr!4v1696199264211!5m2!1spt-BR!2sbr',
