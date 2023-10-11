@@ -74,8 +74,13 @@ const MapsServices = (function () {
     async function init() {
         if (renderedMap) return;
 
-        const { Map, InfoWindow } = await google.maps.importLibrary("maps");
-        const { Marker } = await google.maps.importLibrary("marker");
+        /* const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+        const { Marker } = await google.maps.importLibrary("marker"); */
+
+        const [Map, InfoWindow, Marker] = await Promise.all([
+            google.maps.importLibrary("maps"),
+            google.maps.importLibrary("marker"),
+          ]);
 
         const lastSessionData = LocalStorage.getParsed('deliveryData')
         let startingPosition = (lastSessionData?.LatLng && lastSessionData?.retirar == false) ? lastSessionData?.LatLng : CustomData.storeLatLng
@@ -711,8 +716,8 @@ const Cardapio = (function () {
             const starsEl = document.querySelector('#dep-stars');
             const textEl = document.querySelector('#dep-text');
 
-            const star = `<div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>`;
-            const hstar = `<div class="bg-[url('/src/imgs/icon/h-star.png')] h-4 w-4 bg-cover"></div>`
+            const star = `<div class="bg-star h-4 w-4 bg-cover"></div>`;
+            const hstar = `<div class="bg-h-star h-4 w-4 bg-cover"></div>`
 
             const selected = Depoimentos[ind];
 
@@ -813,7 +818,7 @@ const Cardapio = (function () {
 
     const templates = {
         item: `
-            <div id="\${id}" class="bg-white w-10/12 max-w-sm sm:w-[255px] p-2 shadow-md rounded-2xl max-h-[110px] sm:max-h-[360px] xs:max-h-32 sm:h-[360px] group data-[expand=true]:max-h-[290px] xs:data-[expand=true]:max-h-96 sm:hover:h-[360px] flex flex-row sm:block transition-all mb-3 overflow-hidden mx-auto" onclick="Cardapio.metodos.handleCardExpansion(this)">
+            <div id="\${id}" class="bg-white w-11/12 max-w-sm sm:w-[255px] p-2 shadow-md rounded-2xl max-h-[110px] sm:max-h-[360px] xs:max-h-32 sm:h-[360px] group data-[expand=true]:max-h-[290px] xs:data-[expand=true]:max-h-96 sm:hover:h-[360px] flex flex-row sm:block transition-all mb-3 overflow-hidden mx-auto" onclick="Cardapio.metodos.handleCardExpansion(this)">
                 <div class="h-20 w-20 xs:h-24 xs:w-24 sm:h-56 sm:w-56 bg-gray-200 rounded-xl m-2 shrink-0 group-data-[expand=true]:hidden sm:group-hover:hidden">
                     <img src="\${img}" alt="imagem do lanche" class="rounded-xl">
                 </div>

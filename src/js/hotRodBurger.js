@@ -9,11 +9,36 @@ const CustomData = {
     mapsMagLink: 'https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6',
     mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14452.459292524647!2d-50.1647936!3d-25.0979742!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94e81b6fb9b32d23%3A0x9c8c7fb1e16dda09!2sHot%20Rod%20Burguer!5e0!3m2!1spt-BR!2sbr!4v1696199264211!5m2!1spt-BR!2sbr',
     address: ['Rua Siqueira Campos, 1806, Uvaranas', 'Ponta Grossa - PR, 84031-030', ''],
-    deliveryFees: {
-        6: 1.8,
-        10: 1.7,
-        15: 1.4,
-        999: 1.3,
+    delivery: {
+        distance: {
+            active: true,
+            values: {
+                6: 1.8,
+                10: 1.7,
+                15: 1.4,
+                999: 1.3,
+            },
+        },
+        zones: {
+            active: false,
+            zones: [
+                {
+                    name: 'Uvaranas',
+                    value: 6.5,
+                    bbox: ['','','','']
+                },
+                {
+                    name: 'Oficinas',
+                    value: 12,
+                    bbox: ['','','','','','','']
+                },
+                {
+                    name: 'Default',
+                    value: 0,
+                    bbox: ['','','',''] /* bbox of the city. default means the selected region is out of the created zones */
+                }
+            ],
+        },
     },
 };
 

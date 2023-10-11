@@ -18,12 +18,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <!-- favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+    <link rel="manifest" href="./site.webmanifest">
+    <link rel="mask-icon" href="./safari-pinned-tab.svg" color="#5bbad5">
     <meta name="msapplication-TileColor" content="#2b5797">
     <meta name="theme-color" content="#ffffff">
     <!-- end favicon -->
@@ -50,7 +50,7 @@
 
     <!-- btns -->
     <div class="flex fixed bottom-10 right-6 space-x-3 select-none z-30">
-        <a id="btn-zap" href="" target="_blank" rel="noopener noreferrer">
+        <a id="btn-zap" href="" target="_blank" rel="noopener noreferrer" class="hidden">
             <img class="h-14" src="./imgs/icon/zap.png" alt="whats app icon">
         </a>
         <button id="btn-carrinho" class="hidden h-14 w-14 rounded-full bg-primary" onclick="Cardapio.metodos.abrirCarrinho(true)">
@@ -100,7 +100,7 @@
                     </div>
 
                     <!-- delivery -->
-                    <div class="px-2 group-data-[modo='2']:h-full hidden group-data-[etapa='2']:flex mb-6 flex-col md:flex-row-reverse">
+                    <div class="px-2 group-data-[modo='2']:h-full hidden group-data-[etapa='2']:flex mb-6 flex-col-reverse md:flex-row-reverse">
                         <div class="w-full md:w-1/2 group-data-[modo='2']:w-full mb-4 md:mb-0 md:ml-4 group-data-[modo='2']:ml-0">
                             <div class="hidden group-data-[modo='2']:flex mb-3 mx-auto justify-center items-center flex-wrap flex-col">
                                 <p>Você irá retirar o pedido em:</p>
@@ -112,12 +112,12 @@
                             </div>
                             <div class="bg-[#FFF2CC] flex flex-col text-left p-4 rounded-2xl h-full shadow-lg group-data-[mapa=true]:hidden group-data-[modo='2']:hidden justify-center">
                                 <h2 class="font-semibold tracking-widest text-primary">MAPA</h2>
-                                <p class="font-semibold text-lg">Local sem endereço?</p>
+                                <p class="font-semibold text-lg">Seu local não tem endereço? Marque no mapa!</p>
                                 <ul class="list-disc list-inside my-4 text-left w-11/12 text-sm">
                                     <li>Bairro recém construído?</li>
-                                    <li>Endereço difícil de encontrar?</li>
-                                    <li>Curtindo a orla da praia com os amigos?</li>
-                                    <li>No meio de um aglomerado de pessoas?</li>
+                                    <li>Endereço sem número?</li>
+                                    <li>No meio de algum evento?</li>
+                                    <!-- <li>Relaxando com os amigos em uma pracinha?</li> -->
                                 </ul>
                                 <p class="my-2">Ative o mapa e crie uma marcação para auxiliar o entregador! (use somente quando necessário)</p>
                                 <button class="p-2 bg-primary rounded-xl w-fit font-medium hover:text-default text-white mx-auto mt-2" onclick="Cardapio.metodos.initMap()">Ativar Mapa</button>
@@ -269,7 +269,7 @@
                 </div>
 
                 <div class="hidden sm:block opacity-10 md:opacity-100 absolute md:relative right-10 md:right-0 my-auto -z-10">
-                    <div class="bg-[url('/src/imgs/burguer-bg.png')] md:bg-right-top bg-no-repeat bg-contain absolute -right-10 -top-10 -z-10 w-[350px] h-[266px] lg:w-[600px] lg:h-[456px]"></div>
+                    <div class="bg-burger md:bg-right-top bg-no-repeat bg-contain absolute -right-10 -top-10 -z-10 w-[350px] h-[266px] lg:w-[600px] lg:h-[456px]"></div>
                     <!-- -right-20 -top-20 -z-10 w-[500px] h-[380px] xl:w-[600px] xl:h-[456px] ->>>>>>>>> -right-10 -top-10 -->
                     <img class="w-[350px] md:w-[500px] lg:w-[600px]" src="./imgs/burguer.png" alt="burguer img"><!-- w-[500px] xl:w-[600px] -->
                     <div class="text-gray-500 absolute -bottom-10 right-0 text-sm bg-white rounded-2xl p-4 shadow-lg max-w-[300px]">
@@ -281,24 +281,24 @@
         </section>
 
         <section id="servicos" class="relative">
-            <div class="bg-[url('/src/imgs/bg-2.png')] absolute bg-left-top bg-auto top-0 left-0 h-full w-full -z-10"></div>
-            <div class="flex flex-col text-center mb-20 md:mb-40 px-6 max-w-7xl">
+            <div class="bg-fruits-2 absolute bg-left-top bg-auto top-0 left-0 h-full w-full -z-10"></div>
+            <div class="flex flex-col text-center mb-20 md:mb-40 px-4 lg:px-6 max-w-7xl mx-auto">
                 <h1 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Serviços</h1>
-                <p class="font-semibold text-3xl md:text-4xl tracking-wide mb-16 md:mb-28">Como são nossos serviços?</p>
+                <p class="font-semibold text-4xl tracking-wide mb-16 md:mb-28">Como são nossos serviços?</p>
                 <div class="grid grid-cols-1 md:grid-cols-3 my-6 mx-auto">
-                    <div class="flex flex-col items-center max-w-sm h-72">
+                    <div class="flex flex-col items-center max-w-sm h-72 mb-6 md:mb-0">
                         <img class="h-[136px] w-[250px] mb-6" src="./imgs/pedido.png" alt="icone pedido">
-                        <h3 class="font-semibold text-2xl mb-6">Fácil de pedir</h3>
+                        <h3 class="font-semibold text-2xl mb-2 md:mb-4">Fácil de pedir</h3>
                         <p class="w-60 text-gray-500">Você só precisa de alguns passos para pedir sua comida.</p>
                     </div>
-                    <div class="flex flex-col items-center max-w-sm h-72">
+                    <div class="flex flex-col items-center max-w-sm h-72 mb-6 md:mb-0">
                         <img class="h-[136px] w-[250px] mb-6" src="./imgs/delivery.png" alt="icone pedido">
-                        <h3 class="font-semibold text-2xl mb-6">Entrega rápida</h3>
+                        <h3 class="font-semibold text-2xl mb-2 md:mb-4">Entrega rápida</h3>
                         <p class="w-60 text-gray-500">Nossa entrega é sempre pontual, rápida e segura.</p>
                     </div>
-                    <div class="flex flex-col items-center max-w-sm h-72">
+                    <div class="flex flex-col items-center max-w-sm h-72 mb-6 md:mb-0">
                         <img class="h-[136px] w-[250px] mb-6" src="./imgs/qualidade.png" alt="icone pedido">
-                        <h3 class="font-semibold text-2xl mb-6">Melhor qualidade</h3>
+                        <h3 class="font-semibold text-2xl mb-2 md:mb-4">Melhor qualidade</h3>
                         <p class="w-60 text-gray-500">Ingredientes selecionados a dedo e capricho na preparação.</p>
                     </div>
                 </div>
@@ -306,10 +306,10 @@
         </section>
 
         <section id="cardapio">
-            <div class="mb-20 md:mb-40 px-6 max-w-7xl mx-auto">
+            <div class="mb-20 md:mb-40 px-4 lg:px-6 max-w-7xl mx-auto">
                 <div class="flex flex-col text-center mx-6 mb-16">
                     <h1 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Cardápio</h1>
-                    <p class="font-semibold text-3xl md:text-4xl tracking-wide">Conheça o nosso cardápio</p>
+                    <p class="font-semibold text-4xl tracking-wide">Conheça nosso cardápio</p>
                 </div>
                 <div id="menu-cardapio" class="font-medium text-md flex overflow-x-auto space-x-4 p-4 sm:justify-center cardapio-menu">
                     <button id="cardapio-btn-burgers" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="Cardapio.metodos.obterItensCardapio('burgers')">
@@ -321,7 +321,7 @@
                         Pizzas
                     </button>
                     <button id="cardapio-btn-steaks" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="Cardapio.metodos.obterItensCardapio('steaks')">
-                        <img class="mr-2 h-4 md:h-5" src="./imgs/icon/steak.png" alt="icon" onerror="">
+                        <img class="mr-2 h-4 md:h-5" src="./imgs/icon/steak.png" alt="steak icon" onerror="">
                         Steaks
                     </button>
                     <button id="cardapio-btn-bebidas" class="flex items-center px-4 py-2 shadow-md rounded-2xl bg-white md:text-lg min-w-fit data-[active=true]:bg-primary" data-active="false" onclick="Cardapio.metodos.obterItensCardapio('bebidas')">
@@ -335,7 +335,7 @@
                 </div>
 
                 <!-- cardapio items container -->
-                <div id="itens-cardapio" class="grid grid-cols-1 sm:grid-cols-2 sm:max-w-[600px] lg:max-w-[900px] xl:max-w-[1200px] lg:grid-cols-3 xl:grid-cols-4 sm:gap-x-2 sm:gap-y-4 justify-center px-4 sm:p-0 my-10 mx-auto"></div>
+                <div id="itens-cardapio" class="grid grid-cols-1 sm:grid-cols-2 sm:max-w-[600px] lg:max-w-[900px] xl:max-w-[1200px] lg:grid-cols-3 xl:grid-cols-4 sm:gap-x-2 sm:gap-y-4 justify-center sm:p-0 my-10 mx-auto"></div>
                 <div class="flex justify-center w-full mb-8">
                     <button id="btn-ver-mais" class="bg-white active:bg-primary active:text-white p-2 px-3 shadow-lg text-lg rounded-xl" onclick="Cardapio.metodos.verMais()">Ver mais</button>
                 </div>
@@ -345,44 +345,46 @@
 
         <section id="depoimentos" class="relative">
             <!-- bg -->
-            <div class="bg-[url('/src/imgs/bg-1.png')] absolute bg-left-top bg-auto top-0 left-0 h-full w-full -z-10"></div>
+            <div class="bg-fruits-1 absolute bg-left-top bg-auto top-0 left-0 h-full w-full -z-10"></div>
 
             <!-- content -->
-            <div class="max-w-7xl mx-auto text-center px-6 mb-20 md:mb-40">
+            <div class="max-w-7xl text-center px-6 mb-20 md:mb-40 mx-auto">
                 <div class="flex flex-col md:flex-row justify-around">
-                    <!-- imgbg -->
-                    <div class="relative hidden md:block">
-                        <div class="hidden absolute -top-10 left-0 right-0 mx-auto bg-primary opacity-25 h-[340px] w-[360px] -z-10 rounded-[120px]"></div>
-                        <div class="">
-                            <img src="./imgs/pizzas.png" alt="pizza icon" class="h-[400px]">
-                        </div>
+
+                    <div class="relative hidden lg:flex items-center justify-center">
+                        <!-- bg -->
+                        <div class="bg-primary absolute -top-10 left-0 right-0 mx-auto bottom-0 my-auto opacity-25 h-56 w-64 rounded-[80px] xl:h-[340px] xl:w-[360px] xl:rounded-[120px] -z-10"></div> <!-- lg:h-[340px] lg:w-[360px] lg:rounded-[120px]  -->
+                        <img src="./imgs/pizzas.png" alt="pizza icon" class="h-72 xl:h-[400px]">
                     </div>
 
                     <!-- depoimento -->
-                    <div class="flex flex-row md:w-1/2">
-                        <div class="px-6 text-left">
-                            <h1 class="font-semibold tracking-[.3em] text-primaria uppercase md:text-xl text-primary">Depoimentos</h1>
-                            <p class="font-semibold text-3xl md:text-4xl tracking-wide mb-16">O que dizem sobre nós?</p>
+                    <div class="flex flex-row lg:mx-0 mx-auto">
+                        <div class="text-left">
+                            <div class="font-semibold text-center lg:text-left">
+                                <h1 class="tracking-[.3em] uppercase md:text-xl text-primary">Depoimentos</h1>
+                                <p class="text-3xl md:text-4xl tracking-wide mb-16">O que dizem sobre nós?</p>
+                            </div>
 
                             <div class="flex flex-row mb-6">
-                                <!-- <div id="dep-img" class="h-16 w-16 rounded-full mr-4 bg-[url('/src/imgs/diego.webp')] bg-cover bg-center"></div> -->
                                 <img id="dep-img" src="./imgs/diego.webp" alt="foto do usuario" class="h-16 w-16 rounded-full mr-4">
                                 <div>
                                     <p id="dep-name" class="text-2xl font-semibold">Diego Pereira</p>
                                     <div id="dep-stars" class="flex flex-row space-x-1 items-center">
-                                        <div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>
-                                        <div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>
-                                        <div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>
-                                        <div class="bg-[url('/src/imgs/icon/star.png')] h-4 w-4 bg-cover"></div>
-                                        <div class="bg-[url('/src/imgs/icon/h-star.png')] h-4 w-4 bg-cover"></div>
+                                        <div class="bg-star h-4 w-4 bg-cover"></div>
+                                        <div class="bg-star h-4 w-4 bg-cover"></div>
+                                        <div class="bg-star h-4 w-4 bg-cover"></div>
+                                        <div class="bg-star h-4 w-4 bg-cover"></div>
+                                        <div class="bg-h-star h-4 w-4 bg-cover"></div>
                                         <span>4.5</span>
                                     </div>
                                 </div>
                             </div>
                             <div class="flex flex-row relative">
-                                <div class="absolute left-0 top-0 bg-[url('/src/imgs/icon/quote.png')] h-[32px] w-[32px] bg-auto"></div>
-                                <div class="absolute right-0 bottom-0 bg-[url('/src/imgs/icon/quote.png')] h-[32px] w-[32px] bg-auto rotate-180"></div>
-                                <p id="dep-text" class="px-16 max-w-lg h-32">Muito bom, recomendo demais! Comida muito bem feita pelo chefe, atendimento dentro dos parâmetros e boa comunicação com o cliente.</p>
+                                <!-- quotes -->
+                                <div class="absolute left-0 top-0 bg-quote h-[32px] w-[32px] bg-auto"></div>
+                                <div class="absolute right-0 bottom-0 bg-quote h-[32px] w-[32px] bg-auto rotate-180"></div>
+                                <!-- text -->
+                                <p id="dep-text" class="px-10 xs:px-16 min-h-[120px] xs:min-h-[80px] max-w-lg md:max-w-xl text-sm xxs:text-base">Muito bom, recomendo demais! Comida muito bem feita pelo chefe, atendimento dentro dos parâmetros e boa comunicação com o cliente.</p>
                             </div>
                             <div class="mt-10">
                                 <div class="flex space-x-6">
