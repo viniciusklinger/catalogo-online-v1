@@ -74,43 +74,49 @@ const MapsServices = (function () {
     async function init() {
         if (renderedMap) return;
 
-        /* const { Map, InfoWindow } = await google.maps.importLibrary("maps");
-        const { Marker } = await google.maps.importLibrary("marker"); */
+        try {
+            const [mapsLibrary, markerLibrary] = await Promise.all([
+                google.maps.importLibrary("maps"),
+                google.maps.importLibrary("marker"),
+                ]);
 
-        const [Map, InfoWindow, Marker] = await Promise.all([
-            google.maps.importLibrary("maps"),
-            google.maps.importLibrary("marker"),
-          ]);
+            const { Map, InfoWindow } = mapsLibrary;
+            const { Marker } = markerLibrary;
 
-        const lastSessionData = LocalStorage.getParsed('deliveryData')
-        let startingPosition = (lastSessionData?.LatLng && lastSessionData?.retirar == false) ? lastSessionData?.LatLng : CustomData.storeLatLng
-        
+            const lastSessionData = LocalStorage.getParsed('deliveryData')
+            let startingPosition = (lastSessionData?.LatLng && lastSessionData?.retirar == false) ? lastSessionData?.LatLng : CustomData.storeLatLng
 
-        renderedMap = new Map(document.getElementById("delivery-map"), {
-            zoom: (lastSessionData?.LatLng && lastSessionData.retirar == false) ? 15 : 13,
-            center: startingPosition,
-            styles: [
-              {
-                "featureType": "poi.business",
-                "stylers": [
-                  {
-                    "visibility": "off"
-                  }
+            renderedMap = new Map(document.getElementById("delivery-map"), {
+                zoom: (lastSessionData?.LatLng && lastSessionData.retirar == false) ? 15 : 13,
+                center: startingPosition,
+                styles: [
+                {
+                    "featureType": "poi.business",
+                    "stylers": [
+                    {
+                        "visibility": "off"
+                    }
+                    ]
+                },
+                
                 ]
-              },
-              
-            ]
-        });
-        marker = new Marker({
-            position: startingPosition,
-            animation: google.maps.Animation.DROP,
-            map: renderedMap,
-            draggable: true,
-            clickable: false,
-        });
-        infoWindow = new InfoWindow();
-        if (lastSessionData?.retirar == false) toggleInfoWindow(true);
-        attachEvents();
+            });
+
+            marker = new Marker({
+                position: startingPosition,
+                animation: google.maps.Animation.DROP,
+                map: renderedMap,
+                draggable: true,
+                clickable: false,
+            });
+            infoWindow = new InfoWindow();
+            if (lastSessionData?.retirar == false) toggleInfoWindow(true);
+            attachEvents();
+
+        } catch (e) {
+            console.error(e)
+            Toast.create("Erro ao iniciar o serviço de mapas.")
+        };
     };
 
     async function initGeocoder() {
@@ -137,32 +143,16 @@ const MapsServices = (function () {
         marker.addListener("dragend", (event) => {
             Helpers.debounce(calculateDirections(marker.getPosition()), 1000);
         });
-
-        const locationButton = document.querySelector('#btn-use-location-service');
-        locationButton.addEventListener("click", Helpers.debounce(() => {
-            // Try HTML5 geolocation.
-            if (navigator.geolocation) {
-              navigator.geolocation.getCurrentPosition(
-                (position) => {
-                  const pos = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                  };
-                  calculateDirections(pos, true, true)
-                },
-                () => {
-                  handleLocationError(true);
-                },
-              );
-            } else {
-              handleLocationError(false);
-            }
-        }), 1000);
     };
 
-    async function getGeocode(address) {
+    async function Geocode(address) {
         if (!geoCoder) await initGeocoder();
         return await geoCoder.geocode({address});
+    };
+
+    async function reverseGeocode(latLng){
+        if (!geoCoder) await initGeocoder();
+        return await geoCoder.geocode({location: latLng, region: "BR"});
     };
 
      /**
@@ -225,11 +215,6 @@ const MapsServices = (function () {
         });
     };
 
-    function handleLocationError(browserHasGeolocation) {
-        let msg = browserHasGeolocation ? "O serviço de Geolocalização falhou." : "Seu navegador não suporta Geolocalização.";
-        Toast.create(msg)
-    };
-
     function setMarkerPosition(LatLng, content = true, outZoom = false) {
         if(!renderedMap) init();
         if (outZoom) renderedMap.setZoom(13);
@@ -275,15 +260,35 @@ const MapsServices = (function () {
         };
     };
 
+    function handleErrorsMsg(resStatus){
+        switch (resStatus) {
+            case "ERROR":	
+                return "houve um problema no contato com os servidores da Google.";
+            case "INVALID_REQUEST":	
+                return "Esta GeocoderRequest era inválida."
+            case "OK":	
+                return "A resposta contém um GeocoderResponse válido."
+            case "OVER_QUERY_LIMIT":	
+                return "A página web ultrapassou o limite de solicitações em um período muito curto."
+            case "REQUEST_DENIED":	
+                return "A página web não tem permissão para usar o geocodificador."
+            case "UNKNOWN_ERROR":	
+                return "Não foi possível processar uma solicitação de geocodificação devido a um erro no servidor. Se você tentar novamente, a solicitação poderá dar certo."
+            case "ZERO_RESULTS":	
+                return "Nenhum resultado encontrado para GeocoderRequest."
+        }
+    };
+
     return {
         init,
         calculateDirections,
         setMarkerPosition,
         setMarkerProps,
         setMapProps,
-        getGeocode,
+        Geocode,
         toggleInfoWindow,
         triggerGeolocationMsg,
+        reverseGeocode,
     };
 
 })();
@@ -331,6 +336,7 @@ const Cardapio = (function () {
 
         document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep)));
         document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
+        document.querySelector('#btn-use-location-service').addEventListener('click', (Helpers.debounce(metodos.getCurrentLocation)));
         document.querySelector('#endereco-label').setAttribute('data-endereco', CustomData.address.join(', '));
         document.querySelector('#link-loja-maps').href = CustomData.mapsMagLink;
         document.querySelector('#maps-embed').src = CustomData.mapsEmbed;
@@ -521,8 +527,8 @@ const Cardapio = (function () {
         AtualizarValoresTotais: () => {
             let valorCarrinho = meuCarrinho.length > 0 ? meuCarrinho.reduce((acc, e) => {return acc + (e.qtd * e.price)}, 0) : 0;
             document.querySelector('#cart-subtotal').textContent = `R$ ${valorCarrinho.toFixed(2).replace('.', ',')}`;
-            document.querySelector('#cart-total').textContent = `R$ ${(valorCarrinho + (deliveryData.retirar == false ? deliveryData.valor : 0)).toFixed(2).replace('.', ',')}`;
-            document.querySelector('#cart-entrega').textContent = `+ R$ ${deliveryData.retirar == false ? deliveryData.valor.toFixed(2).replace('.', ',') : (0).toFixed(2).replace('.', ',')}`;
+            document.querySelector('#cart-total').textContent = `R$ ${(valorCarrinho + ((deliveryData.retirar == false && deliveryData.valor) ? deliveryData.valor : 0)).toFixed(2).replace('.', ',')}`;
+            document.querySelector('#cart-entrega').textContent = `+ R$ ${(deliveryData.retirar == false && deliveryData.valor) ? deliveryData.valor.toFixed(2).replace('.', ',') : (0).toFixed(2).replace('.', ',')}`;
 
             if (deliveryData.maxValue && deliveryData.retirar == false) {
                 document.querySelector('#entrega-label').setAttribute('data-max', 'true');
@@ -775,7 +781,7 @@ const Cardapio = (function () {
             if (!metodos.validarEndereco()) return;
             const {endereco, numero, bairro, cidade, uf, cep} = deliveryData.address;
             const data = await OpenRouteServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
-            /* const data = await MapsServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`); */
+            /* const data = await MapsServices.Geocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`); */
             MapsServices.calculateDirections(data.results[0].geometry.location, false, false);
         },
 
@@ -1006,5 +1012,39 @@ const Helpers = {
                     return;
             };
         };
-    }
+    },
+
+    handleLocationErrorMsg(browserHasGeolocation) {
+        let msg = browserHasGeolocation ? "O serviço de Geolocalização falhou." : "Seu navegador não suporta Geolocalização.";
+        Toast.create(msg)
+    },
+
+    getCurrentLocation(){
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+              const reverseGeocode = await MapsServices.reverseGeocode(pos);
+              const res = reverseGeocode.results[0];
+              const latLng = res.geometry.location;
+              console.log("reverse geocode: ", res, latLng)
+              /* if maps is active */
+              MapsServices.calculateDirections(latLng, true, true)
+            },
+            () => {
+              Helpers.handleLocationErrorMsg(true);
+            },
+          );
+        } else {
+          Helpers.handleLocationErrorMsg(false);
+        }
+    },
+
+    extractFromAddress(address, tag){
+
+    },
 };
