@@ -336,7 +336,7 @@ const Cardapio = (function () {
 
         document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep)));
         document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
-        document.querySelector('#btn-use-location-service').addEventListener('click', (Helpers.debounce(metodos.getCurrentLocation)));
+        document.querySelector('#btn-use-location-service').addEventListener('click', (Helpers.debounce(Helpers.getCurrentLocation)));
         document.querySelector('#endereco-label').setAttribute('data-endereco', CustomData.address.join(', '));
         document.querySelector('#link-loja-maps').href = CustomData.mapsMagLink;
         document.querySelector('#maps-embed').src = CustomData.mapsEmbed;
