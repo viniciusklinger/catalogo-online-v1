@@ -63,13 +63,13 @@ const LocalStorage = (function (){
     }
 })();
 
-
 const MapsServices = (function () {
     let renderedMap;
     let marker;
     let infoWindow;
     let directionsService;
     let geoCoder;
+    let debouncer;
 
     async function init() {
         if (renderedMap) return;
@@ -84,10 +84,10 @@ const MapsServices = (function () {
             const { Marker } = markerLibrary;
 
             const lastSessionData = LocalStorage.getParsed('deliveryData')
-            let startingPosition = (lastSessionData?.LatLng && lastSessionData?.retirar == false) ? lastSessionData?.LatLng : CustomData.storeLatLng
+            let startingPosition = lastSessionData?.latLng ? lastSessionData?.latLng : CustomData.storeLatLng
 
             renderedMap = new Map(document.getElementById("delivery-map"), {
-                zoom: (lastSessionData?.LatLng && lastSessionData.retirar == false) ? 15 : 13,
+                zoom: lastSessionData?.latLng ? 15 : 13,
                 center: startingPosition,
                 styles: [
                 {
@@ -130,18 +130,23 @@ const MapsServices = (function () {
     };
 
     function attachEvents() {
-        google.maps.event.addListener(renderedMap, 'click', function (event) {
-            let modo = document.querySelector('#modal-carrinho').getAttribute('data-modo')
-            if (modo == 2) return;
+        google.maps.event.addListener(renderedMap, 'click', async function (event) {
+            if (debouncer && (Date.now() - debouncer) < 1500 ) return;
+            debouncer = Date.now();
             marker.setPosition(event.latLng);
-            Helpers.debounce(calculateDirections(event.latLng, false, true), 1000)
+            const [directionsData, cep] = await getDirectionsData(marker.getPosition());
+            updateCardapioValues(directionsData, cep);
+            LocalStorage.update('deliveryData', {latLng: marker.getPosition()});
+
             window.setTimeout(() => {
               renderedMap.panTo(event.latLng);
             }, 400);
         });
 
-        marker.addListener("dragend", (event) => {
-            Helpers.debounce(calculateDirections(marker.getPosition()), 1000);
+        marker.addListener("dragend", async (event) => {
+            const [directionsData, cep] = await getDirectionsData(marker.getPosition());
+            updateCardapioValues(directionsData, cep);
+            LocalStorage.update('deliveryData', {latLng: marker.getPosition()});
         });
     };
 
@@ -181,37 +186,34 @@ const MapsServices = (function () {
      * @param {boolean} resetNumber - Controls whether to reset the postal code number, default is false.
      * @throws {string} Throws an error message in case of API request failure.
      */
-    async function calculateDirections(LatLng, outZoom = false, resetNumber = false) {
-        if (!directionsService) await initDirectionsService();
-        setMarkerPosition(LatLng, true, outZoom);
-        
-        const resTeste = OpenRouteServices.getDirections(LatLng);
-        console.log('openRouteDir: ', await resTeste);
+    async function getDirectionsData(LatLng, outZoom = false) {
+        return new Promise(async (resolve, reject) => {
+            if (!directionsService) await initDirectionsService();
+            
+            /* const resTeste = await OpenRouteServices.getDirections(LatLng);
+            console.log('openRouteDir: ', resTeste); */
 
-        const route = {
-            origin: CustomData.storeLatLng,
-            destination: LatLng,
-            travelMode: 'DRIVING',
-            language: '	pt-BR',
-        };
-        console.log('Fetching directions API...');
-        directionsService.route(route, function(res, status) {
-            if (status != 'OK') {
-                let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
-                Toast.create(msg, 'red', 7500);
-                throw msg
+            const route = {
+                origin: CustomData.storeLatLng,
+                destination: LatLng,
+                travelMode: 'DRIVING',
+                language: '	pt-BR',
             };
+            console.log('Fetching directions API...');
+            directionsService.route(route, function(res, status) {
+                if (status != 'OK') {
+                    let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
+                    Toast.create(msg, 'red', 7500);
+                    reject(msg);
+                };
 
-            let directionsData = res.routes[0].legs[0];
-            if (!directionsData) {
-                throw 'Directions request failed.';
-            }
-            const cep = directionsData.end_address.match(/(\d{5}-\d{3})/)[1] ?? null;
-
-            Cardapio.metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
-            Cardapio.metodos.AtualizarValoresTotais();
-            Cardapio.metodos.atualizarEndereco({cep, numero: resetNumber ? '' : null});
-            LocalStorage.update('deliveryData', {LatLng});
+                let directionsData = res?.routes[0]?.legs[0];
+                if (!directionsData) {
+                    reject('Directions request failed.');
+                }
+                const cep = directionsData.end_address.match(/(\d{5}-\d{3})/)[1] ?? null;
+                resolve([directionsData, cep]);
+            });
         });
     };
 
@@ -279,9 +281,15 @@ const MapsServices = (function () {
         }
     };
 
+    function updateCardapioValues(directionsData, cep, resetNumber = false){
+        Cardapio.metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
+        Cardapio.metodos.AtualizarValoresTotais();
+        Cardapio.metodos.atualizarEndereco({cep, numero: resetNumber ? '' : null});
+    };
+
     return {
         init,
-        calculateDirections,
+        getDirectionsData,
         setMarkerPosition,
         setMarkerProps,
         setMapProps,
@@ -308,8 +316,8 @@ const OpenRouteServices = (function () {
     
     async function getDirections(data) {
         const latlng = data.toJSON();
-        const start = `${CustomData.storeLatLng.lat},${CustomData.storeLatLng.lng}`;
-        const end = `${latlng.lat},${latlng.lng}`
+        const start = `${CustomData.storeLatLng.lng},${CustomData.storeLatLng.lat}`;
+        const end = `${latlng.lng},${latlng.lat}`
         const link = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=5b3ce3597851110001cf624821f64896b9914c479bd90fb27e88e1a7&start=${start}&end=${end}`;
         try {
             const res = await fetch(link)
@@ -329,14 +337,14 @@ const OpenRouteServices = (function () {
 
 const Cardapio = (function () {
     let meuCarrinho = LocalStorage.getParsed('meuCarrinho') ?? [];
-    let deliveryData = LocalStorage.getParsed('deliveryData') ?? {valor: 0, maxValue: false, duration: 0, retirar: false, mapa: false};
+    let deliveryData = LocalStorage.getParsed('deliveryData') ?? {value: 0, maxValue: false, duration: 0, takeout: false, dinein:false, map: false};
 
     function init() {
         metodos.obterItensCardapio();
 
         document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep)));
         document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
-        document.querySelector('#btn-use-location-service').addEventListener('click', (Helpers.debounce(Helpers.getCurrentLocation)));
+        document.querySelector('#btn-use-location-service').addEventListener('click', (Helpers.debounce(metodos.getUserLocation)));
         document.querySelector('#endereco-label').setAttribute('data-endereco', CustomData.address.join(', '));
         document.querySelector('#link-loja-maps').href = CustomData.mapsMagLink;
         document.querySelector('#maps-embed').src = CustomData.mapsEmbed;
@@ -347,7 +355,7 @@ const Cardapio = (function () {
         document.querySelector('#goto-insta-btn').href = `${CustomData.instaLink}`;
         document.querySelector('#goto-face-btn').href = `${CustomData.faceLink}`;
 
-        if (deliveryData.retirar == true) document.querySelector('#modal-carrinho').setAttribute('data-modo', 2);
+        if (deliveryData.takeout == true) document.querySelector('#modal-carrinho').setAttribute('data-modo', 2);
         if (meuCarrinho.length > 0) {
             document.querySelector('#btn-carrinho').classList.remove('hidden');
             metodos.atualizarContadorCarrinho();
@@ -356,7 +364,7 @@ const Cardapio = (function () {
             metodos.atualizarEndereco({...deliveryData.address});
             metodos.AtualizarValoresTotais();
         };
-        if (deliveryData.mapa) {
+        if (deliveryData.map) {
             document.querySelector('#modal-carrinho').setAttribute('data-mapa', 'true');
         }
     };
@@ -527,10 +535,10 @@ const Cardapio = (function () {
         AtualizarValoresTotais: () => {
             let valorCarrinho = meuCarrinho.length > 0 ? meuCarrinho.reduce((acc, e) => {return acc + (e.qtd * e.price)}, 0) : 0;
             document.querySelector('#cart-subtotal').textContent = `R$ ${valorCarrinho.toFixed(2).replace('.', ',')}`;
-            document.querySelector('#cart-total').textContent = `R$ ${(valorCarrinho + ((deliveryData.retirar == false && deliveryData.valor) ? deliveryData.valor : 0)).toFixed(2).replace('.', ',')}`;
-            document.querySelector('#cart-entrega').textContent = `+ R$ ${(deliveryData.retirar == false && deliveryData.valor) ? deliveryData.valor.toFixed(2).replace('.', ',') : (0).toFixed(2).replace('.', ',')}`;
+            document.querySelector('#cart-total').textContent = `R$ ${(valorCarrinho + ((deliveryData.takeout == false && deliveryData.value) ? deliveryData.value : 0)).toFixed(2).replace('.', ',')}`;
+            document.querySelector('#cart-entrega').textContent = `+ R$ ${(deliveryData.takeout == false && deliveryData.value) ? deliveryData.value.toFixed(2).replace('.', ',') : (0).toFixed(2).replace('.', ',')}`;
 
-            if (deliveryData.maxValue && deliveryData.retirar == false) {
+            if (deliveryData.maxValue && deliveryData.takeout == false) {
                 document.querySelector('#entrega-label').setAttribute('data-max', 'true');
             } else {
                 document.querySelector('#entrega-label').removeAttribute('data-max'); 
@@ -546,7 +554,7 @@ const Cardapio = (function () {
                     Toast.create('Sua sacola está vazia.')
                     return;
                 };
-                if(deliveryData.mapa) MapsServices.init();
+                if(deliveryData.map) MapsServices.init();
                 MapsServices.triggerGeolocationMsg();
             } else if (newEtapa == 3) {
                 let modo = document.querySelector('#modal-carrinho').getAttribute('data-modo')
@@ -584,10 +592,7 @@ const Cardapio = (function () {
                     try {
                         const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
                         const data = await res.json();
-                        document.querySelector('#data-endereco').value = data.logradouro;
-                        document.querySelector('#data-bairro').value = data.bairro;
-                        document.querySelector('#data-cidade').value = data.localidade;
-                        document.querySelector('#data-uf').value = data.uf;
+                        metodos.atualizarEndereco({endereco: data.logradouro, bairro: data.bairro, cidade: data.localidade, uf: data.uf});
 
                     } catch (e) {
                         console.error(e);
@@ -650,7 +655,7 @@ const Cardapio = (function () {
                 numero: numero,
                 complemento: complemento
             };
-            LocalStorage.update('deliveryData', deliveryData);
+            LocalStorage.set('deliveryData', deliveryData);
             return true
         },
 
@@ -690,13 +695,13 @@ const Cardapio = (function () {
                     texto += '\n*Endereço de entrega:*';
                     texto += `\n${endereco}, ${numero}, ${bairro}`;
                     texto += `\n${cidade}-${uf} / ${cep} ${complemento}`;
-                    texto += `\n\nEntrega: R$ ${deliveryData.valor.toFixed(2).replace('.', ',')}`;
+                    texto += `\n\nEntrega: R$ ${deliveryData.value.toFixed(2).replace('.', ',')}`;
                 } else {
                     texto += '\n*Endereço para retirada:*';
                     texto += `\n${CustomData.mapsMagLink}`;
                     texto += `\n${CustomData.address.join(', ')}\n`;
                 };
-                texto += `\n*Total: R$ ${(valorCarrinho + (deliveryData.retirar == false ? deliveryData.valor : 0)).toFixed(2).replace('.', ',')}*`;
+                texto += `\n*Total: R$ ${(valorCarrinho + (deliveryData.takeout == false ? deliveryData.value : 0)).toFixed(2).replace('.', ',')}*`;
 
                 let itens = '';
                 meuCarrinho.forEach((el, i) => {
@@ -753,11 +758,11 @@ const Cardapio = (function () {
             document.querySelector('#modo-entrega-label').setAttribute('data-label', mode == 1 ? 'Local de Entrega' : 'Local de Retirada');
             if (mode == 2) {
                 MapsServices.setMarkerPosition(CustomData.storeLatLng, false, true);
-                deliveryData.retirar = true;
+                deliveryData.takeout = true;
                 LocalStorage.update('deliveryData', {retirar: true, mapa: false});
                 Cardapio.metodos.AtualizarValoresTotais();
             } else {
-                deliveryData.retirar = false;
+                deliveryData.takeout = false;
                 LocalStorage.update('deliveryData', {retirar: false});
                 Cardapio.metodos.AtualizarValoresTotais();
                 MapsServices.setMarkerProps('drag', true);
@@ -769,10 +774,15 @@ const Cardapio = (function () {
 
         atualizarEndereco({cep = null, endereco = null, bairro = null, cidade = null, uf = null, numero = null, complemento = null}) {
             const campos = ['cep', 'endereco', 'bairro', 'cidade', 'uf', 'numero', 'complemento']
+            const address = {};
             campos.forEach((el, i) => {
                 let value = arguments[0][el];
-               if (value != null) document.querySelector(`#data-${el}`).value = value;
-            })
+                if (value != null) {
+                    document.querySelector(`#data-${el}`).value = value;
+                    address[el] = value;
+                }
+            });
+            LocalStorage.update("deliveryData", {address})
             if (cep) Cardapio.metodos.buscarCep();
             return;
         },
@@ -782,7 +792,11 @@ const Cardapio = (function () {
             const {endereco, numero, bairro, cidade, uf, cep} = deliveryData.address;
             const data = await OpenRouteServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
             /* const data = await MapsServices.Geocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`); */
-            MapsServices.calculateDirections(data.results[0].geometry.location, false, false);
+            MapsServices.getDirectionsData(data.results[0].geometry.location, false);
+            MapsServices.setMarkerPosition(data.results[0].geometry.location, true, outZoom);
+            Cardapio.metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
+            Cardapio.metodos.AtualizarValoresTotais();
+            Cardapio.metodos.atualizarEndereco({cep, numero: resetNumber ? '' : null});
         },
 
         /**
@@ -792,7 +806,7 @@ const Cardapio = (function () {
          */
         calcularValorEntrega(data) {
             if (!data || !data?.distance || !data?.duration) {
-                deliveryData = {...deliveryData, valor: 0, maxValue: false, duration: 0};
+                deliveryData = {...deliveryData, value: 0, maxValue: false, duration: 0};
                 LocalStorage.update('deliveryData', deliveryData);
                 return;
             };
@@ -801,22 +815,56 @@ const Cardapio = (function () {
             let duration = data.duration;
             let taxa = 0
 
-            for (const [dist, valor] of Object.entries(CustomData.deliveryFees)) {
+            for (const [dist, valor] of Object.entries(CustomData.delivery.distance.values)) {
                 if (distance < dist) {
                     taxa = valor;
                     break;
                 }
             }
-            deliveryData.valor = (distance * 2) * taxa;
+            deliveryData.value = (distance * 2) * taxa;
             deliveryData.maxValue = (distance * 2) * taxa > 25 ? true : false;
             deliveryData.duration = duration
             LocalStorage.update('deliveryData', deliveryData);
         },
 
+        async getUserLocation(){
+
+            /*
+                dois caminhos: mapa true ou mapa false
+                
+                mapa true:
+                    aproveita o mapa aberto e joga o latlng no mapa e já puxa o directionsService (economizar um request de geocode)
+
+                mapa false:
+                    joga no geocode, depois no directionsService
+                    joga direto no Directions, que já traz o valor e o endereco. se vier errado n tem problema pq de outra forma, iria fazer dois requests
+                    (geocode reverso e directions)
+            */
+
+            const pos = await Helpers.getCurrentLocation();
+            if (!pos) return;
+      
+            /* const reverseGeocode = await MapsServices.reverseGeocode(pos);
+            const res = reverseGeocode.results[0];
+            const latLng = res.geometry.location;
+            const cep = Helpers.extractFromAddressComp(res, "postal_code"); */
+            
+            const [directionsData, cep] = await MapsServices.getDirectionsData(pos, true, true);
+            metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
+            metodos.AtualizarValoresTotais();
+            metodos.atualizarEndereco({cep, numero: '', complemento: ''});
+            LocalStorage.update("deliveryData", {latLng: pos});
+
+            if (deliveryData.map == true) {
+                console.log(deliveryData)
+                MapsServices.setMarkerPosition(latLng);
+            };
+        },
+
         initMap() {
             let modalCarrinho = document.querySelector('#modal-carrinho')
             modalCarrinho.setAttribute('data-mapa', 'true');
-            LocalStorage.update('deliveryData', {mapa: true});
+            /* LocalStorage.update('deliveryData', {map: true}); */
             MapsServices.init();
 
         },
@@ -1020,31 +1068,36 @@ const Helpers = {
     },
 
     getCurrentLocation(){
-        // Try HTML5 geolocation.
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            async (position) => {
-              const pos = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-              };
-              const reverseGeocode = await MapsServices.reverseGeocode(pos);
-              const res = reverseGeocode.results[0];
-              const latLng = res.geometry.location;
-              console.log("reverse geocode: ", res, latLng)
-              /* if maps is active */
-              MapsServices.calculateDirections(latLng, true, true)
-            },
-            () => {
-              Helpers.handleLocationErrorMsg(true);
-            },
-          );
-        } else {
-          Helpers.handleLocationErrorMsg(false);
-        }
+        return new Promise((resolve, reject) => {
+            // Try HTML5 geolocation.
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const pos = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                    };
+                    resolve(pos);
+                },
+                () => {
+                    Helpers.handleLocationErrorMsg(true);
+                    reject("Erro na geolocalização");
+                },
+            );
+            } else {
+                Helpers.handleLocationErrorMsg(false);
+                reject("Geolocalização não suportada");
+            };
+        });
     },
 
-    extractFromAddress(address, tag){
-        return;
+    extractFromAddressComp(geocodeData, tag){
+        const addressComp = geocodeData.address_components;
+        for (let i = 0; i < addressComp.length; i++) {
+            if (addressComp[i].types.includes(tag)) {
+                return addressComp[i].long_name;
+            };
+        };
+        return "";
     },
 };

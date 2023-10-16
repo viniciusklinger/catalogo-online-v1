@@ -5,18 +5,19 @@ const CustomData = {
     zapHelpText: 'Olá! Sobre o cardápio online, gostaria de saber se...',
     instaLink: 'https://www.instagram.com/klinger147',
     faceLink: 'https://www.facebook.com/viniciuskg',
-    storeLatLng: { lat: -25.109664656607833, lng: -50.12425511392971, radius: 120 },
-    mapsMagLink: 'https://maps.app.goo.gl/mPvKa5kHPQwQCMGJ6',
-    mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d14452.459292524647!2d-50.1647936!3d-25.0979742!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94e81b6fb9b32d23%3A0x9c8c7fb1e16dda09!2sHot%20Rod%20Burguer!5e0!3m2!1spt-BR!2sbr!4v1696199264211!5m2!1spt-BR!2sbr',
+    storeLatLng: { lat: -24.948727873939767, lng: -53.50715402560429, radius: 120 },
+    mapsMagLink: 'https://maps.app.goo.gl/bDNti79pbtQwuD6G8',
+    mapsEmbed: 'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d226.09441385115304!2d-53.507363833487005!3d-24.94873609944442!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94f3d1dcb0209bcb%3A0xcfffec37bc01452d!2sEspetinho%20Black%20Bull!5e0!3m2!1spt-BR!2sbr!4v1697303965504!5m2!1spt-BR!2sbr',
     address: ['Rua Siqueira Campos, 1806, Uvaranas', 'Ponta Grossa - PR, 84031-030', ''],
+    address: ['Avenida da Fag, 525 esquina com, R. Tersilio Salgo - Santo Inácio', 'Cascavel - PR, 85806-096', 'Trailer virando a esquina da FAG'],
     delivery: {
         distance: {
             active: true,
             values: {
-                6: 1.6,
+                6: 1.8,
                 10: 1.4,
                 15: 1.2,
-                999: 0.95,
+                999: 0.9,
             },
         },
         zones: {
