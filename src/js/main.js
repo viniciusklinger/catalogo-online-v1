@@ -160,23 +160,6 @@ const MapsServices = (function () {
         return await geoCoder.geocode({location: latLng, region: "BR"});
     };
 
-     /**
-     * Display modal that helps user activate geolocation services
-     *
-     */
-    function triggerGeolocationMsg() {
-        const geoloc = navigator.geolocation
-        function succes(){
-            console.log('succes')
-            geoloc.clearWatch(watchId);
-        };
-        function err(){
-            console.log('err')
-            geoloc.clearWatch(watchId);
-        };
-        const watchId = geoloc.watchPosition(succes, err, {enableHighAccuracy: false, maximumAge: 0});
-    };
-
     /**
      * Calculates the distance, duration, and route information between the current location
      * and a specified destination using the Google Directions API.
@@ -295,7 +278,6 @@ const MapsServices = (function () {
         setMapProps,
         Geocode,
         toggleInfoWindow,
-        triggerGeolocationMsg,
         reverseGeocode,
     };
 
@@ -338,6 +320,7 @@ const OpenRouteServices = (function () {
 const Cardapio = (function () {
     let meuCarrinho = LocalStorage.getParsed('meuCarrinho') ?? [];
     let deliveryData = LocalStorage.getParsed('deliveryData') ?? {value: 0, maxValue: false, duration: 0, takeout: false, dinein:false, map: false};
+    /* let locationPermission; */
 
     function init() {
         metodos.obterItensCardapio();
@@ -367,7 +350,15 @@ const Cardapio = (function () {
         };
         if (deliveryData.map) {
             document.querySelector('#modal-carrinho').setAttribute('data-mapa', 'true');
-        }
+        };
+
+        /* navigator.permissions.query({ name: "geolocation" }).then((permissionStatus) => {
+            locationPermission = permissionStatus.state
+            permissionStatus.onchange = () => {
+                locationPermission = permissionStatus.state;
+            };
+        }); */
+
     };
 
     const metodos = {
@@ -556,7 +547,6 @@ const Cardapio = (function () {
                     return;
                 };
                 if(deliveryData.map) MapsServices.init();
-                MapsServices.triggerGeolocationMsg();
             } else if (newEtapa == 3) {
                 let modo = document.querySelector('#modal-carrinho').getAttribute('data-modo')
                 if (modo == 1) {
@@ -831,7 +821,7 @@ const Cardapio = (function () {
         },
 
         async getUserLocation(){
-            const pos = await Helpers.getCurrentLocation();
+            const pos = await Helpers.getGeolocation();
             if (!pos) return;
             
             const [directionsData, cep] = await MapsServices.getDirectionsData(pos, true, true);
@@ -1046,11 +1036,11 @@ const Helpers = {
     },
 
     handleLocationErrorMsg(browserHasGeolocation) {
-        let msg = browserHasGeolocation ? "O serviço de Geolocalização falhou." : "Seu navegador não suporta Geolocalização.";
+        let msg = browserHasGeolocation ? "O serviço de Geolocalização falhou ou a permissão de acesso foi negada." : "Seu navegador não suporta Geolocalização.";
         Toast.create(msg)
     },
 
-    getCurrentLocation(){
+    getGeolocation(){
         return new Promise((resolve, reject) => {
             // Try HTML5 geolocation.
             if (navigator.geolocation) {
@@ -1063,24 +1053,14 @@ const Helpers = {
                     resolve(pos);
                 },
                 () => {
-                    Helpers.handleLocationErrorMsg(true);
-                    reject("Erro na geolocalização");
+                    const msg = Helpers.handleLocationErrorMsg(true);
+                    reject(msg);
                 },
             );
             } else {
-                Helpers.handleLocationErrorMsg(false);
-                reject("Geolocalização não suportada");
+                const msg = Helpers.handleLocationErrorMsg(false);
+                reject(msg);
             };
         });
-    },
-
-    extractFromAddressComp(geocodeData, tag){
-        const addressComp = geocodeData.address_components;
-        for (let i = 0; i < addressComp.length; i++) {
-            if (addressComp[i].types.includes(tag)) {
-                return addressComp[i].long_name;
-            };
-        };
-        return "";
     },
 };
