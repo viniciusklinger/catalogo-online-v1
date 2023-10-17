@@ -338,6 +338,9 @@ const Cardapio = (function () {
         document.querySelector('#goto-zap-btn').href = `https://wa.me/${CustomData.zapNumber}?text=${encodeURI(CustomData.zapHelpText)}`;
         document.querySelector('#goto-insta-btn').href = `${CustomData.instaLink}`;
         document.querySelector('#goto-face-btn').href = `${CustomData.faceLink}`;
+        document.querySelector('#goto-zap-btn2').href = `https://wa.me/${CustomData.zapNumber}?text=${encodeURI(CustomData.zapHelpText)}`;
+        document.querySelector('#goto-insta-btn2').href = `${CustomData.instaLink}`;
+        document.querySelector('#goto-face-btn2').href = `${CustomData.faceLink}`;
 
         if (deliveryData.takeout == true) document.querySelector('#modal-carrinho').setAttribute('data-modo', 2);
         if (meuCarrinho.length > 0) {
@@ -669,7 +672,7 @@ const Cardapio = (function () {
             if (modo == 1) {
                 const {endereco, numero, bairro, cidade, uf, cep, complemento} = deliveryData.address;
                 document.querySelector('#resumo-endereco').innerHTML = (`${endereco}, ${numero}, ${bairro}`);
-                document.querySelector('#resumo-endereco-2').innerHTML = (`${cidade}-${uf} / ${cep} - ${complemento}`);
+                document.querySelector('#resumo-endereco-2').innerHTML = (`${cidade}-${uf} / ${cep}${complemento ? " - " + complemento : ""}`);
             } else {
                 document.querySelector('#resumo-endereco').innerHTML = CustomData.address[0];
                 document.querySelector('#resumo-endereco-2').innerHTML = CustomData.address[1];
@@ -737,10 +740,9 @@ const Cardapio = (function () {
         }, 
 
         handleCardExpansion: (el) => {
-
-            let viewport =  window.innerWidth;
             let renderedCards = document.querySelector('#itens-cardapio').children;
             Helpers.processNodeList(renderedCards, 'rmAttr', 'data-expand');
+            let viewport =  window.innerWidth;
 
             if (viewport < 640) {
                 el.setAttribute('data-expand', 'true');
