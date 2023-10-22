@@ -27,7 +27,6 @@ const LocalStorage = (function (){
      * @param {object} value - An object containing values to merge with the existing data.
      */
     function update(name, value) {
-        console.log('updating: ', name);
         try {
             let oldValue = getParsed(name);
             let newValue = {...oldValue, ...value };
@@ -289,7 +288,6 @@ const OpenRouteServices = (function () {
         try {
             const res = await fetch(link)
             const data = await res.json();
-            console.log('getGeocode res: ', data)
         } catch (e) {
             console.error(e);
             Toast.create('O serviço de geolocalização falhou.', 'red', 5000);
@@ -304,7 +302,6 @@ const OpenRouteServices = (function () {
         try {
             const res = await fetch(link)
             const data = await res.json();
-            console.log('getDirections res: ', data)
         } catch (e) {
             console.error(e);
             Toast.create('O serviço de cálculo de frete falhou.', 'red', 5000);
@@ -325,9 +322,9 @@ const Cardapio = (function () {
     function init() {
         metodos.obterItensCardapio();
 
-        document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep)));
+        document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep(""))));
         document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
-        document.querySelector('#data-numero').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
+        document.querySelector('#data-numero').addEventListener('input', (Helpers.debounce(metodos.handleNumero, 1000)));
         document.querySelector('#btn-use-location-service').addEventListener('click', (Helpers.debounce(metodos.getUserLocation)));
         document.querySelector('#endereco-label').setAttribute('data-endereco', CustomData.address.join(', '));
         document.querySelector('#link-loja-maps').href = CustomData.mapsMagLink;
@@ -532,7 +529,6 @@ const Cardapio = (function () {
             document.querySelector('#cart-subtotal').textContent = `R$ ${valorCarrinho.toFixed(2).replace('.', ',')}`;
             document.querySelector('#cart-total').textContent = `R$ ${(valorCarrinho + ((deliveryData.takeout == false && deliveryData.value) ? deliveryData.value : 0)).toFixed(2).replace('.', ',')}`;
             document.querySelector('#cart-entrega').textContent = `+ R$ ${(deliveryData.takeout == false && deliveryData.value) ? deliveryData.value.toFixed(2).replace('.', ',') : (0).toFixed(2).replace('.', ',')}`;
-
             if (deliveryData.maxValue && deliveryData.takeout == false) {
                 document.querySelector('#entrega-label').setAttribute('data-max', 'true');
             } else {
@@ -588,7 +584,6 @@ const Cardapio = (function () {
                     try {
                         const res = await fetch(`https://viacep.com.br/ws/${formattedCep}/json/`)
                         const data = await res.json();
-                        console.log("data: ", data);
                         metodos.atualizarEndereco({endereco: data.logradouro, bairro: data.bairro, cidade: data.localidade, uf: data.uf, cep: rawCep, complemento: "", numero: ""});
 
                     } catch (e) {
@@ -654,6 +649,25 @@ const Cardapio = (function () {
             };
             LocalStorage.update('deliveryData', deliveryData);
             return true
+        },
+
+        handleNumero: async () => {
+            if (!metodos.validarEndereco()) return;
+            const {endereco, numero, bairro, cidade, uf, cep} = deliveryData.address;
+            /* const data = await OpenRouteServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`); */
+            const geocodeData = await MapsServices.Geocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
+            const latLng = geocodeData ? geocodeData.results[0].geometry.location : null;
+            if (!latLng) {
+                Toast.create('Erro, local não encontrato. Por favor, tente novamente.', 'red', 2500)
+            }
+            const [directionsData, cep2] = await MapsServices.getDirectionsData(latLng, true, true);
+            metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
+            metodos.AtualizarValoresTotais();
+            LocalStorage.update("deliveryData", {latLng: latLng});
+
+            if (deliveryData.map == true) {
+                MapsServices.setMarkerPosition(latLng);
+            };
         },
 
         carregarResumo: () => {
