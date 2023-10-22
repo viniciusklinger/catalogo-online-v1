@@ -322,7 +322,7 @@ const Cardapio = (function () {
     function init() {
         metodos.obterItensCardapio();
 
-        document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep(""))));
+        document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep)));
         document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
         document.querySelector('#data-numero').addEventListener('input', (Helpers.debounce(metodos.handleNumero, 1000)));
         document.querySelector('#btn-use-location-service').addEventListener('click', (Helpers.debounce(metodos.getUserLocation)));
@@ -574,7 +574,7 @@ const Cardapio = (function () {
         },
 
         buscarCep: async (cep = "") => {
-            const rawCep = cep != "" ? cep : document.querySelector('#data-cep').value.trim();
+            const rawCep = typeof cep == 'object' ? document.querySelector('#data-cep').value.trim() : cep;
             const formattedCep = rawCep.replace(/\D/g, '');
 
             if (formattedCep != "") {
