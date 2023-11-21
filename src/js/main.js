@@ -168,7 +168,7 @@ const MapsServices = (function () {
      * @param {boolean} resetNumber - Controls whether to reset the postal code number, default is false.
      * @throws {string} Throws an error message in case of API request failure.
      */
-    async function getDirectionsData(LatLng, outZoom = false) {
+    async function getDirectionsData(LatLng) {
         return new Promise(async (resolve, reject) => {
             if (!directionsService) await initDirectionsService();
             
@@ -181,7 +181,6 @@ const MapsServices = (function () {
                 travelMode: 'DRIVING',
                 language: '	pt-BR',
             };
-            console.log('Fetching directions API...');
             directionsService.route(route, function(res, status) {
                 if (status != 'OK') {
                     let msg = status == 'OVER_QUERY_LIMIT' ? 'Este recurso foi temporariamente bloqueado. Preencha os campos manualmente ou aguarde alguns minutos para usar novamente.' : status;
@@ -263,7 +262,7 @@ const MapsServices = (function () {
         }
     };
 
-    function updateCardapioValues(directionsData, cep, resetNumber = false){
+    function updateCardapioValues(directionsData, cep){
         Cardapio.metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
         Cardapio.metodos.AtualizarValoresTotais();
         Cardapio.metodos.buscarCep(cep);
@@ -324,7 +323,9 @@ const Cardapio = (function () {
 
         document.querySelector('#data-cep').addEventListener('input', (Helpers.debounce(metodos.buscarCep)));
         document.querySelector('#data-complemento').addEventListener('input', (Helpers.debounce(metodos.validarEndereco, 1000)));
-        document.querySelector('#data-numero').addEventListener('input', (Helpers.debounce(metodos.handleNumero, 1000)));
+        document.querySelector('#data-numero').addEventListener('input', (Helpers.debounce(metodos.handleAddressSubmission, 1000)));
+        document.querySelector('#data-bairro').addEventListener('input', (Helpers.debounce(metodos.handleAddressSubmission, 1000)));
+        document.querySelector('#data-endereco').addEventListener('input', (Helpers.debounce(metodos.handleAddressSubmission, 1000)));
         document.querySelector('#btn-use-location-service').addEventListener('click', (Helpers.debounce(metodos.getUserLocation)));
         document.querySelector('#endereco-label').setAttribute('data-endereco', CustomData.address.join(', '));
         document.querySelector('#link-loja-maps').href = CustomData.mapsMagLink;
@@ -381,7 +382,8 @@ const Cardapio = (function () {
                 .replace(/\${nome}/g, e.name)
                 .replace(/\${preco}/g, e.price.toFixed(2).replace('.', ','))
                 .replace(/\${id}/g, e.id)
-                .replace(/\${ing-item}/g, ings)
+                .replace(/\${desc-item}/g, e.dsc)
+                .replace(/\${ing-item}/g, ings);
 
                 // botão ver mais foi clicado (+4 itens)
                 if (vermais && i >= count && i < count + step) {
@@ -597,7 +599,7 @@ const Cardapio = (function () {
 
         },
 
-        validarEndereco: () => {
+        validarEndereco: (skipToast = false) => {
             let cep = document.querySelector('#data-cep').value.trim();
             let endereco = document.querySelector('#data-endereco').value.trim();
             let bairro = document.querySelector('#data-bairro').value.trim();
@@ -607,34 +609,46 @@ const Cardapio = (function () {
             let complemento = document.querySelector('#data-complemento').value.trim();
 
             if (cep.length <= 0) {
-                Toast.create('Informe o CEP, por favor.');
                 document.querySelector('#data-cep').focus();
+                if (!skipToast) {
+                    Toast.create('Informe o CEP, por favor.');
+                }
                 return false;
             }
             if (endereco.length <= 0) {
-                Toast.create('Informe a Rua, por favor.');
                 document.querySelector('#data-endereco').focus();
+                if (!skipToast) {
+                    Toast.create('Informe a Rua, por favor.');
+                }
                 return false;
             }
             if (bairro.length <= 0) {
-                Toast.create('Informe o Bairro, por favor.');
                 document.querySelector('#data-bairro').focus();
+                if (!skipToast) {
+                    Toast.create('Informe o Bairro, por favor.');
+                }
                 return false;
             }
             /* if (cidade.length <= 0) {
-                Toast.create('Informe a Cidade, por favor.');
                 document.querySelector('#data-cidade').focus();
+                if (!skipToast) {
+                    Toast.create('Informe a Cidade, por favor.');
+                }
                 return false;
             }
             if (uf == "-1") {
-                Toast.create('Informe a UF, por favor.');
                 document.querySelector('#data-uf').focus();
+                if (!skipToast) {
+                    Toast.create('Informe a UF, por favor.');
+                }
                 return false;
             } */
 
             if (numero.length <= 0) {
-                Toast.create('Informe o Número, por favor.');
                 document.querySelector('#data-numero').focus();
+                if (!skipToast) {
+                    Toast.create('Informe o Número, por favor.');
+                }
                 return false;
             }
 
@@ -651,23 +665,31 @@ const Cardapio = (function () {
             return true
         },
 
-        handleNumero: async () => {
-            if (!metodos.validarEndereco()) return;
-            const {endereco, numero, bairro, cidade, uf, cep} = deliveryData.address;
-            /* const data = await OpenRouteServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`); */
-            const geocodeData = await MapsServices.Geocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
-            const latLng = geocodeData ? geocodeData.results[0].geometry.location : null;
-            if (!latLng) {
-                Toast.create('Erro, local não encontrato. Por favor, tente novamente.', 'red', 2500)
-            }
-            const [directionsData, cep2] = await MapsServices.getDirectionsData(latLng, true, true);
-            metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
-            metodos.AtualizarValoresTotais();
-            LocalStorage.update("deliveryData", {latLng: latLng});
+        handleAddressSubmission: async () => {
+            if (!metodos.validarEndereco(true)) return;
 
-            if (deliveryData.map == true) {
-                MapsServices.setMarkerPosition(latLng);
-            };
+            document.querySelector('#entrega-label').setAttribute('data-loading', 'true');
+            try {
+                const {endereco, numero, bairro, cidade, uf, cep} = deliveryData.address;
+                /* const data = await OpenRouteServices.getGeocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`); */
+                const geocodeData = await MapsServices.Geocode(`${endereco}, ${numero}, ${bairro} - ${cidade}, ${uf} ${cep}`);
+                const latLng = geocodeData ? geocodeData.results[0].geometry.location : null;
+                if (!latLng) {
+                    Toast.create('Erro, local não encontrato. Por favor, tente novamente.', 'red', 2500)
+                    throw 'Erro, local não encontrato. Por favor, tente novamente.';
+                }
+                const [directionsData, cep2] = await MapsServices.getDirectionsData(latLng, true, true);
+                metodos.calcularValorEntrega({distance: directionsData.distance.value, duration: directionsData.duration.value});
+                metodos.AtualizarValoresTotais();
+                LocalStorage.update("deliveryData", {latLng: latLng});
+
+                if (deliveryData.map == true) {
+                    MapsServices.setMarkerPosition(latLng);
+                };
+
+            } finally {
+                document.querySelector('#entrega-label').removeAttribute('data-loading'); 
+            }
         },
 
         carregarResumo: () => {
@@ -867,7 +889,10 @@ const Cardapio = (function () {
                 </div>
                 <div class="self-start p-2 flex flex-col w-full group-data-[expand=true]:xs:text-center group-data-[expand=true]:items-center sm:group-hover:text-center sm:group-hover:items-center">
                     <h3 class="font-semibold text-xl line-clamp-1 sm:text-center group-data-[expand=true]:text-center sm:group-hover:text-center" title="\${nome}">\${nome}</h3>
-                    <ul class="hidden text-left overflow-y-auto text-[#7d7d7d] text-sm font-semibold list-disc list-inside m-3 group-data-[expand=true]:block sm:group-hover:block min-w-[220px] xs:min-w-[250px] sm:min-w-full max-w-[250px] xs:max-w-[280px] max-h-[140px] xs:max-h-[234px] sm:h-[208px]">
+                    <p class="hidden text-center text-sm font-medium m-1 group-data-[expand=true]:block sm:group-hover:block">
+                        \${desc-item}
+                    </p>
+                    <ul class="hidden text-left overflow-y-auto text-[#7d7d7d] text-sm font-semibold list-disc list-inside m-3 group-data-[expand=true]:block sm:group-hover:block min-w-[220px] xs:min-w-[250px] sm:min-w-full max-w-[250px] xs:max-w-[280px] max-h-[100px] xs:max-h-[190px] sm:h-[160px]">
                         \${ing-item}
                     </ul>
                     <p class="font-bold text-lg xs:text-xl sm:text-2xl text-primary group-data-[expand=true]:text-center sm:group-hover:text-center sm:text-center">R$ \${preco}</p>

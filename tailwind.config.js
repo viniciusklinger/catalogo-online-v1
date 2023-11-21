@@ -18,12 +18,12 @@ module.exports = {
         pop: ['Poppins', 'sans-serif'],
       },
       backgroundImage: {
-        'burger': "url(./src/imgs/burguer-bg.png)",
-        'fruits-2': "url(./src/imgs/bg-2.png)",
-        'fruits-1': "url(./src/imgs/bg-1.png)",
-        'star': "url(./src/imgs/icon/star.png)",
-        'h-star': "url(./src/imgs/icon/h-star.png)",
-        'quote': "url(./src/imgs/icon/quote.png)",
+        'burger': "url(/src/imgs/burguer-bg.png)",
+        'fruits-2': "url(/src/imgs/bg-2.png)",
+        'fruits-1': "url(/src/imgs/bg-1.png)",
+        'star': "url(/src/imgs/icon/star.png)",
+        'h-star': "url(/src/imgs/icon/h-star.png)",
+        'quote': "url(/src/imgs/icon/quote.png)",
       }
     },
     letterSpacing: {

@@ -167,7 +167,7 @@ const MenuLoja = {
             "id": "the-gramercy-tavern-burger-4-pack",
             "img": "./imgs/cardapio/burguers/Gramercy-Tavern-Burger-and-Kielbasa-Kit-6.4.21-72ppi-1x1-15.jpg",
             "name": "Gramercy Tavern 1",
-            "dsc": "The Gramercy Tavern Burger - 4 Pack",
+            "dsc": "The Gramercy Tavern Burger o melhor e maior hamburguer de todos os tempos! - 4 Pack",
             "price": 20,
             "ings": ["Pão de gergilim", "Burguer 250g", "Molho especial", "Ketchup Heinz"],
         },
@@ -289,85 +289,85 @@ const MenuLoja = {
             "id": "15259-german-chocolate-killer-brownie-tin-pack",
             "img": "./imgs/cardapio/sobremesas/german-chocolate-killer-brownie-tin-pack.5ebc34160f28767a9d94c4da2e04c4b9.jpg",
             "name": "Killer Brownie®",
-            "dsc": "German Chocolate Killer Brownie®",
-            "price": 39.99
+            "dsc": "Brownie de chocolate alemão Killer Brownie®",
+            "price": 39.99,
         },
         {
             "id": "jacques-world-famous-chocolate-chip-cookies",
             "img": "./imgs/cardapio/sobremesas/jacques-world-famous-chocolate-chip-cookies-6-pack.2217a14c443602493bba88aa9335319a.jpg",
             "name": "Jacques Torres Chocolate",
-            "dsc": "Jacques' World Famous Chocolate Chip Cookies - 6 Pack",
-            "price": 39.95
+            "dsc": "Famosos cookies de chocolate Jacques - 6 un",
+            "price": 39.95,
         },
         {
             "id": "luigis-original-cannoli-pie",
             "img": "./imgs/cardapio/sobremesas/original-cannoli-pie.4cb5b9ba82f57b69b90765fd9f07aa1a.jpg",
             "name": "The Cannoli Pie Company",
-            "dsc": "Original Cannoli Pie",
-            "price": 69
+            "dsc": "A original torta Cannoli Pie",
+            "price": 69,
         },
         {
             "id": "sea-salted-caramel-swirl-cheesecake",
             "img": "./imgs/cardapio/sobremesas/sea-salted-caramel-swirl-cheesecake.e2825335433fb7a272a5d77649a6849e.jpg",
             "name": "Cotton Blues Cheesecake Company",
-            "dsc": "Sea-Salted Caramel Swirl Cheesecake",
-            "price": 65
+            "dsc": "Cheesecake de caramelo",
+            "price": 65,
         },
         {
             "id": "brooklyn-blackout-cookie-brownie-combo-pack-2-tins",
             "img": "./imgs/cardapio/sobremesas/brooklyn-blackout-cookie-brownie-combo-pack-2-tins.d8805325baf6b23b4f01d119dc4531a7.jpg",
             "name": "Brooklyn Blackout Company",
-            "dsc": "Brooklyn Blackout Cookie + Brownie Combo Pack - 2 Tins",
-            "price": 89
+            "dsc": "Cookie Brooklyn Blackout + Brownie - 2 latas",
+            "price": 89,
         },
         {
             "id": "best-seller-cupcake-dozen",
             "img": "./imgs/cardapio/sobremesas/best-seller-cupcake-dozen.f93b21993f6a2da11c975d45b9b0d08f.jpg",
             "name": "Crave Cupcakes",
-            "dsc": "Best Seller Cupcake Dozen",
-            "price": 89
+            "dsc": "Bolo de pote mais vendido",
+            "price": 89,
         },
         {
             "id": "choose-your-own-ice-cream-donuts-6-pack",
             "img": "./imgs/cardapio/sobremesas/choose-your-own-ice-cream-donuts-6-pack.24d0b44765a7c54237fcd7ea9d9d8093.jpg",
             "name": "Elegant Desserts",
-            "dsc": "Choose Your Own Ice Cream Donuts - 6 Pack",
-            "price": 69
+            "dsc": "Escolha os seus donuts de sorvete - 6 un",
+            "price": 69,
         },
         {
             "id": "17481-jewish-dessert-3-pack",
             "img": "./imgs/cardapio/sobremesas/jewish-classics-dessert-pack.7d4b76630f2fe75dcb7bbcf2501b7390.jpg",
             "name": "Ess-a-Bagel",
-            "dsc": "Jewish Classics Dessert Pack",
-            "price": 89.95
+            "dsc": "Clássico pacote de sobremesas Suíça",
+            "price": 89.95,
         },
         {
             "id": "dessert-bar-care-package",
             "img": "./imgs/cardapio/sobremesas/dessert-bar-care-package.324aa28fe98c9dc67b75aac43376902e.jpg",
             "name": "Bread and Roses Bakery",
             "dsc": "Dessert Bar Care Package",
-            "price": 65
+            "price": 65,
         },
         {
             "id": "donut-cookies-12-pack",
             "img": "./imgs/cardapio/sobremesas/donut-cookies-12-pack.46f42c61c4a79fd2051a99b2f23e890e.jpg",
             "name": "Stan's Donuts",
-            "dsc": "Donut Cookies - 12 Pack",
-            "price": 49
+            "dsc": "Cookies - 12 un",
+            "price": 49,
         },
         {
             "id": "gulab-jamun-ice-cream-cakes-2-pack",
             "img": "./imgs/cardapio/sobremesas/gulab-jamun-ice-cream-cakes-2-pack.c45b4d0750ad22d741f84dc1f26d20e7.jpg",
             "name": "Malai Ice Cream",
-            "dsc": "Gulab Jamun Ice Cream Cakes - 2 Pack",
-            "price": 79
+            "dsc": "Bolo de sorvete Gulab Jamun - 2 un",
+            "price": 79,
         },
         {
             "id": "jacques-world-famous-chocolate-chip-cookies-12-pack",
             "img": "./imgs/cardapio/sobremesas/jacques-world-famous-chocolate-chip-cookies-12-pack.3b373bdd67cd25084182c21499f675d1.jpg",
             "name": "Jacques Torres Chocolate",
-            "dsc": "Jacques' World Famous Chocolate Chip Cookies - 12 Pack",
-            "price": 69.95
+            "dsc": "Chips de chocolate da marca mundialmente famosa Jacques' - 12 un",
+            "price": 69.95,
         }
     ],
     "bebidas": [
